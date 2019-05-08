@@ -1,11 +1,11 @@
 import assert = require("assert");
-import sm = require("../../src/sunaba/Machine");
+import Machine from "../../src/sunaba/Machine";
 
 suite('sunaba.Machine', () => {
-    let machine:sm.sunaba.Machine;
+    let machine:Machine;
 
     setup(() => {
-        machine = new sm.sunaba.Machine();
+        machine = new Machine();
     });
 
     teardown(() => {
