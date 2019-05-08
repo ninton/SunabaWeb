@@ -15,6 +15,7 @@ const IO_WRITABLE_BEGIN = IO_BASE + IO_WRITABLE_OFFSET;
 
 export default class Machine {
     VRAM_BASE:      number;
+    STACK_BASE:     number;
 
     program:        Array<any>;
     memory:         Array<number>;
@@ -24,7 +25,8 @@ export default class Machine {
     vramDrawer:     Function;
 
     constructor() {
-        this.VRAM_BASE = VRAM_BASE;
+        this.VRAM_BASE  = VRAM_BASE;
+        this.STACK_BASE = STACK_BASE;
 
         this.program        = [];
         this.memory         = [];
@@ -124,6 +126,26 @@ export default class Machine {
             case 'st':
                 this.step_st(cmd);
                 break;
+
+            case 'j':
+                this.step_j(cmd);
+                break;
+
+            case 'bz':
+                this.step_bz(cmd);
+                break;
+
+            case 'call':
+                this.step_call(cmd);
+                break;
+
+            case 'ret':
+                this.step_ret(cmd);
+                break;
+
+            case 'pop':
+                this.step_pop(cmd);
+                break;
             }
         }
 
@@ -216,6 +238,37 @@ export default class Machine {
         this.programCounter += 1;
     }
 
+    public step_j(cmd:any) {
+        this.programCounter = cmd.imm;
+    }
+
+    public step_bz(cmd:any) {
+        const op0 = this.pop();
+        if (op0 === 0) {
+            this.programCounter = cmd.imm;
+        } else {
+            this.programCounter += 1;
+        }
+    }
+
+    public step_call(cmd:any) {
+        this.push(this.framePointer);
+        this.push(this.programCounter);
+        this.framePointer = this.stackPointer;
+        this.programCounter = cmd.imm;
+    }
+
+    public step_ret(cmd:any) {
+        this.popN(cmd.imm);
+        this.programCounter = this.pop();
+        this.framePointer = this.pop();
+    }
+
+    public step_pop(cmd:any) {
+        this.popN(cmd.imm);
+        this.programCounter += 1;
+    }
+
     public getStack(): Array<number> {
         const stack = [];
         for (let i = 0; i < this.stackPointer - STACK_BASE; i += 1) {
@@ -237,5 +290,17 @@ export default class Machine {
 
     public setVramDrawer(drawer: Function) {
         this.vramDrawer = drawer;
+    }
+
+    public getProgramCounter(): number {
+        return this.programCounter;
+    }
+
+    public getStackPointer(): number {
+        return this.stackPointer;
+    }
+
+    public getFramePointer(): number {
+        return this.framePointer;
     }
 }

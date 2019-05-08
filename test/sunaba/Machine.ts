@@ -345,4 +345,168 @@ suite('sunaba.Machine', () => {
         assert.equal(0, machine.getStack().length);
         assert.equal(123, machine.loadMemory(102));
     });
+
+    test('j', () => {
+        const program = [
+            {
+                name: 'i',
+                imm: 123
+            },
+            {
+                name: 'i',
+                imm: 100
+            },
+            {
+                name: 'st',
+                imm: 2
+            },
+            {
+                name: 'j',
+                imm: 1
+            }
+        ];
+
+        machine.loadProgram(program);
+        machine.step();
+        machine.step();
+        machine.step();
+        assert.equal(3, machine.getProgramCounter());
+
+        machine.step();
+        assert.equal(1, machine.getProgramCounter());
+    });
+
+    test('bz 0', () => {
+        const program = [
+            {
+                name: 'i',
+                imm: 0
+            },
+            {
+                name: 'bz',
+                imm: 100
+            }
+        ];
+
+        machine.loadProgram(program);
+        machine.step();
+        assert.equal(1, machine.getProgramCounter());
+
+        machine.step();
+        assert.equal(100, machine.getProgramCounter());
+    });
+
+    test('bz !0', () => {
+        const program = [
+            {
+                name: 'i',
+                imm: 1
+            },
+            {
+                name: 'bz',
+                imm: 100
+            }
+        ];
+
+        machine.loadProgram(program);
+        machine.step();
+        assert.equal(1, machine.getProgramCounter());
+
+        machine.step();
+        assert.equal(2, machine.getProgramCounter());
+    });
+
+    test('pop', () => {
+        const program = [
+            {
+                name: 'i',
+                imm: 1
+            },
+            {
+                name: 'i',
+                imm: 2
+            },
+            {
+                name: 'i',
+                imm: 3
+            },
+            {
+                name: 'pop',
+                imm: 1
+            },
+        ];
+
+        machine.loadProgram(program);
+        machine.step();
+        machine.step();
+        machine.step();
+
+        assert.equal(machine.STACK_BASE + 3, machine.getStackPointer());
+
+        machine.step();
+        assert.equal(machine.STACK_BASE + 2, machine.getStackPointer());
+    });
+
+    test('call', () => {
+        const program = [
+            {
+                name: 'i',
+                imm: 1
+            },
+            {
+                name: 'call',
+                imm: 123
+            },
+        ];
+
+        machine.loadProgram(program);
+        machine.step();
+        machine.step();
+
+        const stack = machine.getStack();
+        assert.equal(1, stack[0]);
+        assert.equal(0, stack[1]);
+        assert.equal(1, stack[2]);
+
+        assert.equal(machine.STACK_BASE + 3, machine.getFramePointer());
+        assert.equal(123, machine.getProgramCounter());
+    });
+
+    test('ret', () => {
+        const program = [
+            {
+                name: 'i',
+                imm: 11
+            },
+            {
+                name: 'i',
+                imm: 22
+            },
+            {
+                name: 'i',
+                imm: 33
+            },
+            {
+                name: 'i',
+                imm: 44
+            },
+            {
+                name: 'ret',
+                imm: 2
+            },
+        ];
+
+        machine.loadProgram(program);
+        machine.step();
+        machine.step();
+        machine.step();
+        machine.step();
+        machine.step();
+
+        const stack = machine.getStack();
+        assert.equal(0, stack.length);
+
+        assert.equal(22, machine.getProgramCounter());
+        assert.equal(11, machine.getFramePointer());
+    });
 });
