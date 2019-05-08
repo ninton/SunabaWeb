@@ -1,0 +1,16 @@
+/*
+    xxxxxx
+*/
+memory[60000] -> 0
+/*
+    /* xxxx */
+*/
+memory[60000] -> 1
+/*
+    /* xxxx
+*/
+memory[60000] -> 2
+/*
+    xxxx */
+*/
+memory[60000] -> 3

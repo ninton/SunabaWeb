@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/sprintf-js": "^1.1.2",
+    "fs": "0.0.1-security",
     "mocha": "^6.1.4",
     "sprintf-js": "^1.1.2"
   },
