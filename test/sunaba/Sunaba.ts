@@ -9,6 +9,29 @@ suite('sunaba.Compiler', () => {
     teardown(() => {
     });
 
+    test('isInName', () => {
+        assert.equal(true, Sunaba.isInName("a"));
+        assert.equal(true, Sunaba.isInName("z"));
+        assert.equal(true, Sunaba.isInName("A"));
+        assert.equal(true, Sunaba.isInName("Z"));
+        assert.equal(true, Sunaba.isInName("0"));
+        assert.equal(true, Sunaba.isInName("9"));
+
+        assert.equal(true, Sunaba.isInName("@"));
+        assert.equal(true, Sunaba.isInName("$"));
+        assert.equal(true, Sunaba.isInName("&"));
+        assert.equal(true, Sunaba.isInName("?"));
+        assert.equal(true, Sunaba.isInName("_"));
+        assert.equal(true, Sunaba.isInName("'"));
+
+        assert.equal(true, Sunaba.isInName("≤"));
+        assert.equal(true, Sunaba.isInName("あ"));
+        assert.equal(true, Sunaba.isInName("０"));
+        assert.equal(true, Sunaba.isInName("→"));
+
+        assert.equal(false, Sunaba.isInName("<"));
+    });
+
     test('readInstruction', () => {
         const table = [
             'i', 'add', 'sub', 'mul', 'div', 'lt', 'le', 'eq', 'ne',
