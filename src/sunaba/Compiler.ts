@@ -9,6 +9,10 @@ export default class Compiler {
         s = this.unifyOperator(s);
         s = this.removeSingleLineComment(s);
         s = this.removeMultiLineComment(s);
+
+        const locale = Sunaba.locales.japanese;
+        let result:any = this.tokenize(s, locale);
+        result = this.structurize(result.tokens);
     }
 
     public unifySpace(code:string): string {
@@ -226,7 +230,7 @@ export default class Compiler {
         return s;
     }
 
-    public tokenize(code:string, loc:any) {
+    public tokenize(code:string, loc:any): any {
         //トークン分解
         /*
         [モード]
@@ -256,7 +260,7 @@ export default class Compiler {
                     begin = i + 1; //開始
                     line += 1;
                 } else { //行頭を出力
-                    tokens.push({type:'LINE_BEGIN', line:line, number:l}; //numberに空白数を入れる
+                    tokens.push({type:'LINE_BEGIN', line:line, number:l}); //numberに空白数を入れる
                     mode = 1;
                     advance = false; //この文字もう一度
                 }
@@ -327,7 +331,7 @@ export default class Compiler {
                                 msg = 'プラスマイナス' + Sunaba.MAX_ABS_NUMBER + 'の範囲しか使えません。';
                                 break;
                             } else {
-                                tokens.push({type:'NUMBER', number:number, string:str, line:line};
+                                tokens.push({type:'NUMBER', number:number, string:str, line:line});
                             }
                         } else { //キーワードでも数字でもないので名前
                             tokens.push({type:'NAME', string:str, line:line});
@@ -347,5 +351,94 @@ export default class Compiler {
         tokens.push({type:'END', string:"", line:line});
         return {tokens:tokens, errorMessage:msg};
     }
- 
+
+    public structurize(tokens:Array<any>): any {
+        let r:Array<any> = [];
+        let spaceCountStack = [0];
+        let spaceCountStackPos:number = 1;
+        let parenLevel:number = 0;
+        let braceLevel:number = 0;
+        let msg = null;
+        let prevT = null;
+        let emptyLine = true; //最初は空
+
+        for (let i = 0; i < tokens.length; i += 1) {
+            let t = tokens[i];
+            if (t.type === '(') {
+                parenLevel += 1;
+            } else if (t.type === ')') {
+                parenLevel -= 1;
+                if (parenLevel < 0) {
+                    msg = '行' + t.line + ': )が(より多い。';
+                    break;
+                }
+            } else if (t.type === '[') {
+                braceLevel += 1;
+            } else if (t.type === ']') {
+                braceLevel -= 1;
+                if (braceLevel < 0) {
+                    msg = '行' + t.line + ': ]が[より多い。';
+                    break;
+                }
+            }
+
+            if (t.type === 'LINE_BEGIN') { //行頭
+                let prevIsOp = false; //前のトークンは演算子か代入か？
+                if ((prevT !== null) && ((prevT.type === 'OPERATOR') || (prevT.type === '→'))) {
+                    prevIsOp = true;
+                }
+
+                //()や[]の中におらず、前のトークンが演算子や代入記号でなければ、
+                if ((parenLevel === 0) && (braceLevel === 0) && (!prevIsOp)) {
+                    let newCount = t.number;
+                    let oldCount = spaceCountStack[spaceCountStackPos - 1];
+                    if (newCount > oldCount) { //増えた
+                        spaceCountStack[spaceCountStackPos] = newCount;
+                        spaceCountStackPos += 1;
+                        r.push({type:'{', string:'{', line:t.line});
+                    } else if (newCount === oldCount) {
+                        if (!emptyLine) { //空行でなければ
+                        r.push({type:';', string:';', line:t.line});
+                        emptyLine = true;
+                        }
+                    } else{ //newCount < oldCount
+                        if (!emptyLine) { //空行でなければ
+                            r.push({type:';', string:';', line:t.line});
+                            emptyLine = true;
+                        }
+                        while (newCount < oldCount) { //ずれてる間回す
+                            spaceCountStackPos -= 1;
+                            if (spaceCountStackPos < 1) { //ありえない
+                                throw 'BUG';
+                            }
+                            oldCount = spaceCountStack[spaceCountStackPos - 1];
+                            r.push({type:'}', string:'}', line:t.line});
+                        }
+
+                        if (newCount != oldCount) { //ずれている
+                            msg = '行' + t.line + ': 字下げが不正。ずれてるよ。前の深さに合わせてね。';
+                            break;
+                        }
+                    }
+                }
+            } else {
+                r.push(t);; //そのまま移植
+                emptyLine = false; //空行ではなくなった
+            }
+            prevT = t;
+        }
+
+        if (!emptyLine) { //最後の行を終わらせる
+            r.push({type:';', string:';', line:prevT.line});
+        }
+
+        //ブロック終了を補う
+        while (spaceCountStackPos > 1) {
+            spaceCountStackPos -= 1;
+            r.push({type:'}', string:'}', line:prevT.line});
+        }
+
+        return {errorMessage:msg, tokens:r};
+    }
+
 }

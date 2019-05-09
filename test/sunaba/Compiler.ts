@@ -163,4 +163,175 @@ suite('sunaba.Compiler', () => {
         const actual = compiler.tokenize(code, Sunaba.locales.japanese);
         assert.deepEqual(expected, actual);
     });
+
+    test('structurize #1', () => {
+        // code = "メモリ[60000] → 999999\n";
+
+        const tokens = [
+            {type: "LINE_BEGIN", line: 1,                   number: 0     },
+            {type: "NAME"      , line: 1, string: "メモリ"                },
+            {type: "["         , line: 1, string: "["                     },
+            {type: "NUMBER"    , line: 1, string: "60000" , number: 60000 },
+            {type: "]"         , line: 1, string: "]"                     },
+            {type: "→"        , line: 1, string: "→"                    },
+            {type: "NUMBER"    , line: 1, string: "999999", number: 999999},
+            {type: "END"       , line: 2, string: ""                      }
+        ];
+        const expected = {
+            tokens: [
+                {type: "NAME"      , line: 1, string: "メモリ"                },
+                {type: "["         , line: 1, string: "["                     },
+                {type: "NUMBER"    , line: 1, string: "60000" , number: 60000 },
+                {type: "]"         , line: 1, string: "]"                     },
+                {type: "→"        , line: 1, string: "→"                    },
+                {type: "NUMBER"    , line: 1, string: "999999", number: 999999},
+                {type: "END"       , line: 2, string: ""                      },
+                {type: ";"         , line: 2, string: ";"                     }
+            ],
+            errorMessage: null
+        };
+
+        const actual = compiler.structurize(tokens);
+        assert.deepEqual(expected, actual);
+    });
+
+    test('structurize #2', () => {
+        // const code = "メモリ[60000] → (1 + 3) * 2\n";
+        const tokens = [
+            {type: "LINE_BEGIN", line: 1,                   number: 0     },
+            {type: "NAME"      , line: 1, string: "メモリ"                },
+            {type: "["         , line: 1, string: "["                     },
+            {type: "NUMBER"    , line: 1, string: "60000" , number: 60000 },
+            {type: "]"         , line: 1, string: "]"                     },
+            {type: "→"        , line: 1, string: "→"                    },
+            {type: "("         , line: 1, string: "("                     },
+            {type: "NUMBER"    , line: 1, string: "1"     , number: 1     },
+            {type: "OPERATOR"  , line: 1, string: "+"     , operator: "+" },
+            {type: "NUMBER"    , line: 1, string: "3"     , number: 3     },
+            {type: ")"         , line: 1, string: ")"                     },
+            {type: "OPERATOR"  , line: 1, string: "*"     , operator: "*" },
+            {type: "NUMBER"    , line: 1, string: "2"     , number: 2     },
+            {type: "END"       , line: 2, string: ""                      }
+        ];
+        const expected = {
+            tokens: [
+                {type: "NAME"      , line: 1, string: "メモリ"                },
+                {type: "["         , line: 1, string: "["                     },
+                {type: "NUMBER"    , line: 1, string: "60000" , number: 60000 },
+                {type: "]"         , line: 1, string: "]"                     },
+                {type: "→"        , line: 1, string: "→"                    },
+                {type: "("         , line: 1, string: "("                     },
+                {type: "NUMBER"    , line: 1, string: "1"     , number: 1     },
+                {type: "OPERATOR"  , line: 1, string: "+"     , operator: "+" },
+                {type: "NUMBER"    , line: 1, string: "3"     , number: 3     },
+                {type: ")"         , line: 1, string: ")"                     },
+                {type: "OPERATOR"  , line: 1, string: "*"     , operator: "*" },
+                {type: "NUMBER"    , line: 1, string: "2"     , number: 2     },
+                {type: "END"       , line: 2, string: ""                      },
+                {type: ";"         , line: 2, string: ";"                     }
+            ],
+            errorMessage: null
+        };
+
+        const actual = compiler.structurize(tokens);
+        assert.deepEqual(expected, actual);
+    });
+
+    test('structurize #3', () => {
+        // const code = "メモリ[60000] = 1 なら\n";
+        const tokens = [
+            {type: "LINE_BEGIN", line: 1,                   number: 0     },
+            {type: "NAME"      , line: 1, string: "メモリ"                },
+            {type: "["         , line: 1, string: "["                     },
+            {type: "NUMBER"    , line: 1, string: "60000" , number: 60000 },
+            {type: "]"         , line: 1, string: "]"                     },
+            {type: "OPERATOR"  , line: 1, string: "="     , operator: "=" },
+            {type: "NUMBER"    , line: 1, string: "1"     , number: 1     },
+            {type: "IF_POST"   , line: 1, string: "なら"                  },
+            {type: "END"       , line: 2, string: ""                      }
+        ];
+        const expected = {
+            tokens: [
+                {type: "NAME"      , line: 1, string: "メモリ"                },
+                {type: "["         , line: 1, string: "["                     },
+                {type: "NUMBER"    , line: 1, string: "60000" , number: 60000 },
+                {type: "]"         , line: 1, string: "]"                     },
+                {type: "OPERATOR"  , line: 1, string: "="     , operator: "=" },
+                {type: "NUMBER"    , line: 1, string: "1"     , number: 1     },
+                {type: "IF_POST"   , line: 1, string: "なら"                  },
+                {type: "END"       , line: 2, string: ""                      },
+                {type: ";"         , line: 2, string: ";"                     }
+            ],
+            errorMessage: null
+        };
+
+        const actual = compiler.structurize(tokens);
+        assert.deepEqual(expected, actual);
+    });
+
+    test('structurize #4', () => {
+        // const code = "メモリ[60000] = 100 な限り\n";
+        const tokens = [
+            {type: "LINE_BEGIN", line: 1,                   number: 0     },
+            {type: "NAME"      , line: 1, string: "メモリ"                },
+            {type: "["         , line: 1, string: "["                     },
+            {type: "NUMBER"    , line: 1, string: "60000" , number: 60000 },
+            {type: "]"         , line: 1, string: "]"                     },
+            {type: "OPERATOR"  , line: 1, string: "="     , operator: "=" },
+            {type: "NUMBER"    , line: 1, string: "100"   , number: 100   },
+            {type: "WHILE_POST", line: 1, string: "な限り"                },
+            {type: "END"       , line: 2, string: ""                      }
+        ];
+        const expected = {
+            tokens: [
+                {type: "NAME"      , line: 1, string: "メモリ"                },
+                {type: "["         , line: 1, string: "["                     },
+                {type: "NUMBER"    , line: 1, string: "60000" , number: 60000 },
+                {type: "]"         , line: 1, string: "]"                     },
+                {type: "OPERATOR"  , line: 1, string: "="     , operator: "=" },
+                {type: "NUMBER"    , line: 1, string: "100"   , number: 100   },
+                {type: "WHILE_POST", line: 1, string: "な限り"                },
+                {type: "END"       , line: 2, string: ""                      },
+                {type: ";"         , line: 2, string: ";"                     }
+            ],
+            errorMessage: null
+        };
+
+        const actual = compiler.structurize(tokens);
+        assert.deepEqual(expected, actual);
+    });
+
+    test('structurize #5', () => {
+        // const code = "点(縦,横) とは\n";
+        const tokens = [
+            {type: "LINE_BEGIN", line: 1,                   number: 0     },
+            {type: "NAME"      , line: 1, string: "点"                    },
+            {type: "("         , line: 1, string: "("                     },
+            {type: "NAME"      , line: 1, string: "縦"                    },
+            {type: ","         , line: 1, string: ","                     },
+            {type: "NAME"      , line: 1, string: "横"                    },
+            {type: ")"         , line: 1, string: ")"                     },
+            {type: "DEF_POST"  , line: 1, string: "とは"                  },
+            {type: "END"       , line: 2, string: ""                      }
+        ];
+        const expected = {
+            tokens: [
+                {type: "NAME"      , line: 1, string: "点"                    },
+                {type: "("         , line: 1, string: "("                     },
+                {type: "NAME"      , line: 1, string: "縦"                    },
+                {type: ","         , line: 1, string: ","                     },
+                {type: "NAME"      , line: 1, string: "横"                    },
+                {type: ")"         , line: 1, string: ")"                     },
+                {type: "DEF_POST"  , line: 1, string: "とは"                  },
+                {type: "END"       , line: 2, string: ""                      },
+                {type: ";"         , line: 2, string: ";"                     }
+            ],
+            errorMessage: null
+        };
+
+        const actual = compiler.structurize(tokens);
+        assert.deepEqual(expected, actual);
+    });
+
+
 });
