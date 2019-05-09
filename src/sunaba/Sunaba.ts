@@ -32,7 +32,7 @@ export default class Sunaba {
         (code.charCodeAt(0) >= 0x100); //マルチバイト文字は全てオーケー。半角相当品がある全角は置換済み。
     };
  
-    public static readKeyword = function(s:string, loc:any){
+    public static readKeyword = function(s:string, loc:any): string {
         var r;
         if (s === 'while') {
             r = 'WHILE_PRE';
@@ -51,7 +51,7 @@ export default class Sunaba {
         } else if ((s === 'out') || (s === loc.outWord)) {
             r = 'OUT';
         } else{
-            r = null;
+            r = '';
         }
         return r;
     };
