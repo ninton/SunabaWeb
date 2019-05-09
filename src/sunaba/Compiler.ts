@@ -1,3 +1,5 @@
+import Sunaba from './Sunaba';
+
 export default class Compiler {
     public compile(code:string) {
         let s = code;
@@ -39,7 +41,7 @@ export default class Compiler {
       
         let s:string = "";
 
-        var LOC_ARG_DELIM = "、".charCodeAt(0);
+        let LOC_ARG_DELIM = "、".charCodeAt(0);
 
         for (let i = 0; i < len; i += 1) {
             const c:number = code.charCodeAt(i);
@@ -192,7 +194,7 @@ export default class Compiler {
         let s:string = "";
         let mode:number = 0;
 
-        for (let i = 0; i < len; i += 1){
+        for (let i = 0; i < len; i += 1) {
             const c = code.substr(i, 1);
             if (mode === 0) {
                 if (c === SLASH) {
@@ -223,4 +225,127 @@ export default class Compiler {
      
         return s;
     }
+
+    public tokenize(code:string, loc:any) {
+        //トークン分解
+        /*
+        [モード]
+        0 行頭
+        1 行頭以外1文字目
+        2 文字列
+        */
+        let tokens:Array<any> = [];
+        let msg = null;
+        let end = code.length;
+        let mode = 0;
+        let begin = 0;
+        let line = 1;
+        const u = function(s:string) { //1文字目のunicodeを返す関数を短く定義
+            return s;
+        };
+
+        let i = 0;
+        while (i < end) {
+            let advance = true;
+            let c = code[i];
+            let l = i - begin; //現時点でのトークン長
+            if (mode === 0) {
+                if (c === u(' ')) { //空白が続く限り留まる
+                    ;
+                } else if (c === u('\n')) { //空白しかないまま行を終えたので無視
+                    begin = i + 1; //開始
+                    line += 1;
+                } else { //行頭を出力
+                    tokens.push({type:'LINE_BEGIN', line:line, number:l}; //numberに空白数を入れる
+                    mode = 1;
+                    advance = false; //この文字もう一度
+                }
+            } else if (mode === 1) { //行頭以外のトークン先頭
+                if (c === u('(')) {
+                    tokens.push({type:'(', string:'(', line:line});
+                } else if (c === u(')')) {
+                    tokens.push({type:')', string:')', line:line});
+                } else if (c === u('[')) {
+                    tokens.push({type:'[', string:'[', line:line});
+                } else if (c === u(']')) {
+                    tokens.push({type:']', string:']', line:line});
+                } else if (c === u(',')) {
+                    tokens.push({type:',', string:',', line:line});
+                } else if (c === u('→')) {
+                    tokens.push({type:'→', string:'→', line:line});
+                } else if (c === u('+')) {
+                    tokens.push({type:'OPERATOR', operator:'+', string:'+', line:line});
+                } else if (c === u('-')) {
+                    tokens.push({type:'OPERATOR', operator:'-', string:'-', line:line});
+                } else if (c === u('*')) {
+                    tokens.push({type:'OPERATOR', operator:'*', string:'*', line:line});
+                } else if (c === u('/')) {
+                    tokens.push({type:'OPERATOR', operator:'/', string:'/', line:line});
+                } else if (c === u('=')) {
+                    tokens.push({type:'OPERATOR', operator:'=', string:'=', line:line});
+                } else if (c === u('≠')) {
+                    tokens.push({type:'OPERATOR', operator:'≠', string:'≠', line:line});
+                } else if (c === u('<')) {
+                    tokens.push({type:'OPERATOR', operator:'<', string:'<', line:line});
+                } else if (c === u('>')) {
+                    tokens.push({type:'OPERATOR', operator:'>', string:'>', line:line});
+                } else if (c === u('≤')) {
+                    tokens.push({type:'OPERATOR', operator:'≤', string:'≤', line:line});
+                } else if (c === u('≥')) {
+                    tokens.push({type:'OPERATOR', operator:'≥', string:'≥', line:line});
+                } else if (c === u('\n')) { //行末
+                    mode = 0;
+                    begin = i + 1;
+                    line += 1;
+                } else if (c ===u(' ')) { //空白が来た
+                    ; //何もしない
+                } else if (Sunaba.isInName(c)) { //識別子開始
+                    mode = 2;
+                    begin = i;
+                } else{
+                    msg = '行' + line + ': Sunabaで使うはずのない文字"' + c + '"が出てきた。';
+                    if (c === ';') {
+                        msg += 'C言語と違って文末の;は不要。';
+                    } else if ((c === '{') || (c === '}')) {
+                        msg += 'C言語と違って{や}は使わない。行頭の空白で構造を示す。';
+                    }
+                    break;
+                }
+            } else if (mode === 2) { //識別子
+                if (Sunaba.isInName(c)) { //続く
+                    ;
+                } else { //その他の場合、出力
+                    let str = code.substr(begin, l);
+                    let keyword = Sunaba.readKeyword(str, loc); //キーワード
+                    if (keyword !== "") {
+                        tokens.push({type:keyword, string:str, line:line});
+                    } else {
+                        let number = Sunaba.readNumber(code, begin, l);
+                        if (number !== null) {
+                            if (Math.abs(number) > Sunaba.MAX_ABS_NUMBER) {
+                                msg = '行' + line + ': Sunabaでは扱えない大きな数' + number + 'が現れました。';
+                                msg = 'プラスマイナス' + Sunaba.MAX_ABS_NUMBER + 'の範囲しか使えません。';
+                                break;
+                            } else {
+                                tokens.push({type:'NUMBER', number:number, string:str, line:line};
+                            }
+                        } else { //キーワードでも数字でもないので名前
+                            tokens.push({type:'NAME', string:str, line:line});
+                        }
+                    }
+                    mode = 1;
+                    advance = false; //もう一回この文字から回す
+                }
+            } else{
+                throw 'BUG';
+            }
+            if (advance) {
+                i += 1;
+            }
+        }
+        //ダミー最終トークン
+        tokens.push({type:'END', string:"", line:line});
+        return {tokens:tokens, errorMessage:msg};
+    }
+ 
 }
