@@ -120,6 +120,7 @@ export default class Machine {
                 break;
 
             case 'ld':
+            case 'fld':
                 this.step_ld(cmd);
                 break;
 
@@ -222,12 +223,27 @@ export default class Machine {
     }
 
     public step_ld(cmd:any) {
-        const op0 = this.pop();
+        const op0 = this.step_ld_get_op(cmd.name);
         const addr = op0 + cmd.imm;
-
         const v = this.loadMemory(addr);
         this.push(v);
         this.programCounter += 1;
+    }
+
+    private step_ld_get_op(cmd_name:string) {
+        let op:number;
+
+        switch (cmd_name) {
+            case 'ld':
+                op = this.pop();
+                break;
+            case 'fld':
+                op = this.framePointer;
+                break;
+            default:
+                throw 'step_ld: unknown name: ' + cmd_name;
+        }
+        return op;
     }
 
     public step_st(cmd:any) {
@@ -302,5 +318,9 @@ export default class Machine {
 
     public getFramePointer(): number {
         return this.framePointer;
+    }
+
+    public setFramePointer(value:number) {
+        this.framePointer = value;
     }
 }

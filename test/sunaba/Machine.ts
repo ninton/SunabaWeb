@@ -346,6 +346,27 @@ suite('sunaba.Machine', () => {
         assert.equal(123, machine.loadMemory(102));
     });
 
+    test('fld', () => {
+        const program = [
+            {
+                name: 'fld',
+                imm: 2
+            }
+        ];
+
+        machine.setMemory(102, 9);
+        machine.loadProgram(program);
+        machine.setFramePointer(100);
+        machine.step();
+
+        const actual:Array<number> = machine.getStack();
+
+        const expected = [
+            9
+        ];
+        assert.deepEqual(expected, actual);
+    });
+
     test('j', () => {
         const program = [
             {
