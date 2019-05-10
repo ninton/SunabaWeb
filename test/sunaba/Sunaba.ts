@@ -2,7 +2,7 @@ import assert = require("assert");
 import fs = require("fs");
 import Sunaba from "../../src/sunaba/Sunaba";
 
-suite('sunaba.Compiler', () => {
+suite('sunaba.Sunaba', () => {
     setup(() => {
     });
 

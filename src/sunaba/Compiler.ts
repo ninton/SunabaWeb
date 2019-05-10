@@ -1,4 +1,6 @@
 import Sunaba from './Sunaba';
+import Parser from './Parser';
+import CodeGenerator from './CodeGenerator';
 
 export default class Compiler {
     public compile(code:string) {
@@ -13,6 +15,12 @@ export default class Compiler {
         const locale = Sunaba.locales.japanese;
         let result:any = this.tokenize(s, locale);
         result = this.structurize(result.tokens);
+
+        const parser:Parser = new Parser(result.tokens, Sunaba.locales.japanese);
+        const rootNode = parser.parseProgram();
+
+        const codeGenerator = new CodeGenerator();
+        const result2 = codeGenerator.process(rootNode);
     }
 
     public unifySpace(code:string): string {

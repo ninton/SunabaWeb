@@ -1,0 +1,35 @@
+{
+    "type": "PROGRAM",
+    "child": {
+        "type": "SET",
+        "token": {
+            "type": "NAME",
+            "line": 1,
+            "string": "memory"
+        },
+        "child": {
+            "type": "ARRAY",
+            "token": {
+                "type": "NAME",
+                "line": 1,
+                "string": "memory"
+            },
+            "child": null,
+            "brother": {
+                "type": "NUMBER",
+                "number": 999999,
+                "token": {
+                    "type": "NUMBER",
+                    "line": 1,
+                    "string": "999999",
+                    "number": 999999
+                },
+                "child": null,
+                "brother": null
+            },
+            "number": 60000
+        },
+        "brother": null
+    },
+    "brother": null
+}

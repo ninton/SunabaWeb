@@ -376,7 +376,6 @@ export default class Parser {
 
         //;
         t = tokens[this.mPos];
-console.log(t);
         if (t.type !== ';') {
             this.errorMessage += '行' + t.line + ': 次の行の字下げが多すぎるんじゃなかろうか。';
             return null;

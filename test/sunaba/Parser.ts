@@ -3,7 +3,7 @@ import fs = require("fs");
 import Sunaba from "../../src/sunaba/Sunaba";
 import Parser from "../../src/sunaba/Parser";
 
-suite('sunaba.Compiler', () => {
+suite('sunaba.Parser', () => {
     setup(() => {
     });
 
