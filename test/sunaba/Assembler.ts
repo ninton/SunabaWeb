@@ -15,5 +15,5 @@ suite('sunaba.Assembler', () => {
 
     test('Assember', () => {
         assembler.assemble();
-    }
-}
+    });
+});

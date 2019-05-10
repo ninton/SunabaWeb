@@ -19,8 +19,10 @@ export default class Compiler {
         const parser:Parser = new Parser(result.tokens, Sunaba.locales.japanese);
         const rootNode = parser.parseProgram();
 
-        const codeGenerator = new CodeGenerator();
-        const result2 = codeGenerator.process(rootNode);
+        const codeGenerator = new CodeGenerator((s:string) => {
+            console.log(s);
+        });
+        const result2 = codeGenerator.generateProgram(rootNode);
     }
 
     public unifySpace(code:string): string {
