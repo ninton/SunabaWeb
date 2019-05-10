@@ -367,6 +367,29 @@ suite('sunaba.Machine', () => {
         assert.deepEqual(expected, actual);
     });
 
+    test('fst', () => {
+        const program = [
+            {
+                name: 'i',
+                imm: 9
+            },
+            {
+                name: 'fst',
+                imm: 2
+            }
+        ];
+
+        assert.notEqual(9, machine.loadMemory(102));
+
+        machine.loadProgram(program);
+        machine.setFramePointer(100);
+        machine.step();
+        machine.step();
+
+        assert.equal(0, machine.getStack().length);
+        assert.equal(9, machine.loadMemory(102));
+    });
+
     test('j', () => {
         const program = [
             {
