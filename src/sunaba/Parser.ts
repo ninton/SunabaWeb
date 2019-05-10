@@ -1,4 +1,5 @@
 import HLib from './HLib';
+import { stat } from 'fs';
 
 export default class Parser {
     errorMessage:string;
@@ -252,7 +253,7 @@ export default class Parser {
             this.errorMessage += '行' + t.line + ': 部分プログラム内で部分プログラムは作れない。';
             return null;
         } else if (statementType === 'CONST') { //これはありえない
-            throw 'BUG';
+            throw 'BUG parseStatement CONST';
         } else if (statementType === 'FUNC') { //関数呼び出し文
             node = this.parseFunction();
             if (node === null) {
@@ -275,7 +276,7 @@ export default class Parser {
         } else if (statementType === null) { //不明。エラー文字列は作ってあるので上へ
             return null;
         } else {
-            throw 'BUG';
+            throw 'BUG parseStatement #1';
         }
         return node;     
     }
@@ -312,10 +313,9 @@ export default class Parser {
             }
         }
         //代入記号を探す
-        let i;
-        for (i = pos; i < endPos; i += 1) {
+        for (let i = pos; i < endPos; i += 1) {
             if (tokens[i].type === '→') {
-                return '→';
+                return 'SET';
             }
         }
         //残るは関数コール文?
@@ -376,6 +376,7 @@ export default class Parser {
 
         //;
         t = tokens[this.mPos];
+console.log(t);
         if (t.type !== ';') {
             this.errorMessage += '行' + t.line + ': 次の行の字下げが多すぎるんじゃなかろうか。';
             return null;
@@ -461,6 +462,7 @@ export default class Parser {
         node.type = 'ARRAY';
         //[
         HLib.assert(this.mTokens[this.mPos].type === '['); //getTermTypeで判定済み
+        this.mPos += 1;
         //expression
         let expression:any = this.parseExpression();
         if (expression === null) {
@@ -571,7 +573,7 @@ export default class Parser {
                 } else if (node.operator === '≠') {
                     preComputed = (a !== b) ? 1 : 0;
                 } else {
-                    throw 'BUG'; //>と≥は上で置換されてなくなっている
+                    throw 'BUG parseExpression #1'; //>と≥は上で置換されてなくなっている
                 }
             }
 
@@ -625,7 +627,6 @@ export default class Parser {
         t = this.mTokens[this.mPos];
         let termType = this.getTermType();
         let node = null;
-
         if (termType === 'EXPRESSION') {
             HLib.assert(t.type === '(');
             this.mPos += 1;

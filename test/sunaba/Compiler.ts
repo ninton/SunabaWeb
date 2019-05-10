@@ -65,8 +65,7 @@ suite('sunaba.Compiler', () => {
                 {type: "NUMBER"    , line: 1, string: "60000" , number: 60000 },
                 {type: "]"         , line: 1, string: "]"                     },
                 {type: "→"        , line: 1, string: "→"                    },
-                {type: "NUMBER"    , line: 1, string: "999999", number: 999999},
-                {type: "END"       , line: 2, string: ""                      }
+                {type: "NUMBER"    , line: 1, string: "999999", number: 999999}
             ],
             errorMessage: null
         };
@@ -91,8 +90,7 @@ suite('sunaba.Compiler', () => {
                 {type: "NUMBER"    , line: 1, string: "3"     , number: 3     },
                 {type: ")"         , line: 1, string: ")"                     },
                 {type: "OPERATOR"  , line: 1, string: "*"     , operator: "*" },
-                {type: "NUMBER"    , line: 1, string: "2"     , number: 2     },
-                {type: "END"       , line: 2, string: ""                      }
+                {type: "NUMBER"    , line: 1, string: "2"     , number: 2     }
             ],
             errorMessage: null
         };
@@ -112,8 +110,7 @@ suite('sunaba.Compiler', () => {
                 {type: "]"         , line: 1, string: "]"                     },
                 {type: "OPERATOR"  , line: 1, string: "="     , operator: "=" },
                 {type: "NUMBER"    , line: 1, string: "1"     , number: 1     },
-                {type: "IF_POST"   , line: 1, string: "なら"                  },
-                {type: "END"       , line: 2, string: ""                      }
+                {type: "IF_POST"   , line: 1, string: "なら"                  }
             ],
             errorMessage: null
         };
@@ -133,8 +130,7 @@ suite('sunaba.Compiler', () => {
                 {type: "]"         , line: 1, string: "]"                     },
                 {type: "OPERATOR"  , line: 1, string: "="     , operator: "=" },
                 {type: "NUMBER"    , line: 1, string: "100"   , number: 100   },
-                {type: "WHILE_POST", line: 1, string: "な限り"                },
-                {type: "END"       , line: 2, string: ""                      }
+                {type: "WHILE_POST", line: 1, string: "な限り"                }
             ],
             errorMessage: null
         };
@@ -154,8 +150,7 @@ suite('sunaba.Compiler', () => {
                 {type: ","         , line: 1, string: ","                     },
                 {type: "NAME"      , line: 1, string: "横"                    },
                 {type: ")"         , line: 1, string: ")"                     },
-                {type: "DEF_POST"  , line: 1, string: "とは"                  },
-                {type: "END"       , line: 2, string: ""                      }
+                {type: "DEF_POST"  , line: 1, string: "とは"                  }
             ],
             errorMessage: null
         };
@@ -174,8 +169,7 @@ suite('sunaba.Compiler', () => {
             {type: "NUMBER"    , line: 1, string: "60000" , number: 60000 },
             {type: "]"         , line: 1, string: "]"                     },
             {type: "→"        , line: 1, string: "→"                    },
-            {type: "NUMBER"    , line: 1, string: "999999", number: 999999},
-            {type: "END"       , line: 2, string: ""                      }
+            {type: "NUMBER"    , line: 1, string: "999999", number: 999999}
         ];
         const expected = {
             tokens: [
@@ -185,8 +179,8 @@ suite('sunaba.Compiler', () => {
                 {type: "]"         , line: 1, string: "]"                     },
                 {type: "→"        , line: 1, string: "→"                    },
                 {type: "NUMBER"    , line: 1, string: "999999", number: 999999},
-                {type: "END"       , line: 2, string: ""                      },
-                {type: ";"         , line: 2, string: ";"                     }
+                {type: ";"         , line: 1, string: ";"                     },
+                {type: "END"       , line: 1, string: ""                      }
             ],
             errorMessage: null
         };
@@ -210,8 +204,7 @@ suite('sunaba.Compiler', () => {
             {type: "NUMBER"    , line: 1, string: "3"     , number: 3     },
             {type: ")"         , line: 1, string: ")"                     },
             {type: "OPERATOR"  , line: 1, string: "*"     , operator: "*" },
-            {type: "NUMBER"    , line: 1, string: "2"     , number: 2     },
-            {type: "END"       , line: 2, string: ""                      }
+            {type: "NUMBER"    , line: 1, string: "2"     , number: 2     }
         ];
         const expected = {
             tokens: [
@@ -227,8 +220,8 @@ suite('sunaba.Compiler', () => {
                 {type: ")"         , line: 1, string: ")"                     },
                 {type: "OPERATOR"  , line: 1, string: "*"     , operator: "*" },
                 {type: "NUMBER"    , line: 1, string: "2"     , number: 2     },
-                {type: "END"       , line: 2, string: ""                      },
-                {type: ";"         , line: 2, string: ";"                     }
+                {type: ";"         , line: 1, string: ";"                     },
+                {type: "END"       , line: 1, string: ""                      }
             ],
             errorMessage: null
         };
@@ -247,8 +240,7 @@ suite('sunaba.Compiler', () => {
             {type: "]"         , line: 1, string: "]"                     },
             {type: "OPERATOR"  , line: 1, string: "="     , operator: "=" },
             {type: "NUMBER"    , line: 1, string: "1"     , number: 1     },
-            {type: "IF_POST"   , line: 1, string: "なら"                  },
-            {type: "END"       , line: 2, string: ""                      }
+            {type: "IF_POST"   , line: 1, string: "なら"                  }
         ];
         const expected = {
             tokens: [
@@ -259,8 +251,8 @@ suite('sunaba.Compiler', () => {
                 {type: "OPERATOR"  , line: 1, string: "="     , operator: "=" },
                 {type: "NUMBER"    , line: 1, string: "1"     , number: 1     },
                 {type: "IF_POST"   , line: 1, string: "なら"                  },
-                {type: "END"       , line: 2, string: ""                      },
-                {type: ";"         , line: 2, string: ";"                     }
+                {type: ";"         , line: 1, string: ";"                     },
+                {type: "END"       , line: 1, string: ""                      }
             ],
             errorMessage: null
         };
@@ -279,8 +271,7 @@ suite('sunaba.Compiler', () => {
             {type: "]"         , line: 1, string: "]"                     },
             {type: "OPERATOR"  , line: 1, string: "="     , operator: "=" },
             {type: "NUMBER"    , line: 1, string: "100"   , number: 100   },
-            {type: "WHILE_POST", line: 1, string: "な限り"                },
-            {type: "END"       , line: 2, string: ""                      }
+            {type: "WHILE_POST", line: 1, string: "な限り"                }
         ];
         const expected = {
             tokens: [
@@ -291,8 +282,8 @@ suite('sunaba.Compiler', () => {
                 {type: "OPERATOR"  , line: 1, string: "="     , operator: "=" },
                 {type: "NUMBER"    , line: 1, string: "100"   , number: 100   },
                 {type: "WHILE_POST", line: 1, string: "な限り"                },
-                {type: "END"       , line: 2, string: ""                      },
-                {type: ";"         , line: 2, string: ";"                     }
+                {type: ";"         , line: 1, string: ";"                     },
+                {type: "END"       , line: 1, string: ""                      }
             ],
             errorMessage: null
         };
@@ -311,8 +302,7 @@ suite('sunaba.Compiler', () => {
             {type: ","         , line: 1, string: ","                     },
             {type: "NAME"      , line: 1, string: "横"                    },
             {type: ")"         , line: 1, string: ")"                     },
-            {type: "DEF_POST"  , line: 1, string: "とは"                  },
-            {type: "END"       , line: 2, string: ""                      }
+            {type: "DEF_POST"  , line: 1, string: "とは"                  }
         ];
         const expected = {
             tokens: [
@@ -323,8 +313,8 @@ suite('sunaba.Compiler', () => {
                 {type: "NAME"      , line: 1, string: "横"                    },
                 {type: ")"         , line: 1, string: ")"                     },
                 {type: "DEF_POST"  , line: 1, string: "とは"                  },
-                {type: "END"       , line: 2, string: ""                      },
-                {type: ";"         , line: 2, string: ";"                     }
+                {type: ";"         , line: 1, string: ";"                     },
+                {type: "END"       , line: 1, string: ""                      }
             ],
             errorMessage: null
         };

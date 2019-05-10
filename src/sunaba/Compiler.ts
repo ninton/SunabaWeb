@@ -347,8 +347,6 @@ export default class Compiler {
                 i += 1;
             }
         }
-        //ダミー最終トークン
-        tokens.push({type:'END', string:"", line:line});
         return {tokens:tokens, errorMessage:msg};
     }
 
@@ -422,7 +420,7 @@ export default class Compiler {
                     }
                 }
             } else {
-                r.push(t);; //そのまま移植
+                r.push(t); //そのまま移植
                 emptyLine = false; //空行ではなくなった
             }
             prevT = t;
@@ -438,6 +436,8 @@ export default class Compiler {
             r.push({type:'}', string:'}', line:prevT.line});
         }
 
+        //ダミー最終トークン
+        r.push({type:'END', string:"", line:tokens[tokens.length - 1].line});
         return {errorMessage:msg, tokens:r};
     }
 
