@@ -4,10 +4,12 @@ import FunctionInfo from './FunctionInfo';
 export default class CodeGenerator {
     mFunctionMap:any;
     cmds:Array<any>;
+    messageStream:any;
 
-    constructor() {
+    constructor(messageStream:any) {
         this.mFunctionMap = {}; 
         this.cmds = [];
+        this.messageStream = messageStream;
     }
 
     public addCommand(name:string, imm:any = 0, comment:string = "") {
@@ -17,6 +19,12 @@ export default class CodeGenerator {
             comment: comment
         };
         this.cmds.push(cmd);
+    }
+
+    public mergeCommands(cmds:Array<any>) {
+        cmds.forEach((item:any) => {
+            this.cmds.push(item);
+        });
     }
 
     public getCommands() {
@@ -65,14 +73,79 @@ export default class CodeGenerator {
     }
 
     public collectFunctionDefinitionInformation(node:any): boolean {
+        let argCount = 0; //引数の数
+        //まず、関数マップに項目を足す
+        let funcName:string;
+        let child = node.child;
+
+        let funcInfo:FunctionInfo;
+        HLib.assert(node.token);
+
+        funcName = node.token.string;
+
+        //関数重複チェック
+        if (this.mFunctionMap[funcName] !== undefined) {
+            this.beginError(node);
+            this.messageStream("部分プログラム\"");
+            this.messageStream(funcName);
+            this.messageStream("\"はもう作られている。");
+            return false;
+        }
+        funcInfo = this.mFunctionMap[funcName] = new FunctionInfo();
+
+        //引数の処理
+        //まず数を数える
+        { //argが後ろに残ってるとバグ源になるので閉じ込める
+            let arg = child; //childは後で必要なので、コピーを操作
+            while (arg){
+                if (arg.type !== "VARIABLE"){
+                    break;
+                }
+                argCount += 1;
+                arg = arg.mBrother;
+            }
+        }
+        funcInfo.setArgCount(argCount);
+
+        //出力値があるか調べる
+        let lastStatement = 0;
+        while (child){
+            if (this.isOutputValueSubstitution(child)){
+                funcInfo.setHasOutputValue(); //戻り値があるのでフラグを立てる。
+            }
+            lastStatement = child;
+            child = child.brother;
+        }
         return true;
     }
 
     public generateFunctionDefinition(node:any): boolean {
+        //まず、関数マップに項目を足す
+        let funcName:string;
+        if (node.token) {
+            funcName = node.token.string;
+        } else {
+            funcName = "!main";
+        }
+
+        //関数重複チェック
+        HLib.assert(this.mFunctionMap[funcName] !== undefined); //絶対ある
+
+        const funcGen = new FunctionGenerator(this);
+        if (!funcGen.process(node, funcName)) {
+            return false;
+        }
+        const cmds = funcGen.getCommands();
+        this.mergeCommands(cmds);
+
         return true;
     }
 
+    public beginError(node:any) {
+
+    }
+
     public isOutputValueSubstitution(node:any): boolean {
-        return false;
+        return node.type === 'OUT';
     }
 }
