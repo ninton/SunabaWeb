@@ -1,5 +1,6 @@
 import HLib from './HLib';
 import FunctionInfo from './FunctionInfo';
+import FunctionGenerator from './FunctionGenerator';
 
 export default class CodeGenerator {
     mFunctionMap:any;
