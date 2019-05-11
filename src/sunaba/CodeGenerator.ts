@@ -132,11 +132,11 @@ export default class CodeGenerator {
         //関数重複チェック
         HLib.assert(this.mFunctionMap[funcName] !== undefined); //絶対ある
 
-        const funcGen = new FunctionGenerator(this);
-        if (!funcGen.process(node, funcName)) {
+        const functionGenerator = new FunctionGenerator(this);
+        if (!functionGenerator.process(node, funcName)) {
             return false;
         }
-        const cmds = funcGen.getCommands();
+        const cmds = functionGenerator.getCommands();
         this.mergeCommands(cmds);
 
         return true;
