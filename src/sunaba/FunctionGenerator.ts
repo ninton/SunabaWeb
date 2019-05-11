@@ -608,88 +608,84 @@ export default class FunctionGenerator {
         return table[operator];
     }
 
-    public generateTerm(nore:any): boolean {
-/*
-      	//単項マイナス処理0から引く
+    public generateTerm(node:any): boolean {
+        // 単項マイナス処理0から引く
         if (node.negation) {
-            out->addString("i 0 #単項マイナス用\n"); //0をプッシュ
+            // 0をプッシュ
+            this.addCommand("i", 0, "#単項マイナス用");
         }
-        wchar_t numberBuffer[16];
+
         //タイプで分岐
-        if (node->mType == NODE_EXPRESSION) {
+        if (node.type === 'EXPRESSION') {
             if (!this.generateExpression(node)) {
                 return false;
             }
-        } else if (node->mType == NODE_NUMBER) { //数値は即値プッシュ
-            makeIntString(numberBuffer, node->mNumber );
-            out->addString("i ");
-            out->addString(numberBuffer);
-            out->addString(" #即値プッシュ\n");
-        } else if (node->mType == NODE_FUNCTION) {
+        } else if (node.type === 'NODE_NUMBER') {
+            // 数値は即値プッシュ
+            this.addCommand('i', node.number, "#即値プッシュ");
+        } else if (node.type === 'FUNCTION') {
             if (!this.generateFunction(node, false)) {
                 return false;
             }
-        } else { //ARRAY_ELEMENT,VARIABLEのアドレスプッシュ処理
+        } else {
+            //ARRAY_ELEMENT,VARIABLEのアドレスプッシュ処理
+
             //変数の定義状態を参照
-            Variable* var = 0;
             if (node.token) { //変数があるなら
-                RefString name(node.token.string);
-                if (node->mType == NODE_OUT) {
+                let name = node.token.string;
+                if (node.type === "OUT") {
                     name = "!ret";
                 }
-                var = mCurrentBlock->findVariable(name);
+
+                let v = this.mCurrentBlock.findVariable(name);
                 //知らない変数。みつからないか、あるんだがまだその行まで行ってないか。				
-                if (!var) {
+                if (!v) {
                     this.beginError(node);
-                    *mMessageStream << "名前付きメモリか定数\"";
-                    mMessageStream->write(name.pointer(), name.size());
-                    *mMessageStream << "\"は存在しない。" << std::endl;
+                    this.mMessageStream(`名前付きメモリか定数"${name}"は存在しない。\n`);
                     return false; 
                 }
-                if (!(var->isDefined())) {
+
+                if (!(v.isDefined())) {
                     this.beginError(node);
-                    *mMessageStream << "名前付きメモリ\"";
-                    mMessageStream->write(name.pointer(), name.size());
-                    *mMessageStream << "\"はまだ作られていない。" << std::endl;
+                    this.mMessageStream(`名前付きメモリか定数"${name}"はまだ作られていない。\n`);
                     return false; //まだ宣言してない
                 }
-                if (!(var->isInitialized())) {
+
+                if (!(v.isInitialized())) {
                     this.beginError(node);
-                    *mMessageStream << "名前付きメモリ\"";
-                    mMessageStream->write(name.pointer(), name.size());
-                    if (mEnglish) {
-                        *mMessageStream << "\"は数をセットされる前に使われている。「a->a」みたいなのはダメ。" << std::endl;
-                    } else {
-                        *mMessageStream << "\"は数をセットされる前に使われている。「a→a」みたいなのはダメ。" << std::endl;
-                    }
+                    this.mMessageStream(`名前付きメモリか定数"${name}"は数をセットされる前に使われている。「a->a」みたいなのはダメ。\n`);
                     return false; //まだ宣言してない
                 }
             }
-            int staticOffset;
-            bool fpRelative;
-            if (!pushDynamicOffset(&staticOffset, &fpRelative, node)) {
+
+            const params = {
+                staticOffset: 0,
+                fpRelative: false
+            };
+            if (!this.pushDynamicOffset(params, node)) {
                 return false;
             }
-            makeIntString(numberBuffer, staticOffset);
-            if (fpRelative) {
-                out->addString("fld ");
+
+            let cmd;
+            if (params.fpRelative) {
+                cmd = "fld";
             } else {
-                out->addString("ld ");
+                cmd = "ld";
             }
-            out->addString(numberBuffer);
+
+            let comment = "\n";
             if (node.token) {
-                out->addString(" #変数\"");
-                out->add(node.token.string.pointer(), node.token.string.size());
-                out->addString("\"からロード\n");
-            } else {
-                out->addString("\n");
+                comment = `#変数"${node.token.string}"からロード`;
             }
+
+            this.addCommand(cmd, params.staticOffset, comment);
         }
+
         //単項マイナスがある場合、ここで減算
         if (node.negation) {
-            out->addString("sub #単項マイナス用\n");
+            this.addCommand("sub", 0, "#単項マイナス用");
         }
-*/
+
         return true;
     }
 
