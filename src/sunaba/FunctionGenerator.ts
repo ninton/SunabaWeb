@@ -414,10 +414,80 @@ export default class FunctionGenerator {
     }
     
     public generateFunctionStatement(node:any): boolean {
+	    // まず関数呼び出し
+	    if (!this.generateFunction(node, true)){
+		    return false;
+        }
+
+	    // 関数の戻り値がプッシュされているので捨てます。
+        // this.addCommandg("pop", 1, "#戻り値を使わないので、破棄");
+
         return true;
     }
     
-    public generateFunction(node:any): boolean {
+    public generateFunction(node:any, isStatement:boolean): boolean {
+        HLib.assert(node.type === 'FUNCTION');
+
+        // まず、その関数が存在していて、定義済みかを調べる。
+        HLib.assert(node.token);
+        const funcName = node.token.string;
+        if (!(funcName in this.mFunctionMap)) {
+            this.beginError(node);
+            this.mMessageStream(`部分プログラム"${funcName}"なんて知らない。\n`);
+            return false;
+        }
+
+        const func = this.mFunctionMap[funcName];
+        let popCount = 0; // 後で引数/戻り値分ポップ
+        if (func.hasOutputValue()) {
+            // 戻り値あるならプッシュ
+            this.addCommand('pop', -1, `#${funcName}の戻り値領域`);
+
+            if (isStatement) {
+                // 戻り値を使わないのでポップ数+1
+                popCount += 1;
+            }
+        } else if (!isStatement) {
+            // 戻り値がないなら式の中にあっちゃだめ
+            this.beginError(node);
+            this.mMessageStream(`部分プログラム\"${funcName}"は、"出力"か"out"という名前付きメモリがないので、出力は使えない。ifやwhileの中にあってもダメ。\n`);
+            return false;
+        }
+
+        // 引数の数をチェック
+        let arg = node.child;
+        let argCount = 0;
+        while (arg) {
+            argCount += 1;
+            arg = arg.brother;
+        }
+
+        popCount += argCount; // 引数分追加
+        if (argCount !== func.argCount()) {
+            this.beginError(node);
+            this.mMessageStream(`部分プログラム"${funcName}"は、入力を${func.argCount()}個受け取るのに、ここには$$argCount}個ある。間違い。\n`);
+            return false;
+        }
+
+       // 引数を評価してプッシュ
+        arg = node.child;
+        while (arg) {
+            if (!this.generateExpression(arg)) {
+                return false;
+            }
+            arg = arg.brother;
+        }
+
+        // call命令生成
+        // 160413: add等のアセンブラ命令と同名の関数があった時にラベルを命令と間違えて誤作動する問題の緊急回避
+        const label = `func_${funcName}`;
+        this.addCommand("call", label);
+
+        // 返ってきたら、引数/戻り値をポップ
+        if (popCount > 0) {
+            this.addCommand('pop', popCount, "#引数/戻り値ポップ");
+        }
+
         return true;
     }
 
