@@ -128,8 +128,8 @@ export default class FunctionGenerator {
     cmds:Array<any>;
 
     mMessageStream:Function; // 借り物
-	mRootBlock    :Block|null;
-	mCurrentBlock :Block|null;
+	mRootBlock    :Block;
+	mCurrentBlock :Block;
 	mLabelId      :number;
 	mName         :string;
 	mInfo         :FunctionInfo;
@@ -143,11 +143,11 @@ export default class FunctionGenerator {
         this.mMessageStream = (s:string) => {
             console.log(s);
         };
-        this.mRootBlock    = null;
-        this.mCurrentBlock = null;
+        this.mRootBlock    = new Block(0);  // dummy
+        this.mCurrentBlock = new Block(0);  // dummy
         this.mLabelId      = 0;
         this.mName         = "";
-        this.mInfo         = new FunctionInfo();
+        this.mInfo         = new FunctionInfo();    // dummy
         this.mFunctionMap  = codeGen.mFunctionMap;
         this.mOutputExist  = false;
     }
@@ -268,11 +268,53 @@ export default class FunctionGenerator {
         return true;
     }
 
-    public generateTerm(): boolean {
-        return true;
-    }
-
     public generateStatement(node:any): boolean {
+        // ブロック生成命令は別扱い
+        if ((node.type === 'WHILE') || (node.type === 'IF')) {
+            //新ブロック生成
+            const newBlock = new Block(this.mCurrentBlock.mBaseOffset + this.mCurrentBlock.mFrameSize);
+            newBlock.mParent = this.mCurrentBlock; //親差し込み
+            newBlock.collectVariables(node.child); //フレーム生成
+            this.mCurrentBlock = newBlock;
+
+            //ローカル変数を確保
+            if (this.mCurrentBlock.mFrameSize > 0) {
+                this.addCommand("pop", -(this.mCurrentBlock.mFrameSize), "#ブロックローカル変数確保");
+            }
+
+            if (node.type === 'WHILE') {
+                if (!this.generateWhile(node)){
+                    return false;
+                }
+            } else if (node.type === 'IF') {
+                if (!this.generateIf(node)){
+                    return false;
+                }
+            }
+
+            //ローカル変数ポップ
+            if (this.mCurrentBlock.mFrameSize > 0) {
+                this.addCommand("pop", this.mCurrentBlock.mFrameSize, "#ブロックローカル変数破棄");
+            }
+            this.mCurrentBlock = this.mCurrentBlock.mParent; //スタック戻し
+
+        } else if (node.type === 'SET') {
+            if (!this.generateSubstitution(node)){
+                return false;
+            }
+        } else if (node.type === 'CALL') {
+            //関数だけ呼んで結果を代入しない文
+            if (!this.generateFunctionStatement(node)) {
+                return false;
+            }
+        } else if (node.type === 'FUNC') {
+            //関数定義はもう処理済みなので無視。
+            ; //スルー
+        } else {
+            console.log("#1 " + node.type);
+            HLib.assert(false, `FcuntionGenerator.ts:318 node.type:${node.type}`);
+        }
+
         return true;
     }
 
@@ -326,6 +368,10 @@ export default class FunctionGenerator {
     }
 
     public generateExpression(node:any): boolean {
+        return true;
+    }
+
+    public generateTerm(): boolean {
         return true;
     }
 
