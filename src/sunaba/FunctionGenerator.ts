@@ -334,6 +334,41 @@ export default class FunctionGenerator {
     whileEnd:
     */
     public generateWhile(node:any): boolean {
+        HLib.assert(node.type === 'WHILE');
+
+        //開始ラベル
+        const whileBegin = `${this.mName}_whileBegin${this.mLabelId}`;
+        const whileEnd   = `${this.mName}_whileEnd${this.mLabelId}`;
+        this.mLabelId += 1;
+
+        this.addCommand('label', whileBegin);
+
+        //Expression処理
+        let child = node.child;
+        HLib.assert(child);
+        if (!this.generateExpression(child)) {
+            //最初の子はExpression
+            return false;
+        }
+
+        //いくつかコード生成
+        this.addCommand('bz', whileEnd);
+
+        //内部の文を処理
+        child = child.brother;
+        while (child){
+            if (!this.generateStatement(child)){
+                return false;
+            }
+            child = child.brother;
+        }
+
+        //ループの最初へ飛ぶジャンプを生成
+        this.addCommand('j', whileBegin, '#ループ先頭へ無条件ジャンプ');
+
+        //ループ終了ラベルを生成
+        this.addCommand('label', whileEnd);
+
         return true;
     }
 
