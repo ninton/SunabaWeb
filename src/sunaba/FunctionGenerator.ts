@@ -554,14 +554,13 @@ export default class FunctionGenerator {
 
     //第一項、第二項、第二項オペレータ、第三項、第三項オペレータ...という具合に実行
     public generateExpression(node:any): boolean {
-/*
         //解決されて単項になっていれば、そのままgenerateTermに丸投げ。ただし単項マイナスはここで処理。
-        bool ret = false;
-        if (node->mType != NODE_EXPRESSION) {
-            ret = generateTermnode);
+        let ret = false;
+        if (node.type !== 'EXPRESSION') {
+            ret = this.generateTerm(node);
         } else {
             if (node.negation) {
-                out->addString("i 0 #()に対する単項マイナス用\n"); //0をプッシュ
+                this.addCommand('i', 0, "#()に対する単項マイナス用");
             }
             //項は必ず二つある。
             HLib.assert(node.child);
@@ -572,32 +571,44 @@ export default class FunctionGenerator {
             if (!this.generateTerm(node.child.brother)) {
                 return false;
             }
+
             //演算子を適用
-            const wchar_t* opStr = 0;
-            switch (node->mOperator) {
-                case OPERATOR_PLUS: opStr = "add"; break;
-                case OPERATOR_MINUS: opStr = "sub"; break;
-                case OPERATOR_MUL: opStr = "mul"; break;
-                case OPERATOR_DIV: opStr = "div"; break;
-                case OPERATOR_LT: opStr = "lt"; break;
-                case OPERATOR_LE: opStr = "le"; break;
-                case OPERATOR_EQ: opStr = "eq"; break;
-                case OPERATOR_NE: opStr = "ne"; break;
-                default: HLib.assert(false); break; //これはParserのバグ。とりわけ、LE、GEは前の段階でGT,LTに変換されていることに注意
-            }
-            out->addString(opStr);
-            out->addString("\n");
+            const op = this.getOpFromOperator(node.operator);
+            this.addCommand(op);
+
             //単項マイナスがある場合、ここで減算
             if (node.negation) {
-                out->addString("sub #()に対する単項マイナス用\n");
+                this.addCommand("sub", '', '#()に対する単項マイナス用');
             }
             ret = true;
         }
-*/
-        return true;
+
+        return ret;
     }
 
-    public generateTerm(): boolean {
+    public getOpFromOperator(operator:string): string {
+        let op:string;
+
+        const table:any = {
+            '+': "add",
+            '-': "sub",
+            '*': "mul",
+            '/': "div",
+            '<': "lt",
+            '≤': "le",
+            '=': "eq",
+            '≠': "ne"
+        }
+
+        if (!(operator in table)) {
+            // これはParserのバグ。とりわけ、LE、GEは前の段階でGT,LTに変換されていることに注意
+            HLib.assert(false, `getFromOperator unkown operator: ${operator}`);
+        }
+
+        return table[operator];
+    }
+
+    public generateTerm(nore:any): boolean {
 /*
       	//単項マイナス処理0から引く
         if (node.negation) {
