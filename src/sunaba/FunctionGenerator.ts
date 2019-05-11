@@ -75,7 +75,7 @@ class Block {
         const retVar:Variable = new Variable();
         retVar.set(this.mBaseOffset + this.mFrameSize);
         this.mFrameSize += 1;
-        if (isArgument){ // 引数なら定義済みかつ初期化済み
+        if (isArgument) { // 引数なら定義済みかつ初期化済み
             retVar.define();
             retVar.initialize();
         }
@@ -85,21 +85,21 @@ class Block {
 
     public collectVariables(firstStatement:any): void {
         let statement = firstStatement;
-        while (statement){
+        while (statement) {
             // 代入文なら、変数名を取得して登録。
-            if (statement.type == '→'){
+            if (statement.type == '→') {
                 const left = statement.child;
                 HLib.assert(left);
 
-                if (left.type === 'VARIABLE'){ // 変数への代入文のみ扱う。配列要素や定数は無視。
+                if (left.type === 'VARIABLE') { // 変数への代入文のみ扱う。配列要素や定数は無視。
                     HLib.assert(left.token);
                     const vName = left.token.string;
 
                     // ここより上にこの変数があるか調べる。
                     const v = this.findVariable(vName);
-                    if (!v){
+                    if (!v) {
                         // ない。新しい変数を生成
-                        if (!this.addVariable(vName)){
+                        if (!this.addVariable(vName)) {
                             // ありえん
                             HLib.assert(false);
                         }
@@ -191,8 +191,8 @@ export default class FunctionGenerator {
         // みつかった順にアドレスを割り振りながらマップに登録。
         // 呼ぶ時は前からプッシュし、このあとFP,PCをプッシュしたところがSPになる。
         let child = node.child;
-        while (child){ // このループを抜けた段階で最初のchildは最初のstatementになっている
-            if (child.type !== 'VARIABLE'){
+        while (child) { // このループを抜けた段階で最初のchildは最初のstatementになっている
+            if (child.type !== 'VARIABLE') {
                 break;
             }
 
@@ -234,8 +234,8 @@ export default class FunctionGenerator {
 
         // 中身を処理
         let lastStatement = 0;
-        while (child){
-            if (!this.generateStatement(child)){
+        while (child) {
+            if (!this.generateStatement(child)) {
                 return false;
             }
             lastStatement = child;
@@ -250,7 +250,7 @@ export default class FunctionGenerator {
 
         // 出力の整合性チェック。
         // ifの中などで出力してるのに、ブロック外に出力がないケースを検出
-        if (this.mInfo.hasOutputValue() != this.mOutputExist){
+        if (this.mInfo.hasOutputValue() != this.mOutputExist) {
             HLib.assert(this.mOutputExist); // outputExistがfalseで、hasOutputValue()がtrueはありえない
             if (headNode.token) {
                 // 普通の関数ノード
@@ -283,11 +283,11 @@ export default class FunctionGenerator {
             }
 
             if (node.type === 'WHILE') {
-                if (!this.generateWhile(node)){
+                if (!this.generateWhile(node)) {
                     return false;
                 }
             } else if (node.type === 'IF') {
-                if (!this.generateIf(node)){
+                if (!this.generateIf(node)) {
                     return false;
                 }
             }
@@ -299,7 +299,7 @@ export default class FunctionGenerator {
             this.mCurrentBlock = this.mCurrentBlock.mParent; //スタック戻し
 
         } else if (node.type === 'SET') {
-            if (!this.generateSubstitution(node)){
+            if (!this.generateSubstitution(node)) {
                 return false;
             }
         } else if (node.type === 'CALL') {
@@ -356,8 +356,8 @@ export default class FunctionGenerator {
 
         //内部の文を処理
         child = child.brother;
-        while (child){
-            if (!this.generateStatement(child)){
+        while (child) {
+            if (!this.generateStatement(child)) {
                 return false;
             }
             child = child.brother;
@@ -387,7 +387,7 @@ export default class FunctionGenerator {
         // Expression処理
         let  child = node.child;
         HLib.assert(child);
-        if (!this.generateExpression(child)){
+        if (!this.generateExpression(child)) {
             // 最初の子はExpression
             return false;
         }
@@ -400,8 +400,8 @@ export default class FunctionGenerator {
 
         // 内部の文を処理
         child = child.brother;
-        while (child){
-            if (!this.generateStatement(child)){
+        while (child) {
+            if (!this.generateStatement(child)) {
                 return false;
             }
             child = child.brother;
@@ -415,7 +415,7 @@ export default class FunctionGenerator {
     
     public generateFunctionStatement(node:any): boolean {
 	    // まず関数呼び出し
-	    if (!this.generateFunction(node, true)){
+	    if (!this.generateFunction(node, true)) {
 		    return false;
         }
 
@@ -497,22 +497,258 @@ export default class FunctionGenerator {
     st
     */
     public generateSubstitution(node:any): boolean {
+        HLib.assert(node.type === 'SET');
+        
+        //左辺値のアドレスを求める。最初の子が左辺値
+        let child = node.child;
+        HLib.assert(child);
+
+        //変数の定義状態を参照
+        let v:Variable|null = null;
+
+        if ((child.type === 'OUT') || child.token) { //変数があるなら
+            let name = child.token.string;
+            if (child.type === 'OUT') {
+                name = "!ret";
+            }
+            v = this.mCurrentBlock.findVariable(name);
+            if (!v) { //配列アクセス時でタイプミスすると変数が存在しないケースがある
+                this.beginError(child);
+                this.mMessageStream(`名前付きメモリか定数"${name}"は存在しないか、まだ作られていない。\n`);
+                return false; 
+            } else if (!(v.isDefined())) { //未定義ならここで定義
+                v.define();
+            }
+        }
+
+        const params = {
+            staticOffset:0,
+            fpRelative:false
+        };
+        if (!this.pushDynamicOffset(params, child)) {
+            return false;
+        }
+
+        //右辺処理
+        child = child.brother;
+        HLib.assert(child);
+        if (!this.generateExpression(child)) {
+            return false;
+        }
+
+        let cmd;
+        if (params.fpRelative) {
+            cmd = 'fst';
+        } else {
+            cmd = 'st';
+        }
+        this.addCommand(cmd, params.staticOffset, `#"${node.token.string}"へストア`);
+
+        //左辺値は初期化されたのでフラグをセット。すでにセットされていても気にしない。
+        if (v) {
+            v.initialize();
+        }
+
         return true;
     }
 
+    //第一項、第二項、第二項オペレータ、第三項、第三項オペレータ...という具合に実行
     public generateExpression(node:any): boolean {
+/*
+        //解決されて単項になっていれば、そのままgenerateTermに丸投げ。ただし単項マイナスはここで処理。
+        bool ret = false;
+        if (node->mType != NODE_EXPRESSION) {
+            ret = generateTermnode);
+        } else {
+            if (node.negation) {
+                out->addString("i 0 #()に対する単項マイナス用\n"); //0をプッシュ
+            }
+            //項は必ず二つある。
+            HLib.assert(node.child);
+            HLib.assert(node.child.brother);
+            if (!this.generateTerm(node.child)) {
+                return false;
+            }
+            if (!this.generateTerm(node.child.brother)) {
+                return false;
+            }
+            //演算子を適用
+            const wchar_t* opStr = 0;
+            switch (node->mOperator) {
+                case OPERATOR_PLUS: opStr = "add"; break;
+                case OPERATOR_MINUS: opStr = "sub"; break;
+                case OPERATOR_MUL: opStr = "mul"; break;
+                case OPERATOR_DIV: opStr = "div"; break;
+                case OPERATOR_LT: opStr = "lt"; break;
+                case OPERATOR_LE: opStr = "le"; break;
+                case OPERATOR_EQ: opStr = "eq"; break;
+                case OPERATOR_NE: opStr = "ne"; break;
+                default: HLib.assert(false); break; //これはParserのバグ。とりわけ、LE、GEは前の段階でGT,LTに変換されていることに注意
+            }
+            out->addString(opStr);
+            out->addString("\n");
+            //単項マイナスがある場合、ここで減算
+            if (node.negation) {
+                out->addString("sub #()に対する単項マイナス用\n");
+            }
+            ret = true;
+        }
+*/
         return true;
     }
 
     public generateTerm(): boolean {
+/*
+      	//単項マイナス処理0から引く
+        if (node.negation) {
+            out->addString("i 0 #単項マイナス用\n"); //0をプッシュ
+        }
+        wchar_t numberBuffer[16];
+        //タイプで分岐
+        if (node->mType == NODE_EXPRESSION) {
+            if (!this.generateExpression(node)) {
+                return false;
+            }
+        } else if (node->mType == NODE_NUMBER) { //数値は即値プッシュ
+            makeIntString(numberBuffer, node->mNumber );
+            out->addString("i ");
+            out->addString(numberBuffer);
+            out->addString(" #即値プッシュ\n");
+        } else if (node->mType == NODE_FUNCTION) {
+            if (!this.generateFunction(node, false)) {
+                return false;
+            }
+        } else { //ARRAY_ELEMENT,VARIABLEのアドレスプッシュ処理
+            //変数の定義状態を参照
+            Variable* var = 0;
+            if (node.token) { //変数があるなら
+                RefString name(node.token.string);
+                if (node->mType == NODE_OUT) {
+                    name = "!ret";
+                }
+                var = mCurrentBlock->findVariable(name);
+                //知らない変数。みつからないか、あるんだがまだその行まで行ってないか。				
+                if (!var) {
+                    this.beginError(node);
+                    *mMessageStream << "名前付きメモリか定数\"";
+                    mMessageStream->write(name.pointer(), name.size());
+                    *mMessageStream << "\"は存在しない。" << std::endl;
+                    return false; 
+                }
+                if (!(var->isDefined())) {
+                    this.beginError(node);
+                    *mMessageStream << "名前付きメモリ\"";
+                    mMessageStream->write(name.pointer(), name.size());
+                    *mMessageStream << "\"はまだ作られていない。" << std::endl;
+                    return false; //まだ宣言してない
+                }
+                if (!(var->isInitialized())) {
+                    this.beginError(node);
+                    *mMessageStream << "名前付きメモリ\"";
+                    mMessageStream->write(name.pointer(), name.size());
+                    if (mEnglish) {
+                        *mMessageStream << "\"は数をセットされる前に使われている。「a->a」みたいなのはダメ。" << std::endl;
+                    } else {
+                        *mMessageStream << "\"は数をセットされる前に使われている。「a→a」みたいなのはダメ。" << std::endl;
+                    }
+                    return false; //まだ宣言してない
+                }
+            }
+            int staticOffset;
+            bool fpRelative;
+            if (!pushDynamicOffset(&staticOffset, &fpRelative, node)) {
+                return false;
+            }
+            makeIntString(numberBuffer, staticOffset);
+            if (fpRelative) {
+                out->addString("fld ");
+            } else {
+                out->addString("ld ");
+            }
+            out->addString(numberBuffer);
+            if (node.token) {
+                out->addString(" #変数\"");
+                out->add(node.token.string.pointer(), node.token.string.size());
+                out->addString("\"からロード\n");
+            } else {
+                out->addString("\n");
+            }
+        }
+        //単項マイナスがある場合、ここで減算
+        if (node.negation) {
+            out->addString("sub #単項マイナス用\n");
+        }
+*/
         return true;
     }
 
-    public pushDynamicOffset(node:any): boolean {
+    public pushDynamicOffset(params:any, node:any): boolean {
+/*
+        *fpRelative = false;
+        *staticOffset = -0x7fffffff; //あからさまにおかしな値を入れておく。デバグのため。
+        HLib.assert((node->mType == NODE_OUT) || (node->mType == NODE_VARIABLE) || (node->mType == NODE_ARRAY_ELEMENT));
+        //トークンは数字ですか、名前ですか
+        if (node.token) {
+            if (node.token->mType == TOKEN_OUT) {
+                RefString name("!ret");
+                Variable* var = mCurrentBlock->findVariable(name);
+                HLib.assert(var);
+                *fpRelative = true; //変数直のみFP相対
+                *staticOffset = var->offset();
+                mOutputExist = true;
+            } else if (node.token->mType == TOKEN_NAME) {
+                //変数の定義状態を参照
+                RefString name(node.token.string);
+                Variable* var = mCurrentBlock->findVariable(name);
+                //配列ならExpressionを評価してプッシュ
+                if (node->mType == NODE_ARRAY_ELEMENT) {
+                    wchar_t numberBuffer[16];
+                    makeIntString(numberBuffer, var->offset());
+                    out->addString("fld ");
+                    out->addString(numberBuffer);
+                    out->addString(" #ポインタ\"");
+    //				RefString name(node.token.string);
+                    out->add(name.pointer(), name.size());
+                    out->addString("\"からロード\n");
+                    if (node.child) { //変数インデクス
+                        if (!this.generateExpression(node.child)) { //アドレスオフセットがプッシュされる
+                            return false;
+                        }
+                        out->addString("add\n");
+                        *staticOffset = 0;
+                    } else { //定数インデクス
+                        *staticOffset = node->mNumber;
+                    }
+                } else {
+                    *fpRelative = true; //変数直のみFP相対
+                    *staticOffset = var->offset();
+                }
+            }
+        } else { //定数アクセス。トークンがない。
+            HLib.assert(node->mType == NODE_ARRAY_ELEMENT); //インデクスがない定数アクセスはアドレスではありえない。
+            if (node.child) { //変数インデクス
+                if (!this.generateExpression(node.child)) { //アドレスをプッシュ
+                    return false;
+                }
+            } else {
+                out->addString("i 0 #絶対アドレスなので0\n"); //絶対アドレスアクセス
+            }
+            *staticOffset = node->mNumber;
+        }
+*/
         return true;
     }
 
     public beginError(node:any): void {
-
+/*
+        const Token* token = node.token;
+        HLib.assert(token);
+        mMessageStream->write(token->mFilename.pointer(), token->mFilename.size());
+        if (token->mLine != 0) {
+            *mMessageStream << L'(' << token->mLine << ") ";
+        } else {
+            *mMessageStream << L' ';
+        }
+*/    
     }
 }
