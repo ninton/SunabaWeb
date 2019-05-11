@@ -497,11 +497,12 @@ export default class FunctionGenerator {
     st
     */
     public generateSubstitution(node:any): boolean {
-        console.log(JSON.stringify(this.mCurrentBlock, undefined, 2));
         HLib.assert(node.type === 'SET');
-        
+        console.log(JSON.stringify(node, undefined, 2));
+
         // 左辺値のアドレスを求める。最初の子が左辺値
         let child = node.child;
+        console.log(JSON.stringify(child, undefined, 2));
         HLib.assert(child);
 
         // 変数の定義状態を参照
@@ -622,7 +623,7 @@ export default class FunctionGenerator {
             if (!this.generateExpression(node)) {
                 return false;
             }
-        } else if (node.type === 'NODE_NUMBER') {
+        } else if (node.type === 'NUMBER') {
             // 数値は即値プッシュ
             this.addCommand('i', node.number, "#即値プッシュ");
         } else if (node.type === 'FUNCTION') {
@@ -643,7 +644,7 @@ export default class FunctionGenerator {
                 //知らない変数。みつからないか、あるんだがまだその行まで行ってないか。				
                 if (!v) {
                     this.beginError(node);
-                    this.mMessageStream(`名前付きメモリか定数"${name}"は存在しない。\n`);
+                    this.mMessageStream(`E003:名前付きメモリか定数"${name}"は存在しない。\n`);
                     return false; 
                 }
 
@@ -692,9 +693,8 @@ export default class FunctionGenerator {
     }
 
     public pushDynamicOffset(params:any, node:any): boolean {
-
-        let fpRelative   = false;
-        let staticOffset = -0x7fffffff; //あからさまにおかしな値を入れておく。デバグのため。
+        params.fpRelative   = false;
+        params.staticOffset = -0x7fffffff; //あからさまにおかしな値を入れておく。デバグのため。
 
         HLib.assert((node.type === 'OUT') || (node.type === 'VARIABLE') || (node.type === 'ARRAY'));
 
@@ -704,8 +704,8 @@ export default class FunctionGenerator {
                 const name = "!ret";
                 const v:any = this.mCurrentBlock.findVariable(name);
                 HLib.assert(v);
-                fpRelative = true; //変数直のみFP相対
-                staticOffset = v.offset();
+                params.fpRelative = true; //変数直のみFP相対
+                params.staticOffset = v.offset();
                 this.mOutputExist = true;
             } else if (node.token.type === 'NAME') {
                 //変数の定義状態を参照
@@ -721,13 +721,13 @@ export default class FunctionGenerator {
                             return false;
                         }
                         this.addCommand("add");
-                        staticOffset = 0;
+                        params.staticOffset = 0;
                     } else { //定数インデクス
-                        staticOffset = node.number;
+                        params.staticOffset = node.number;
                     }
                 } else {
-                    fpRelative   = true; //変数直のみFP相対
-                    staticOffset = v.offset();
+                    params.fpRelative   = true; //変数直のみFP相対
+                    params.staticOffset = v.offset();
                 }
 
             }
@@ -741,7 +741,7 @@ export default class FunctionGenerator {
             } else {
                 this.addCommand("i", 0, "#絶対アドレスなので0\n"); //絶対アドレスアクセス
             }
-            staticOffset = node.number;
+            params.staticOffset = node.number;
         }
 
         return true;

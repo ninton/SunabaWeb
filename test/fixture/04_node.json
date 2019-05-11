@@ -9,11 +9,7 @@
         },
         "child": {
             "type": "ARRAY",
-            "token": {
-                "type": "NAME",
-                "line": 1,
-                "string": "memory"
-            },
+            "token": null,
             "child": null,
             "brother": {
                 "type": "NUMBER",
