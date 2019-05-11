@@ -382,6 +382,34 @@ export default class FunctionGenerator {
     ifEnd:
     */
     public generateIf(node:any): boolean {
+        HLib.assert(node.type === 'IF');
+
+        // Expression処理
+        let  child = node.child;
+        HLib.assert(child);
+        if (!this.generateExpression(child)){
+            // 最初の子はExpression
+            return false;
+        }
+
+        // コード生成
+        const label_ifEnd = `${this.mName}_ifEnd${this.mLabelId}`;
+        this.mLabelId += 1;
+
+        this.addCommand('bz', label_ifEnd);
+
+        // 内部の文を処理
+        child = child.brother;
+        while (child){
+            if (!this.generateStatement(child)){
+                return false;
+            }
+            child = child.brother;
+        }
+
+        // ラベル生成
+        this.addCommand('label', label_ifEnd);
+
         return true;
     }
     
