@@ -25,6 +25,8 @@ export default class Parser {
         this.mConstants.memory = 0;
         let memoryWord = this.mLocale.memoryWord;
         this.mConstants[memoryWord] = 0;
+        this.mConstants["memory"] = 0;
+
         let node:any = {type:'PROGRAM', child:null, brother:null};
         //定数全て処理
         let tokens = this.mTokens;

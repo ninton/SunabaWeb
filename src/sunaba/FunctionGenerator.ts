@@ -497,13 +497,14 @@ export default class FunctionGenerator {
     st
     */
     public generateSubstitution(node:any): boolean {
+        console.log(JSON.stringify(this.mCurrentBlock, undefined, 2));
         HLib.assert(node.type === 'SET');
         
-        //左辺値のアドレスを求める。最初の子が左辺値
+        // 左辺値のアドレスを求める。最初の子が左辺値
         let child = node.child;
         HLib.assert(child);
 
-        //変数の定義状態を参照
+        // 変数の定義状態を参照
         let v:Variable|null = null;
 
         if ((child.type === 'OUT') || child.token) { //変数があるなら
@@ -512,11 +513,12 @@ export default class FunctionGenerator {
                 name = "!ret";
             }
             v = this.mCurrentBlock.findVariable(name);
-            if (!v) { //配列アクセス時でタイプミスすると変数が存在しないケースがある
+            if (!v) {
+                // 配列アクセス時でタイプミスすると変数が存在しないケースがある
                 this.beginError(child);
-                this.mMessageStream(`名前付きメモリか定数"${name}"は存在しないか、まだ作られていない。\n`);
+                this.mMessageStream(`E002:名前付きメモリか定数"${name}"は存在しないか、まだ作られていない。\n`);
                 return false; 
-            } else if (!(v.isDefined())) { //未定義ならここで定義
+            } else if (!(v.isDefined())) { // 未定義ならここで定義
                 v.define();
             }
         }
@@ -529,7 +531,7 @@ export default class FunctionGenerator {
             return false;
         }
 
-        //右辺処理
+        // 右辺処理
         child = child.brother;
         HLib.assert(child);
         if (!this.generateExpression(child)) {
@@ -544,7 +546,7 @@ export default class FunctionGenerator {
         }
         this.addCommand(cmd, params.staticOffset, `#"${node.token.string}"へストア`);
 
-        //左辺値は初期化されたのでフラグをセット。すでにセットされていても気にしない。
+        // 左辺値は初期化されたのでフラグをセット。すでにセットされていても気にしない。
         if (v) {
             v.initialize();
         }
@@ -647,7 +649,7 @@ export default class FunctionGenerator {
 
                 if (!(v.isDefined())) {
                     this.beginError(node);
-                    this.mMessageStream(`名前付きメモリか定数"${name}"はまだ作られていない。\n`);
+                    this.mMessageStream(`E001:名前付きメモリか定数"${name}"はまだ作られていない。\n`);
                     return false; //まだ宣言してない
                 }
 
@@ -690,72 +692,64 @@ export default class FunctionGenerator {
     }
 
     public pushDynamicOffset(params:any, node:any): boolean {
-/*
-        *fpRelative = false;
-        *staticOffset = -0x7fffffff; //あからさまにおかしな値を入れておく。デバグのため。
-        HLib.assert((node->mType == NODE_OUT) || (node->mType == NODE_VARIABLE) || (node->mType == NODE_ARRAY_ELEMENT));
+
+        let fpRelative   = false;
+        let staticOffset = -0x7fffffff; //あからさまにおかしな値を入れておく。デバグのため。
+
+        HLib.assert((node.type === 'OUT') || (node.type === 'VARIABLE') || (node.type === 'ARRAY'));
+
         //トークンは数字ですか、名前ですか
         if (node.token) {
-            if (node.token->mType == TOKEN_OUT) {
-                RefString name("!ret");
-                Variable* var = mCurrentBlock->findVariable(name);
-                HLib.assert(var);
-                *fpRelative = true; //変数直のみFP相対
-                *staticOffset = var->offset();
-                mOutputExist = true;
-            } else if (node.token->mType == TOKEN_NAME) {
+            if (node.token.type === 'OUT') {
+                const name = "!ret";
+                const v:any = this.mCurrentBlock.findVariable(name);
+                HLib.assert(v);
+                fpRelative = true; //変数直のみFP相対
+                staticOffset = v.offset();
+                this.mOutputExist = true;
+            } else if (node.token.type === 'NAME') {
                 //変数の定義状態を参照
-                RefString name(node.token.string);
-                Variable* var = mCurrentBlock->findVariable(name);
+                const name = node.token.string;
+                const v:any = this.mCurrentBlock.findVariable(name);
+
                 //配列ならExpressionを評価してプッシュ
-                if (node->mType == NODE_ARRAY_ELEMENT) {
-                    wchar_t numberBuffer[16];
-                    makeIntString(numberBuffer, var->offset());
-                    out->addString("fld ");
-                    out->addString(numberBuffer);
-                    out->addString(" #ポインタ\"");
-    //				RefString name(node.token.string);
-                    out->add(name.pointer(), name.size());
-                    out->addString("\"からロード\n");
+                if (node.type === 'ARRAY') {
+                    this.addCommand('fld', v.offset(), `#ポインタ"${name}"からロード`);
+
                     if (node.child) { //変数インデクス
                         if (!this.generateExpression(node.child)) { //アドレスオフセットがプッシュされる
                             return false;
                         }
-                        out->addString("add\n");
-                        *staticOffset = 0;
+                        this.addCommand("add");
+                        staticOffset = 0;
                     } else { //定数インデクス
-                        *staticOffset = node->mNumber;
+                        staticOffset = node.number;
                     }
                 } else {
-                    *fpRelative = true; //変数直のみFP相対
-                    *staticOffset = var->offset();
+                    fpRelative   = true; //変数直のみFP相対
+                    staticOffset = v.offset();
                 }
+
             }
-        } else { //定数アクセス。トークンがない。
-            HLib.assert(node->mType == NODE_ARRAY_ELEMENT); //インデクスがない定数アクセスはアドレスではありえない。
+        } else {
+            //定数アクセス。トークンがない。
+            HLib.assert(node.type === 'ARRAY'); //インデクスがない定数アクセスはアドレスではありえない。
             if (node.child) { //変数インデクス
                 if (!this.generateExpression(node.child)) { //アドレスをプッシュ
                     return false;
                 }
             } else {
-                out->addString("i 0 #絶対アドレスなので0\n"); //絶対アドレスアクセス
+                this.addCommand("i", 0, "#絶対アドレスなので0\n"); //絶対アドレスアクセス
             }
-            *staticOffset = node->mNumber;
+            staticOffset = node.number;
         }
-*/
+
         return true;
     }
 
     public beginError(node:any): void {
-/*
-        const Token* token = node.token;
+        const token = node.token;
         HLib.assert(token);
-        mMessageStream->write(token->mFilename.pointer(), token->mFilename.size());
-        if (token->mLine != 0) {
-            *mMessageStream << L'(' << token->mLine << ") ";
-        } else {
-            *mMessageStream << L' ';
-        }
-*/    
+        this.mMessageStream("");
     }
 }
