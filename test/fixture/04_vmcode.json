@@ -1,0 +1,57 @@
+[
+    {
+      "name": "pop",
+      "imm": -1,
+      "comment": "#$mainの戻り値領域"
+    },
+    {
+      "name": "call",
+      "imm": 4,
+      "comment": ""
+    },
+    {
+      "name": "j",
+      "imm": 9,
+      "comment": "#プログラム終了点へジャンプ"
+    },
+    {
+      "name": "",
+      "imm": "",
+      "comment": "#部分プログラム\"!main\"の開始\n"
+    },
+    {
+      "name": "label",
+      "imm": "func_!main:\n",
+      "comment": ""
+    },
+    {
+      "name": "i",
+      "imm": 0,
+      "comment": "#絶対アドレスなので0\n"
+    },
+    {
+      "name": "i",
+      "imm": 999999,
+      "comment": "#即値プッシュ"
+    },
+    {
+      "name": "st",
+      "imm": 60000,
+      "comment": "#\"memory\"へストア"
+    },
+    {
+      "name": "ret",
+      "imm": -3,
+      "comment": "#部分プログラム\"!mainの終了"
+    },
+    {
+      "name": "label",
+      "imm": "!end:",
+      "comment": ""
+    },
+    {
+      "name": "pop",
+      "imm": 1,
+      "comment": "#!mainの戻り値を破棄。最終命令。なくてもいいが。"
+    }
+  ]

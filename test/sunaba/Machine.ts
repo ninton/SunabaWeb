@@ -337,7 +337,6 @@ suite('sunaba.Machine', () => {
             }
         ];
 
-console.log("#340"); 
         machine.loadProgram(program);
         machine.step();
         machine.step();

@@ -84,13 +84,13 @@ function program_2(): Array<any> {
     return [
         {
             "name": "i",
-            "imm": 999999,
-            "comment": "#即値プッシュ"
+            "imm": 0,
+            "comment": "#絶対アドレスなので0\n"
         },
         {
             "name": "i",
-            "imm": 0,
-            "comment": "#絶対アドレスなので0\n"
+            "imm": 999999,
+            "comment": "#即値プッシュ"
         },
         {
             "name": "st",
