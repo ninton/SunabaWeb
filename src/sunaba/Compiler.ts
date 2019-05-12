@@ -1,6 +1,7 @@
 import Sunaba from './Sunaba';
 import Parser from './Parser';
 import CodeGenerator from './CodeGenerator';
+import Assembler from './Assembler';
 
 export default class Compiler {
     public compile(code:string) {
@@ -18,16 +19,15 @@ export default class Compiler {
 
         const parser:Parser = new Parser(result.tokens, Sunaba.locales.japanese);
         const rootNode = parser.parseProgram();
-
         const codeGenerator = new CodeGenerator((s:string) => {
             console.log(s);
         });
         const result2 = codeGenerator.generateProgram(rootNode);
+        const commands = codeGenerator.getCommands();
 
-        return {
-            result: result2,
-            commands: codeGenerator.getCommands()
-        };
+        const assembler = new Assembler();
+        const result3 = assembler.assemble(commands);
+        return result3;
     }
 
     public unifySpace(code:string): string {

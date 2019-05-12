@@ -1,5 +1,6 @@
 import { sprintf } from "sprintf-js";
 import Machine from "./sunaba/Machine";
+import Compiler from "./sunaba/Compiler";
 
 var canvas = document.getElementById("screen");
 var ctx = {
@@ -42,10 +43,15 @@ let machine:Machine = new Machine();
 let runButton = document.getElementById("runButton");
 if (runButton !== null) {
     runButton.onclick = function () {
-        const program:Array<any> = program_3();
+        const code = document.getElementById("code").value;
+
+        const compiler = new Compiler();
+        const result = compiler.compile(code);
 
         machine.setVramDrawer(vramDrawer);
-        machine.loadProgram(program);
+
+        console.log(result.commands);
+        machine.loadProgram(result.commands);
     }
 }
 

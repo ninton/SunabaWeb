@@ -326,7 +326,7 @@ suite('sunaba.Compiler', () => {
     test('compile', () => {
         const expected = {
             result:   true,
-            commands: JSON.parse(fs.readFileSync('test/fixture/04_assemble.json').toString())
+            commands: JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
         };
 
         const code = fs.readFileSync('test/fixture/04_code.sunaba').toString();
