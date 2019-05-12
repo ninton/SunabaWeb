@@ -46,12 +46,16 @@ if (runButton !== null) {
         const code = document.getElementById("code").value;
 
         const compiler = new Compiler();
-        const result = compiler.compile(code);
+        const results = compiler.compile(code);
+        if (0 < results.errorMessage.length) {
+            document.getElementById("message").value += `${results.errorMessage}\n`;
+            return;
+        }
 
         machine.setVramDrawer(vramDrawer);
 
-        console.log(result.commands);
-        machine.loadProgram(result.commands);
+        console.log(results.commands);
+        machine.loadProgram(results.commands);
     }
 }
 
