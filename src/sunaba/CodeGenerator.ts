@@ -69,7 +69,7 @@ export default class CodeGenerator {
         }
 
         // 最後にプログラム終了ラベル
-        this.addCommand("label", "!end:");
+        this.addCommand("label", "!end");
         this.addCommand("pop", 1, "#!mainの戻り値を破棄。最終命令。なくてもいいが。");
         return true;   
     }

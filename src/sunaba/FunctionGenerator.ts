@@ -213,7 +213,7 @@ export default class FunctionGenerator {
         this.addCommand('', '', `#部分プログラム"${this.mName}"の開始\n`);
         // 関数開始ラベル
         // 160413: add等のアセンブラ命令と同名の関数があった時にラベルを命令と間違えて誤作動する問題の緊急回避
-        this.addCommand('label', `func_${this.mName}:\n`);
+        this.addCommand('label', `func_${this.mName}`);
 
         // ローカル変数を確保
         // 戻り値、FP、CP、引数はここで問題にするローカル変数ではない。呼出側でプッシュしているからだ。

@@ -130,7 +130,7 @@ function program_3(): Array<any> {
         },
         {
         "name": "label",
-        "imm": "func_!main:\n",
+        "imm": "func_!main",
         "comment": ""
         },
         {
@@ -155,7 +155,7 @@ function program_3(): Array<any> {
         },
         {
         "name": "label",
-        "imm": "!end:",
+        "imm": "!end",
         "comment": ""
         },
         {

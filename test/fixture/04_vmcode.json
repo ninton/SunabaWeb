@@ -21,7 +21,7 @@
     },
     {
       "name": "label",
-      "imm": "func_!main:\n",
+      "imm": "func_!main",
       "comment": ""
     },
     {
@@ -46,7 +46,7 @@
     },
     {
       "name": "label",
-      "imm": "!end:",
+      "imm": "!end",
       "comment": ""
     },
     {

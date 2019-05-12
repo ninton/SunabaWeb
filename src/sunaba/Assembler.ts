@@ -1,3 +1,4 @@
+// E300
 export default class Assembler {
     constructor() {
     }
@@ -6,15 +7,13 @@ export default class Assembler {
         const labelAddressMap = this.collectLabel(cmds);
         const outCmds = this.resolveLabelAddress(cmds, labelAddressMap);
 
-        cmds[1].imm = 4;
-        cmds[2].imm = 9;
-
         return {
             result: true,
             commands: outCmds
         };
     }
 
+    // E300
     public collectLabel(cmds:Array<any>): any {
         const labelAddressMap:any = {};
 
@@ -22,9 +21,9 @@ export default class Assembler {
             const cmd = cmds[i];
             if (cmd.name === 'label') {
                 if (cmd.imm in labelAddressMap) {
-                    throw `E0100: label duplicated: ${cmd.imm} `;
+                    throw `E300: label duplicated: ${cmd.imm} `;
                 }
-                labelAddressMap[cmd.name] = i;
+                labelAddressMap[cmd.imm] = i;
             }
         }
 

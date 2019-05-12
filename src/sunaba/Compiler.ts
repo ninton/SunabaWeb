@@ -56,10 +56,7 @@ export default class Compiler {
         const parser:Parser = new Parser(this.structurizedResults.tokens, Sunaba.locales.japanese);
         this.rootNode = parser.parseProgram()
 
-        const codeGenerator = new CodeGenerator((s:string) => {
-            console.log(s);
-        });
-
+        const codeGenerator = new CodeGenerator();
         this.codeGeneratorResults = {
             result: false,
             commands: []
