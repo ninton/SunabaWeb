@@ -311,7 +311,6 @@ export default class FunctionGenerator {
             //関数定義はもう処理済みなので無視。
             ; //スルー
         } else {
-            console.log("#1 " + node.type);
             HLib.assert(false, `FcuntionGenerator.ts:318 node.type:${node.type}`);
         }
 
@@ -498,11 +497,9 @@ export default class FunctionGenerator {
     */
     public generateSubstitution(node:any): boolean {
         HLib.assert(node.type === 'SET');
-        console.log(JSON.stringify(node, undefined, 2));
 
         // 左辺値のアドレスを求める。最初の子が左辺値
         let child = node.child;
-        console.log(JSON.stringify(child, undefined, 2));
         HLib.assert(child);
 
         // 変数の定義状態を参照

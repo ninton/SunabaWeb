@@ -23,6 +23,11 @@ export default class Compiler {
             console.log(s);
         });
         const result2 = codeGenerator.generateProgram(rootNode);
+
+        return {
+            result: result2,
+            commands: codeGenerator.getCommands()
+        };
     }
 
     public unifySpace(code:string): string {

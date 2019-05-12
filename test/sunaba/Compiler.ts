@@ -323,5 +323,15 @@ suite('sunaba.Compiler', () => {
         assert.deepEqual(expected, actual);
     });
 
+    test('compile', () => {
+        const expected = {
+            result:   true,
+            commands: JSON.parse(fs.readFileSync('test/fixture/04_assemble.json').toString())
+        };
 
+        const code = fs.readFileSync('test/fixture/04_code.sunaba').toString();
+        const actual = compiler.compile(code);
+
+        assert.deepEqual(expected, actual);
+    });
 });
