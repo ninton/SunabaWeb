@@ -24,6 +24,7 @@ export default class Machine {
     stackPointer:   number;
     framePointer:   number;
     vramDrawer:     Function;
+    messageHandler: Function;
 
     constructor() {
         this.VRAM_BASE  = VRAM_BASE;
@@ -35,6 +36,9 @@ export default class Machine {
         this.stackPointer   = STACK_BASE;
         this.framePointer   = 0;
         this.vramDrawer     = () => {};
+        this.messageHandler = (mesg:string) => {
+            //console.log(mesg);
+        };
 
         for (let i = 0; i < FREE_AND_PROGRAM_SIZE + STACK_SIZE + VRAM_SIZE; i += 1) {
             this.memory[i] = 10000 + i;
@@ -75,9 +79,18 @@ export default class Machine {
         this.programCounter = 0;
         this.stackPointer = STACK_BASE;
         this.framePointer = 0;
+        this.messageHandler('プログラムを起動');
     }
 
     public step() {
+        try {
+            this.stepMain();
+        } catch (e) {
+            this.messageHandler(e);
+        }
+    }
+
+    public stepMain() {
         if (this.program.length <= this.programCounter) {
             return;
         }
@@ -153,6 +166,10 @@ export default class Machine {
             case 'label':
                 this.noop();
                 break;
+        }
+
+        if (this.program.length <= this.programCounter) {
+            this.messageHandler('プログラムが最後まで実行された。');
         }
     }
 
@@ -337,5 +354,9 @@ export default class Machine {
 
     public setFramePointer(value:number) {
         this.framePointer = value;
+    }
+
+    public setMessageHandler(messageHandler:Function) {
+        this.messageHandler = messageHandler;
     }
 }

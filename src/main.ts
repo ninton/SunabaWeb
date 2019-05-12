@@ -39,6 +39,9 @@ var vramDrawer = (addr:number, value:number) => {
 }
 
 let machine:Machine = new Machine();
+machine.setMessageHandler((mesg:string) => {
+    document.getElementById("message").value += `${mesg}\n`;
+});
 
 let runButton = document.getElementById("runButton");
 if (runButton !== null) {
