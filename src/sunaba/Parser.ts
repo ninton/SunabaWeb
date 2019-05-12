@@ -580,6 +580,9 @@ export default class Parser {
                 } else if (node.operator === '*') {
                     preComputed = a * b;
                 } else if (node.operator === '/') {
+                    if (b === 0) {
+                        throw `E171: 行${t.line}: 0で割り算している。`;
+                    }
                     preComputed = Math.floor(a / b); //整数化必須
                 } else if (node.operator === '<') {
                     preComputed = (a < b) ? 1 : 0;

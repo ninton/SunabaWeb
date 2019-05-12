@@ -306,11 +306,11 @@ suite('sunaba.Machine', () => {
             },
             {
                 name: 'ld',
-                imm: 60000
+                imm: 40000
             }
         ];
 
-        machine.setMemory(60100, 111111);
+        machine.setMemory(40100, 111111);
         machine.loadProgram(program);
         machine.step();
         machine.step();
@@ -354,9 +354,9 @@ suite('sunaba.Machine', () => {
             }
         ];
 
-        machine.setMemory(102, 9);
+        machine.setMemory(40002, 9);
         machine.loadProgram(program);
-        machine.setFramePointer(100);
+        machine.setFramePointer(40000);
         machine.step();
 
         const actual:Array<number> = machine.getStack();

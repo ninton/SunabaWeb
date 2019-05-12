@@ -46,4 +46,34 @@ suite('sunaba.Machine', () => {
 
         assert.deepEqual(expected, mesgArr);
     });
+
+    test('0 div', () => {
+        const program = [
+            {
+                name: 'i',
+                imm: 6
+            },
+            {
+                name: 'i',
+                imm: 0
+            },
+            {
+                name: 'div'
+            }
+        ];
+
+        const mesgArr:Array<string> = [];
+        machine.setMessageHandler((mesg:string) => {
+            mesgArr.push(mesg);
+        });
+
+        machine.loadProgram(program);
+        machine.step();
+        machine.step();
+        machine.step();
+
+        assert.equal(0, mesgArr[1].indexOf('E910'));
+    });
+
+
 });

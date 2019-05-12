@@ -377,4 +377,11 @@ suite('sunaba.Compiler', () => {
 
         assert.equal(0, actual.errorMessage.indexOf("E181"));
     });
+
+    test('compile #6', () => {
+        const code = "memory[65047 + 1 + 2] → 990000 / 0\n";
+        const actual = compiler.compile(code);
+
+        assert.equal(0, actual.errorMessage.indexOf("E171"));
+    });
 });

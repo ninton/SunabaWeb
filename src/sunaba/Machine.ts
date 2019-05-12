@@ -3,16 +3,18 @@ const STACK_SIZE            = 10000;
 const IO_MEMORY_SIZE        = 10000;
 const IO_WRITABLE_OFFSET    = 5000;
 const EXECUTION_UNIT        = 10000;
+const SCREEN_WIDTH          = 100;
+const SCREEN_HEIGHT         = 100;
 
 //自動計算定数類
 const STACK_BASE = FREE_AND_PROGRAM_SIZE;
 const STACK_END  = STACK_BASE + STACK_SIZE;
 const IO_BASE    = STACK_END;
 const IO_END     = IO_BASE + IO_MEMORY_SIZE;
-const VRAM_BASE  = IO_END;
-const VRAM_SIZE  = 100 * 100;
 const IO_READABLE_BEGIN = IO_BASE;
 const IO_WRITABLE_BEGIN = IO_BASE + IO_WRITABLE_OFFSET;
+const VRAM_BASE  = IO_END;
+const VRAM_SIZE  = SCREEN_HEIGHT * SCREEN_WIDTH;
 
 export default class Machine {
     VRAM_BASE:      number;
@@ -37,7 +39,7 @@ export default class Machine {
         this.framePointer   = 0;
         this.vramDrawer     = () => {};
         this.messageHandler = (mesg:string) => {
-            //console.log(mesg);
+            console.log(mesg);
         };
 
         for (let i = 0; i < FREE_AND_PROGRAM_SIZE + STACK_SIZE + VRAM_SIZE; i += 1) {
@@ -47,7 +49,7 @@ export default class Machine {
 
     public push(v:number) {
         if (this.stackPointer >= STACK_END) {
-            // TODO
+            throw "E901: スタックを使い切った。名前つきメモリを使いすぎ。";
         } else {
             this.memory[this.stackPointer] = v;
             this.stackPointer += 1;
@@ -56,7 +58,7 @@ export default class Machine {
 
     public pop(): number {
         if (this.stackPointer <= STACK_BASE){
-            // TODO
+            this.messageHandler("E902: ポップしすぎてスタック領域をはみ出した。");
             return 0;
         } else {
             this.stackPointer -= 1;
@@ -66,9 +68,9 @@ export default class Machine {
 
     public popN(n:number) {
         if ((this.stackPointer - n) < STACK_BASE){
-            // TODO
+            this.messageHandler("E903: ポップしすぎてスタック領域をはみ出した。");
         } else if ((this.stackPointer - n) >= STACK_END){
-            // TODO
+            throw "E904: スタックを使い切った。名前つきメモリを使いすぎ。";
         }else{
             this.stackPointer -= n;
         }
@@ -206,11 +208,12 @@ export default class Machine {
         this.programCounter += 1;
     }
 
+    // E910
     public step_div(cmd:any) {
         const op1 = this.pop();
         const op0 = this.pop();
-        if (op1 === 0) {
-            // TODO:
+        if (op1 == 0) {
+            throw "E910: 0で割ろうとした。";
         }
         const v = op0 / op1;
         this.push(v);
@@ -249,12 +252,44 @@ export default class Machine {
         this.programCounter += 1;
     }
 
+    // E920
     public step_ld(cmd:any) {
         const op0 = this.pop_or_framepointer(cmd.name);
         const addr = op0 + cmd.imm;
+
+        this.validate_read_address(addr);
         const v = this.loadMemory(addr);
         this.push(v);
         this.programCounter += 1;
+    }
+
+    private validate_read_address(addr:number): void {
+        if (addr < 0) {
+            throw `E920マイナスの番号のメモリを読みとろうとした(番号:"${addr})`;
+        }
+
+        if (addr < STACK_BASE) {
+            throw `プログラムが入っているメモリを読みとろうとした(番号:${addr}`;
+        }
+
+        if (addr < IO_BASE) {
+            return;
+        }
+
+        if (addr < IO_WRITABLE_BEGIN) {
+            return;
+        }
+
+        if (addr < VRAM_BASE) {
+            throw `このあたりのメモリはセットはできるが読み取ることはできない(番号:${addr})`;
+        }
+
+        if (addr < VRAM_BASE + VRAM_SIZE){
+            throw `"画面メモリは読み取れない(番号:${addr})`;
+
+        }
+
+        throw `メモリ範囲外を読みとろうとした(番号:${addr})`;
     }
 
     private pop_or_framepointer(cmd_name:string) {
