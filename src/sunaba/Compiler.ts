@@ -489,13 +489,13 @@ export default class Compiler {
         }
 
         if (!emptyLine) { //最後の行を終わらせる
-            r.push({type:';', string:';', line:prevT.line});
+            r.push({type:';', string:'行末', line:prevT.line});
         }
 
         //ブロック終了を補う
         while (spaceCountStackPos > 1) {
             spaceCountStackPos -= 1;
-            r.push({type:'}', string:'}', line:prevT.line});
+            r.push({type:'}', string:'ブロック末', line:prevT.line});
         }
 
         //ダミー最終トークン

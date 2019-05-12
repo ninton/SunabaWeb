@@ -127,7 +127,6 @@ export default class FunctionGenerator {
     codeGen:CodeGenerator;
     cmds:Array<any>;
 
-    mMessageStream:Function; // 借り物
 	mRootBlock    :Block;
 	mCurrentBlock :Block;
 	mLabelId      :number;
@@ -139,10 +138,6 @@ export default class FunctionGenerator {
     constructor(codeGen:CodeGenerator) {
         this.codeGen = codeGen;
         this.cmds = [];
-
-        this.mMessageStream = (s:string) => {
-            console.log(s);
-        };
         this.mRootBlock    = new Block(0);  // dummy
         this.mCurrentBlock = new Block(0);  // dummy
         this.mLabelId      = 0;
@@ -171,6 +166,7 @@ export default class FunctionGenerator {
         return this.cmds;
     }
 
+    // E200
     public process(node:any, funcName:string): boolean {
         this.mName = funcName;
         this.mInfo = this.mFunctionMap[this.mName];
@@ -201,12 +197,7 @@ export default class FunctionGenerator {
 
             if (!this.mCurrentBlock.addVariable(variableName, true)) {
                 this.beginError(node);
-                this.mMessageStream("部分プログラム\"");
-                this.mMessageStream(this.mName);
-                this.mMessageStream("\"の入力\"");
-                this.mMessageStream(variableName);
-                this.mMessageStream("\"はもうすでに現れた。二個同じ名前があるのはダメ。\n");
-                return false;
+                throw `E201: 部分プログラム"${this.mName}"の入力"${variableName}はもうすでに現れた。二個同じ名前があるのはダメ。`
             }
             child = child.brother;
         }
@@ -255,12 +246,12 @@ export default class FunctionGenerator {
             if (headNode.token) {
                 // 普通の関数ノード
                 this.beginError(headNode);
-                this.mMessageStream(`部分プログラム"${this.mName}"は出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？\b`);
+                throw `E201: 部分プログラム"${this.mName}"は出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`;
             } else {
                 // プログラムノード
                 HLib.assert(headNode.child);
                 this.beginError(headNode.child);
-                this.mMessageStream("このプログラムは出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？\n");
+                throw `E202: このプログラムは出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`;
             }
             return false;
         }
@@ -424,6 +415,7 @@ export default class FunctionGenerator {
         return true;
     }
     
+    // E210
     public generateFunction(node:any, isStatement:boolean): boolean {
         HLib.assert(node.type === 'FUNCTION');
 
@@ -432,8 +424,7 @@ export default class FunctionGenerator {
         const funcName = node.token.string;
         if (!(funcName in this.mFunctionMap)) {
             this.beginError(node);
-            this.mMessageStream(`部分プログラム"${funcName}"なんて知らない。\n`);
-            return false;
+            throw `E210: 部分プログラム"${funcName}"なんて知らない。`;
         }
 
         const func = this.mFunctionMap[funcName];
@@ -449,8 +440,7 @@ export default class FunctionGenerator {
         } else if (!isStatement) {
             // 戻り値がないなら式の中にあっちゃだめ
             this.beginError(node);
-            this.mMessageStream(`部分プログラム\"${funcName}"は、"出力"か"out"という名前付きメモリがないので、出力は使えない。ifやwhileの中にあってもダメ。\n`);
-            return false;
+            throw `E211: 部分プログラム\"${funcName}"は、"出力"か"out"という名前付きメモリがないので、出力は使えない。ifやwhileの中にあってもダメ。`;
         }
 
         // 引数の数をチェック
@@ -464,8 +454,7 @@ export default class FunctionGenerator {
         popCount += argCount; // 引数分追加
         if (argCount !== func.argCount()) {
             this.beginError(node);
-            this.mMessageStream(`部分プログラム"${funcName}"は、入力を${func.argCount()}個受け取るのに、ここには$$argCount}個ある。間違い。\n`);
-            return false;
+            throw `E212: 部分プログラム"${funcName}"は、入力を${func.argCount()}個受け取るのに、ここには$$argCount}個ある。間違い。`;
         }
 
        // 引数を評価してプッシュ
@@ -495,6 +484,7 @@ export default class FunctionGenerator {
     Expression
     st
     */
+   // E220
     public generateSubstitution(node:any): boolean {
         HLib.assert(node.type === 'SET');
 
@@ -514,7 +504,7 @@ export default class FunctionGenerator {
             if (!v) {
                 // 配列アクセス時でタイプミスすると変数が存在しないケースがある
                 this.beginError(child);
-                this.mMessageStream(`E002:名前付きメモリか定数"${name}"は存在しないか、まだ作られていない。\n`);
+                throw `E220:名前付きメモリか定数"${name}"は存在しないか、まだ作られていない。`;
                 return false; 
             } else if (!(v.isDefined())) { // 未定義ならここで定義
                 v.define();
@@ -608,6 +598,7 @@ export default class FunctionGenerator {
         return table[operator];
     }
 
+    // E230
     public generateTerm(node:any): boolean {
         // 単項マイナス処理0から引く
         if (node.negation) {
@@ -641,20 +632,17 @@ export default class FunctionGenerator {
                 //知らない変数。みつからないか、あるんだがまだその行まで行ってないか。				
                 if (!v) {
                     this.beginError(node);
-                    this.mMessageStream(`E003:名前付きメモリか定数"${name}"は存在しない。\n`);
-                    return false; 
+                    throw `E230:名前付きメモリか定数"${name}"は存在しない。`;
                 }
 
                 if (!(v.isDefined())) {
                     this.beginError(node);
-                    this.mMessageStream(`E001:名前付きメモリか定数"${name}"はまだ作られていない。\n`);
-                    return false; //まだ宣言してない
+                    throw `E231:名前付きメモリか定数"${name}"はまだ作られていない。`;
                 }
 
                 if (!(v.isInitialized())) {
                     this.beginError(node);
-                    this.mMessageStream(`名前付きメモリか定数"${name}"は数をセットされる前に使われている。「a->a」みたいなのはダメ。\n`);
-                    return false; //まだ宣言してない
+                    throw `E232: 名前付きメモリか定数"${name}"は数をセットされる前に使われている。「a->a」みたいなのはダメ。`;
                 }
             }
 
@@ -747,6 +735,5 @@ export default class FunctionGenerator {
     public beginError(node:any): void {
         const token = node.token;
         HLib.assert(token);
-        this.mMessageStream("");
     }
 }

@@ -179,7 +179,7 @@ suite('sunaba.Compiler', () => {
                 {type: "]"         , line: 1, string: "]"                     },
                 {type: "→"        , line: 1, string: "→"                    },
                 {type: "NUMBER"    , line: 1, string: "999999", number: 999999},
-                {type: ";"         , line: 1, string: ";"                     },
+                {type: ";"         , line: 1, string: "行末"                  },
                 {type: "END"       , line: 1, string: ""                      }
             ],
             errorMessage: ""
@@ -220,7 +220,7 @@ suite('sunaba.Compiler', () => {
                 {type: ")"         , line: 1, string: ")"                     },
                 {type: "OPERATOR"  , line: 1, string: "*"     , operator: "*" },
                 {type: "NUMBER"    , line: 1, string: "2"     , number: 2     },
-                {type: ";"         , line: 1, string: ";"                     },
+                {type: ";"         , line: 1, string: "行末"                  },
                 {type: "END"       , line: 1, string: ""                      }
             ],
             errorMessage: ""
@@ -251,7 +251,7 @@ suite('sunaba.Compiler', () => {
                 {type: "OPERATOR"  , line: 1, string: "="     , operator: "=" },
                 {type: "NUMBER"    , line: 1, string: "1"     , number: 1     },
                 {type: "IF_POST"   , line: 1, string: "なら"                  },
-                {type: ";"         , line: 1, string: ";"                     },
+                {type: ";"         , line: 1, string: "行末"                  },
                 {type: "END"       , line: 1, string: ""                      }
             ],
             errorMessage: ""
@@ -282,7 +282,7 @@ suite('sunaba.Compiler', () => {
                 {type: "OPERATOR"  , line: 1, string: "="     , operator: "=" },
                 {type: "NUMBER"    , line: 1, string: "100"   , number: 100   },
                 {type: "WHILE_POST", line: 1, string: "な限り"                },
-                {type: ";"         , line: 1, string: ";"                     },
+                {type: ";"         , line: 1, string: "行末"                  },
                 {type: "END"       , line: 1, string: ""                      }
             ],
             errorMessage: ""
@@ -313,7 +313,7 @@ suite('sunaba.Compiler', () => {
                 {type: "NAME"      , line: 1, string: "横"                    },
                 {type: ")"         , line: 1, string: ")"                     },
                 {type: "DEF_POST"  , line: 1, string: "とは"                  },
-                {type: ";"         , line: 1, string: ";"                     },
+                {type: ";"         , line: 1, string: "行末"                  },
                 {type: "END"       , line: 1, string: ""                      }
             ],
             errorMessage: ""
@@ -372,14 +372,9 @@ suite('sunaba.Compiler', () => {
     });
 
     test('compile #5', () => {
-        const expected = {
-            errorMessage: '',
-            commands:     JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
-        };
-
         const code = "memory[65047 + 1 + 2] → 990000 + 9900 + \n";
         const actual = compiler.compile(code);
-        
-        assert.equal(0, actual.errorMessage.indexOf("E001"));
+
+        assert.equal(0, actual.errorMessage.indexOf("E181"));
     });
 });
