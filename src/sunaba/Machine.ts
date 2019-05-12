@@ -5,6 +5,7 @@ const IO_WRITABLE_OFFSET    = 5000;
 const EXECUTION_UNIT        = 10000;
 const SCREEN_WIDTH          = 100;
 const SCREEN_HEIGHT         = 100;
+const MAX_CALL_COUNT        = 256;
 
 //自動計算定数類
 const STACK_BASE = FREE_AND_PROGRAM_SIZE;
@@ -27,6 +28,8 @@ export default class Machine {
     framePointer:   number;
     vramDrawer:     Function;
     messageHandler: Function;
+    callCount     ; number;
+    isRunning     : boolean;
 
     constructor() {
         this.VRAM_BASE  = VRAM_BASE;
@@ -45,6 +48,9 @@ export default class Machine {
         for (let i = 0; i < FREE_AND_PROGRAM_SIZE + STACK_SIZE + VRAM_SIZE; i += 1) {
             this.memory[i] = 10000 + i;
         }
+
+        this.callCount = 0;
+        this.isRunning = false;
     }
 
     public push(v:number) {
@@ -58,8 +64,7 @@ export default class Machine {
 
     public pop(): number {
         if (this.stackPointer <= STACK_BASE){
-            this.messageHandler("E902: ポップしすぎてスタック領域をはみ出した。");
-            return 0;
+            throw "E902: ポップしすぎてスタック領域をはみ出した。";
         } else {
             this.stackPointer -= 1;
             return this.memory[this.stackPointer];
@@ -68,7 +73,7 @@ export default class Machine {
 
     public popN(n:number) {
         if ((this.stackPointer - n) < STACK_BASE){
-            this.messageHandler("E903: ポップしすぎてスタック領域をはみ出した。");
+            throw "E903: ポップしすぎてスタック領域をはみ出した。";
         } else if ((this.stackPointer - n) >= STACK_END){
             throw "E904: スタックを使い切った。名前つきメモリを使いすぎ。";
         }else{
@@ -82,17 +87,24 @@ export default class Machine {
         this.stackPointer = STACK_BASE;
         this.framePointer = 0;
         this.messageHandler('プログラムを起動');
+        this.isRunning = true;
     }
 
     public step() {
+        console.log(`step:${this.programCounter}`);
         try {
             this.stepMain();
         } catch (e) {
             this.messageHandler(e);
+            this.messageHandler('エラーのため停止');
+            this.isRunning = false;
         }
     }
 
     public stepMain() {
+        if (!this.isRunning) {
+            return;
+        }
         if (this.program.length <= this.programCounter) {
             return;
         }
@@ -171,6 +183,7 @@ export default class Machine {
         }
 
         if (this.program.length <= this.programCounter) {
+            this.isRunning = false;
             this.messageHandler('プログラムが最後まで実行された。');
         }
     }
@@ -252,7 +265,6 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    // E920
     public step_ld(cmd:any) {
         const op0 = this.pop_or_framepointer(cmd.name);
         const addr = op0 + cmd.imm;
@@ -263,13 +275,15 @@ export default class Machine {
         this.programCounter += 1;
     }
 
+    // E920
     private validate_read_address(addr:number): void {
         if (addr < 0) {
-            throw `E920マイナスの番号のメモリを読みとろうとした(番号:"${addr})`;
+            throw `E920: マイナスの番号のメモリを読みとろうとした(番号:"${addr})`;
         }
 
         if (addr < STACK_BASE) {
-            throw `プログラムが入っているメモリを読みとろうとした(番号:${addr}`;
+            //throw `E921: プログラムが入っているメモリを読みとろうとした(番号:${addr})`;
+            return;
         }
 
         if (addr < IO_BASE) {
@@ -281,15 +295,15 @@ export default class Machine {
         }
 
         if (addr < VRAM_BASE) {
-            throw `このあたりのメモリはセットはできるが読み取ることはできない(番号:${addr})`;
+            throw `E922: このあたりのメモリはセットはできるが読み取ることはできない(番号:${addr})`;
         }
 
         if (addr < VRAM_BASE + VRAM_SIZE){
-            throw `"画面メモリは読み取れない(番号:${addr})`;
+            throw `E923: 画面メモリは読み取れない(番号:${addr})`;
 
         }
 
-        throw `メモリ範囲外を読みとろうとした(番号:${addr})`;
+        throw `E929: メモリ範囲外を読みとろうとした(番号:${addr})`;
     }
 
     private pop_or_framepointer(cmd_name:string) {
@@ -317,8 +331,40 @@ export default class Machine {
         const op0 = this.pop_or_framepointer(cmd.name);
         const addr = op0 + cmd.imm;
 
+        this.validate_write_address(addr, val);
         this.setMemory(addr, val);
         this.programCounter += 1;
+    }
+
+    // E930
+    private validate_write_address(addr:number, value:number): void {
+        if (addr < 0) {
+            throw `E930: マイナスの番号のメモリを変えようとした(番号:${addr},値:${value})`;
+        }
+
+        if (addr < STACK_BASE) {
+            //throw `E931: プログラムが入っているメモリにセットしようとした(番号:${addr},値:${value})`;
+            return;
+        }
+
+        if (addr < IO_BASE) {
+            return;
+        }
+
+        if (addr < IO_WRITABLE_BEGIN) {
+            throw `E932: このあたりのメモリはセットはできるが読み取ることはできない(番号:${addr},値:${value})`;
+        }
+
+        if (addr < VRAM_BASE) {
+            throw `E933: このあたりのメモリは使えない(番号:${addr},値:${value})`;
+        }
+
+        if (addr < VRAM_BASE + VRAM_SIZE){
+            return;
+
+        }
+
+        throw `E939: メモリ範囲外をいじろうとした(番号:${addr},値:${value})`;
     }
 
     public step_j(cmd:any) {
@@ -339,12 +385,22 @@ export default class Machine {
         this.push(this.programCounter);
         this.framePointer = this.stackPointer;
         this.programCounter = cmd.imm;
+
+        this.callCount += 1;
+        if (MAX_CALL_COUNT <= this.callCount) {
+            throw `部分プログラムを激しく呼びすぎ。たぶん再帰に間違いがある(命令:${this.programCounter})`;
+        }
     }
 
     public step_ret(cmd:any) {
         this.popN(cmd.imm);
         this.programCounter = this.pop();
         this.framePointer = this.pop();
+
+        this.callCount -= 1;
+        if (this.callCount < 0) {
+            throw `ret命令が多すぎている。絶対おかしい(命令:${this.programCounter})`;
+        }
     }
 
     public step_pop(cmd:any) {

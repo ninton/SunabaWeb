@@ -333,7 +333,7 @@ suite('sunaba.Machine', () => {
             },
             {
                 name: 'st',
-                imm: 10000
+                imm: 40000
             }
         ];
 
@@ -343,7 +343,7 @@ suite('sunaba.Machine', () => {
         machine.step();
 
         assert.equal(0, machine.getStack().length);
-        assert.equal(999999, machine.loadMemory(10000));
+        assert.equal(999999, machine.loadMemory(40000));
     });
 
     test('fld', () => {
@@ -375,19 +375,19 @@ suite('sunaba.Machine', () => {
             },
             {
                 name: 'fst',
-                imm: 2
+                imm: 40000
             }
         ];
 
-        assert.notEqual(9, machine.loadMemory(102));
+        assert.notEqual(9, machine.loadMemory(40102));
 
         machine.loadProgram(program);
-        machine.setFramePointer(100);
+        machine.setFramePointer(102);
         machine.step();
         machine.step();
 
         assert.equal(0, machine.getStack().length);
-        assert.equal(9, machine.loadMemory(102));
+        assert.equal(9, machine.loadMemory(40102));
     });
 
     test('j', () => {
@@ -402,7 +402,7 @@ suite('sunaba.Machine', () => {
             },
             {
                 name: 'st',
-                imm: 2
+                imm: 40000
             },
             {
                 name: 'j',

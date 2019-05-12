@@ -26,7 +26,7 @@ export default class Compiler {
         let errorMessage = "";
 
         try {
-            this.compileMain(code);
+            this.compileMain(code + "\n");
         } catch (e) {
             errorMessage = e;
         }
