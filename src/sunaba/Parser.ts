@@ -21,14 +21,17 @@ export default class Parser {
 
     //Program : (Const | FuncDef | Statement )*
     public parseProgram() {
-        //定数マップにmemoryの類を登録
+        // 定数マップに「メモリ」と「memory」を登録
         this.mConstants.memory = 0;
         let memoryWord = this.mLocale.memoryWord;
         this.mConstants[memoryWord] = 0;
         this.mConstants["memory"] = 0;
 
+        // Programノードを確保
         let node:any = {type:'PROGRAM', child:null, brother:null};
-        //定数全て処理
+
+        // 定数全て処理
+        // このループを消して、後ろのループのparseConstのtrueを消せば、定数定義を前に限定できる
         let tokens = this.mTokens;
         let n = tokens.length;
         this.mPos = 0;
@@ -42,6 +45,7 @@ export default class Parser {
                 this.mPos += 1;
             }
         }
+
         //残りを処理
         this.mPos = 0;
         let lastChild:any = null;
@@ -79,52 +83,66 @@ export default class Parser {
     public parseConst(skipFlag:boolean): boolean {
         let tokens:Array<any> = this.mTokens;
         let t = tokens[this.mPos];
+
+        if (t.type !== 'CONST') {
+            this.beginError(t);
+            this.errorMessage += `定数行のはずだが解釈できない。上の行からつながってないか。\n`;
+            return false;
+        }
         HLib.assert(t.type === 'CONST');
         this.mPos += 1;
+
         //名前
         t = tokens[this.mPos];
         if (t.type !== 'NAME') {
-            this.errorMessage += '行' + t.line + ': 「定数」の次は、その名前であるはずだが、「' + t.string + '」がある。';
+            this.beginError(t);
+            this.errorMessage += `"行${t.line}: 定数"の次は定数名。"${t.string}"は定数名と解釈できない。\n`;
             return false;
         }
-
         let constName = t.name;
         this.mPos += 1;
+
         //→
         t = tokens[this.mPos];
         if (t.type !== '→') {
-            this.errorMessage += '行' + t.line + ': 「定数 名前」の次は「→」のはずだが、「' + t.string + '」がある。';
+            this.beginError(t);
+            this.errorMessage += `行${t.line}: 定数 [名前]、と来たら次は"→"のはずだが「${t.string}'」がある。\n`;
             return false;
         }
-
         this.mPos += 1;
-        //Expression
+
+        // Expression
         let expression = this.parseExpression();
         if (expression === null) {
             return false;
         }
 
-        if (expression.type !== 'NUMBER') { //解決済みでなければ定数には使えない
-            this.errorMessage += '行' + t.line + ': 定数の右辺の計算に失敗した。メモリ、名前付きメモリ、部分プログラム参照は使えないよ？';
+        if (expression.type !== 'NUMBER') {  // 数字に解決されていなければ駄目。
+            this.beginError(t);
+            this.errorMessage += `行${t.line}: 定数の右辺の計算に失敗した。メモリや名前つきメモリ、部分プログラム参照などが入っていないか？\n`;
             return false;
         }
         let constValue = expression.number;
-        this.mPos += 1;
+        // this.mPos += 1; // C#版は += 1していないのでコメント化した
+
         //文末
         t = tokens[this.mPos];
         if (t.type !== ';') {
-            this.errorMessage += '行' + t.line + ': 定数行の最後に、「' + t.string + '」がある。改行してくれ。';
+            this.beginError(t);
+            this.errorMessage += `行${t.line}: 定数作成の後に"${t.string}"がある。改行してくれ。\n`;
             return false;
         }
         this.mPos += 1;
+
         //マップに登録
         if (!skipFlag) {
-            if (this.mConstants[constName]) { //もうある
-                this.errorMessage += '行' + t.line + ': 定数「' + constName + '」はすでに作られている。';
+            if (constName in this.mConstants) { //もうある
+                this.errorMessage += '行' + t.line + ': 定数「' + constName + '」はすでに同じ名前の定数がある。';
                 return false;
             }
             this.mConstants[constName] = constValue;
         }
+
         return true;
     }
 
@@ -454,42 +472,49 @@ export default class Parser {
         return node;
     }
 
-    //Array : name [ expression ]
+    // Array : name [ expression ]
     public parseArray() {
         let node:any = this.parseVariable();
         if (node === null) {
             return null;
         }
         node.type = 'ARRAY';
-        //[
-        HLib.assert(this.mTokens[this.mPos].type === '['); //getTermTypeで判定済み
+
+        // [
+        HLib.assert(this.mTokens[this.mPos].type === '['); // getTermTypeで判定済み
         this.mPos += 1;
-        //expression
+
+        // expression
         let expression:any = this.parseExpression();
         if (expression === null) {
             return null;
         }
         node.child = expression;
-        //expressionが数値ならアドレス計算を済ませてしまう
+
+        // expressionが数値であれば、アドレス計算はここでやる
         if (expression.type === 'NUMBER') {
             node.number += expression.number;
-            node.child = null; //expression破棄
+            node.child = null; // 子のExpressionを破棄
         }
+
         //]
         if (this.mTokens[this.mPos].type !== ']') {
             let t = this.mTokens[this.mPos];
-            this.errorMessage += '行' + t.line + ': 名前つきメモリ[番号]の"]"の代わりに「' + t.string + '」がある。';
+            this.beginError(t);
+            this.errorMessage += `行${t.line}: 名前つきメモリ[番号]の"]"の代わりに"${t.string}"がある。\n`;
             return null;
         }
         this.mPos += 1;
+
         return node;
     }
  
-    //Variable : name
+    // Variable : name
     public parseVariable() {
         let t = this.mTokens[this.mPos];
         HLib.assert(t.type === 'NAME');
-        let node:any = {type:null, token:t, child:null, brother:null};
+        let node:any = {type:null, token:null, child:null, brother:null};
+
         //定数？変数？
         let c = this.mConstants[t.string];
         if (typeof c !== 'undefined') {
@@ -497,8 +522,10 @@ export default class Parser {
             node.number = c;
         } else {
             node.type = 'VARIABLE';
+            node.token = t;
         }
         this.mPos += 1;
+
         return node;
     };
     
@@ -511,14 +538,16 @@ export default class Parser {
         return node;
     }
     
-    //Expression : expression +|-|*|/|<|>|≤|≥|≠|= expression
+    // Expression : expression +|-|*|/|<|>|≤|≥|≠|= expression
+    // 左結合の木になる。途中で回転が行われることがある。
     public parseExpression() {
-        //左結合の木をボトムアップで作る。途中で回転することもある。
-        //最初の左ノード
+        // ボトムアップ構築して、左結合の木を作る。
+	    // 最初の左ノードを生成
         let left:any = this.parseTerm();
         if (left === null) {
             return null;
         }
+
         //演算子がつながる限りループ
         let t = this.mTokens[this.mPos];
         while (t.type === 'OPERATOR') {
@@ -708,5 +737,8 @@ export default class Parser {
         }
         this.mPos += 1;
         return node;
+    }
+
+    public beginError(node:any) {
     }
 }

@@ -25,41 +25,7 @@ suite('sunaba.Parser', () => {
         const root = parser.parseProgram();
         //console.log(JSON.stringify(root, null, 4));
 
-        const expected = {
-            "type": "PROGRAM",
-            "child": {
-                "type": "SET",
-                "token": {
-                    "type": "NAME",
-                    "line": 1,
-                    "string": "memory"
-                },
-                "child": {
-                    "type": "ARRAY",
-                    "token": {
-                        "type": "NAME",
-                        "line": 1,
-                        "string": "memory"
-                    },
-                    "child": null,
-                    "brother": {
-                        "type": "NUMBER",
-                        "number": 999999,
-                        "token": {
-                            "type": "NUMBER",
-                            "line": 1,
-                            "string": "999999",
-                            "number": 999999
-                        },
-                        "child": null,
-                        "brother": null
-                    },
-                    "number": 60000
-                },
-                "brother": null
-            },
-            "brother": null
-        };
+        const expected = JSON.parse(fs.readFileSync('test/fixture/04_node.json').toString());
         assert.deepEqual(expected, root);
     });
 });
