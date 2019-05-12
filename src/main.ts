@@ -42,7 +42,7 @@ let machine:Machine = new Machine();
 let runButton = document.getElementById("runButton");
 if (runButton !== null) {
     runButton.onclick = function () {
-        const program:Array<any> = program_2();
+        const program:Array<any> = program_3();
 
         machine.setVramDrawer(vramDrawer);
         machine.loadProgram(program);
@@ -109,12 +109,12 @@ function program_3(): Array<any> {
         },
         {
         "name": "call",
-        "imm": "func_!main",
+        "imm": 4,
         "comment": ""
         },
         {
         "name": "j",
-        "imm": "!end",
+        "imm": 9,
         "comment": "#プログラム終了点へジャンプ"
         },
         {

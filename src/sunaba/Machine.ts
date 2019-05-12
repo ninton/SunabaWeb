@@ -83,6 +83,8 @@ export default class Machine {
         }
 
         const cmd = this.program[this.programCounter];
+        console.log(JSON.stringify(cmd));
+
         switch (cmd.name) {
             case 'i':
                 this.step_i(cmd);
@@ -149,8 +151,16 @@ export default class Machine {
             case 'pop':
                 this.step_pop(cmd);
                 break;
-            }
+            
+            case 'label':
+                this.noop();
+                break;
         }
+    }
+
+    public noop() {
+        this.programCounter += 1;
+    }
 
     public step_i(cmd:any) {
         this.push(cmd.imm);
