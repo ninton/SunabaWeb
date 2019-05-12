@@ -42,26 +42,7 @@ let machine:Machine = new Machine();
 let runButton = document.getElementById("runButton");
 if (runButton !== null) {
     runButton.onclick = function () {
-        const program:Array<any> = [];
-
-        for (let y = 0; y < 100; y += 1) {
-            for (let x = 0; x < 100; x += 1) {
-                let addr = y * 100 + x;
-
-                program.push({
-                    name: 'i',
-                    imm: 888888
-                });
-                program.push({
-                    name: 'i',
-                    imm: 60000 + addr
-                });
-                program.push({
-                    name: 'st',
-                    imm: 0
-                });
-            }
-        }
+        const program:Array<any> = program_2();
 
         machine.setVramDrawer(vramDrawer);
         machine.loadProgram(program);
@@ -73,3 +54,108 @@ window.setInterval(() => {
         machine.step();
     }
 }, 1);
+
+function program_1(): Array<any> {
+    const program:Array<any> = [];
+
+    for (let y = 0; y < 100; y += 1) {
+        for (let x = 0; x < 100; x += 1) {
+            let addr = y * 100 + x;
+
+            program.push({
+                name: 'i',
+                imm: 888888
+            });
+            program.push({
+                name: 'i',
+                imm: 60000 + addr
+            });
+            program.push({
+                name: 'st',
+                imm: 0
+            });
+        }
+    }
+
+    return program;
+}
+
+function program_2(): Array<any> {
+    return [
+        {
+            "name": "i",
+            "imm": 999999,
+            "comment": "#即値プッシュ"
+        },
+        {
+            "name": "i",
+            "imm": 0,
+            "comment": "#絶対アドレスなので0\n"
+        },
+        {
+            "name": "st",
+            "imm": 60110,
+            "comment": "#\"memory\"へストア"
+        },
+    ];
+}
+
+function program_3(): Array<any> {
+    return [
+        {
+        "name": "pop",
+        "imm": -1,
+        "comment": "#$mainの戻り値領域"
+        },
+        {
+        "name": "call",
+        "imm": "func_!main",
+        "comment": ""
+        },
+        {
+        "name": "j",
+        "imm": "!end",
+        "comment": "#プログラム終了点へジャンプ"
+        },
+        {
+        "name": "",
+        "imm": "",
+        "comment": "#部分プログラム\"!main\"の開始\n"
+        },
+        {
+        "name": "label",
+        "imm": "func_!main:\n",
+        "comment": ""
+        },
+        {
+        "name": "i",
+        "imm": 0,
+        "comment": "#絶対アドレスなので0\n"
+        },
+        {
+        "name": "i",
+        "imm": 999999,
+        "comment": "#即値プッシュ"
+        },
+        {
+        "name": "st",
+        "imm": 60110,
+        "comment": "#\"memory\"へストア"
+        },
+        {
+        "name": "ret",
+        "imm": -3,
+        "comment": "#部分プログラム\"!mainの終了"
+        },
+        {
+        "name": "label",
+        "imm": "!end:",
+        "comment": ""
+        },
+        {
+        "name": "pop",
+        "imm": 1,
+        "comment": "#!mainの戻り値を破棄。最終命令。なくてもいいが。"
+        }
+    ];
+}

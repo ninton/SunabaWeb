@@ -302,15 +302,15 @@ suite('sunaba.Machine', () => {
         const program = [
             {
                 name: 'i',
-                imm: 11
+                imm: 100
             },
             {
                 name: 'ld',
-                imm: 22
+                imm: 60000
             }
         ];
 
-        machine.setMemory(33, 123);
+        machine.setMemory(60100, 111111);
         machine.loadProgram(program);
         machine.step();
         machine.step();
@@ -318,32 +318,33 @@ suite('sunaba.Machine', () => {
         const actual:Array<number> = machine.getStack();
 
         assert.equal(1, actual.length);
-        assert.equal(123, actual[0]);
+        assert.equal(111111, actual[0]);
     });
 
     test('st', () => {
         const program = [
             {
                 name: 'i',
-                imm: 123
+                imm: 0
             },
             {
                 name: 'i',
-                imm: 100
+                imm: 999999
             },
             {
                 name: 'st',
-                imm: 2
+                imm: 10000
             }
         ];
 
+console.log("#340"); 
         machine.loadProgram(program);
         machine.step();
         machine.step();
         machine.step();
 
         assert.equal(0, machine.getStack().length);
-        assert.equal(123, machine.loadMemory(102));
+        assert.equal(999999, machine.loadMemory(10000));
     });
 
     test('fld', () => {

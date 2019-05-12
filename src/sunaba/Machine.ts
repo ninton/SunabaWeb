@@ -10,6 +10,7 @@ const STACK_END  = STACK_BASE + STACK_SIZE;
 const IO_BASE    = STACK_END;
 const IO_END     = IO_BASE + IO_MEMORY_SIZE;
 const VRAM_BASE  = IO_END;
+const VRAM_SIZE  = 100 * 100;
 const IO_READABLE_BEGIN = IO_BASE;
 const IO_WRITABLE_BEGIN = IO_BASE + IO_WRITABLE_OFFSET;
 
@@ -35,7 +36,7 @@ export default class Machine {
         this.framePointer   = 0;
         this.vramDrawer     = () => {};
 
-        for (let i = 0; i < FREE_AND_PROGRAM_SIZE + STACK_SIZE; i += 1) {
+        for (let i = 0; i < FREE_AND_PROGRAM_SIZE + STACK_SIZE + VRAM_SIZE; i += 1) {
             this.memory[i] = 10000 + i;
         }
     }
@@ -250,10 +251,13 @@ export default class Machine {
     }
 
     public step_st(cmd:any) {
+        const op1 = this.pop();
+        const val  = op1;
+
         const op0 = this.pop_or_framepointer(cmd.name);
         const addr = op0 + cmd.imm;
-        const v = this.pop();
-        this.setMemory(addr, v);
+
+        this.setMemory(addr, val);
         this.programCounter += 1;
     }
 
