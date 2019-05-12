@@ -4,6 +4,24 @@ import CodeGenerator from './CodeGenerator';
 import Assembler from './Assembler';
 
 export default class Compiler {
+    code                :string;
+    tokenizedResults    :any;
+    structurizedResults :any;
+    rootNode            :any;
+    parserResults       :any;
+    codeGeneratorResults:any;
+    assemblerResults    :any;
+
+    constructor() {
+        this.code                 = "";
+        this.tokenizedResults     = {};
+        this.structurizedResults  = {};
+        this.rootNode             = {};
+        this.parserResults        = {};
+        this.codeGeneratorResults = {}
+        this.assemblerResults     = {};
+    }
+
     public compile(code:string) {
         let s = code;
         s = this.unifySpace(s);
@@ -12,22 +30,32 @@ export default class Compiler {
         s = this.unifyOperator(s);
         s = this.removeSingleLineComment(s);
         s = this.removeMultiLineComment(s);
+        this.code = s;
 
         const locale = Sunaba.locales.japanese;
-        let result:any = this.tokenize(s, locale);
-        result = this.structurize(result.tokens);
 
-        const parser:Parser = new Parser(result.tokens, Sunaba.locales.japanese);
-        const rootNode = parser.parseProgram();
+        this.tokenizedResults = this.tokenize(s, locale);
+
+        this.structurizedResults = this.structurize(this.tokenizedResults.tokens);
+
+        const parser:Parser = new Parser(this.structurizedResults.tokens, Sunaba.locales.japanese);
+        this.rootNode = parser.parseProgram()
+
         const codeGenerator = new CodeGenerator((s:string) => {
             console.log(s);
         });
-        const result2 = codeGenerator.generateProgram(rootNode);
-        const commands = codeGenerator.getCommands();
+
+        this.codeGeneratorResults = {
+            result: false,
+            commands: []
+        };
+        this.codeGeneratorResults.result = codeGenerator.generateProgram(this.rootNode);
+        this.codeGeneratorResults.commands = codeGenerator.getCommands();
 
         const assembler = new Assembler();
-        const result3 = assembler.assemble(commands);
-        return result3;
+        this.assemblerResults = assembler.assemble(this.codeGeneratorResults.commands);
+
+        return this.assemblerResults;
     }
 
     public unifySpace(code:string): string {

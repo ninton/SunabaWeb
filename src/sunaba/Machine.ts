@@ -83,8 +83,6 @@ export default class Machine {
         }
 
         const cmd = this.program[this.programCounter];
-        console.log(JSON.stringify(cmd));
-
         switch (cmd.name) {
             case 'i':
                 this.step_i(cmd);

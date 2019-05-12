@@ -323,13 +323,49 @@ suite('sunaba.Compiler', () => {
         assert.deepEqual(expected, actual);
     });
 
-    test('compile', () => {
+    test('compile #1', () => {
         const expected = {
             result:   true,
             commands: JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
         };
 
         const code = fs.readFileSync('test/fixture/04_code.sunaba').toString();
+        const actual = compiler.compile(code);
+
+        assert.deepEqual(expected, actual);
+    });
+
+    test('compile #2', () => {
+        const expected = {
+            result:   true,
+            commands: JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
+        };
+
+        const code = "memory[65050] → 999999\n";
+        const actual = compiler.compile(code);
+
+        assert.deepEqual(expected, actual);
+    });
+
+    test('compile #3', () => {
+        const expected = {
+            result:   true,
+            commands: JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
+        };
+
+        const code = "memory[65049 + 1] → 999900 + 99\n";
+        const actual = compiler.compile(code);
+
+        assert.deepEqual(expected, actual);
+    });
+
+    test('compile #4', () => {
+        const expected = {
+            result:   true,
+            commands: JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
+        };
+
+        const code = "memory[65047 + 1 + 2] → 990000 + 9900 + 99\n";
         const actual = compiler.compile(code);
 
         assert.deepEqual(expected, actual);

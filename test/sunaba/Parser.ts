@@ -14,7 +14,7 @@ suite('sunaba.Parser', () => {
         const tokens = [
             {type: "NAME"      , line: 1, string: "memory"                },
             {type: "["         , line: 1, string: "["                     },
-            {type: "NUMBER"    , line: 1, string: "60000" , number: 60000 },
+            {type: "NUMBER"    , line: 1, string: "65050" , number: 65050 },
             {type: "]"         , line: 1, string: "]"                     },
             {type: "→"        , line: 1, string: "→"                    },
             {type: "NUMBER"    , line: 1, string: "999999", number: 999999},

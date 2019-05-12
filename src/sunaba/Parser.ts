@@ -351,7 +351,7 @@ export default class Parser {
 
     //Set: [out | memory | name | array] → expression ;
     public parseSetStatement() {
-           //
+        //
         let tokens = this.mTokens;
         let t = tokens[this.mPos];
         if ((t.type !== 'NAME') && (t.type !== 'OUT')) {
@@ -359,17 +359,21 @@ export default class Parser {
             return null;
         }
         let node = {type:'SET', token:t, child:null, brother:null};
-        //左辺
+
+        // 左辺
         let left:any = null;
         if (t.type === 'OUT') {
             left = {type:'OUT', token:t, child:null, brother:null};
             this.mPos += 1;
-        } else { //第一要素はNAME
-            if (tokens[this.mPos + 1].type === '[') { //配列だ
+        } else {
+            // 第一要素はNAME
+            if (tokens[this.mPos + 1].type === '[') {
+                // 配列だ
                 left = this.parseArray();
-            } else { //変数
+            } else { // 変数
                 left = this.parseVariable();
-                if (left.type === 'NUMBER') { //定数じゃん！
+                if (left.type === 'NUMBER') {
+                    //定数じゃん！
                     this.errorMessage += '行' + t.line + ': ' + left.string + 'は定数で、セットできない。';
                     return null;
                 }
@@ -379,7 +383,8 @@ export default class Parser {
             return null;
         }
         node.child = left;
-        //→
+        
+        // →
         t = tokens[this.mPos];
         if (t.type !== '→') {
             this.errorMessage += '行' + t.line + ': メモリセット行だと思ったのだが、あるべき場所に「→」がない。';
@@ -387,20 +392,21 @@ export default class Parser {
         }
         this.mPos += 1;
 
-        //右辺は式
+        // 右辺は式
         let right = this.parseExpression();
         if (right === null) {
             return null;
         }
         left.brother = right;
 
-        //;
+        // ;
         t = tokens[this.mPos];
         if (t.type !== ';') {
             this.errorMessage += '行' + t.line + ': 次の行の字下げが多すぎるんじゃなかろうか。';
             return null;
         }
         this.mPos += 1;
+
         return node;
     }
 
@@ -548,9 +554,8 @@ export default class Parser {
             return null;
         }
 
-        //演算子がつながる限りループ
-        let t = this.mTokens[this.mPos];
-        while (t.type === 'OPERATOR') {
+        // 演算子がつながる限りループ
+        for (let t = this.mTokens[this.mPos]; t.type === 'OPERATOR'; t = this.mTokens[this.mPos]) {
             let node:any = {
                 type:'EXPRESSION',
                 token:t,
@@ -581,7 +586,7 @@ export default class Parser {
                 }
             }
 
-            //最適化。定数の使い勝手向上のために必須 TODO:a + 2 + 3がa+5にならないよねこれ
+            // 最適化。定数の使い勝手向上のために必須 TODO:a + 2 + 3がa+5にならないよねこれ
             let preComputed = null;
             if ((left.type === 'NUMBER') && (right.type === 'NUMBER')) {
                 let a = left.number;
@@ -617,6 +622,7 @@ export default class Parser {
             //現ノードを左の子として継続
             left = node;
         }
+
         return left;
     }
     
