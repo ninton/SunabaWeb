@@ -23,6 +23,21 @@ export default class Compiler {
     }
 
     public compile(code:string) {
+        let errorMessage = "";
+
+        try {
+            this.compileMain(code);
+        } catch (e) {
+            errorMessage = e;
+        }
+
+        return {
+            commands: this.assemblerResults.commands,
+            errorMessage: errorMessage
+        };
+    }
+
+    public compileMain(code:string) {
         let s = code;
         s = this.unifySpace(s);
         s = this.unifyNewLine(s);
@@ -54,8 +69,6 @@ export default class Compiler {
 
         const assembler = new Assembler();
         this.assemblerResults = assembler.assemble(this.codeGeneratorResults.commands);
-
-        return this.assemblerResults;
     }
 
     public unifySpace(code:string): string {
@@ -282,7 +295,7 @@ export default class Compiler {
         2 文字列
         */
         let tokens:Array<any> = [];
-        let msg = null;
+        let msg = "";
         let end = code.length;
         let mode = 0;
         let begin = 0;
@@ -350,7 +363,7 @@ export default class Compiler {
                     mode = 2;
                     begin = i;
                 } else{
-                    msg = '行' + line + ': Sunabaで使うはずのない文字"' + c + '"が出てきた。';
+                    msg = `E001: 行{$line}: Sunabaで使うはずのない文字"${c}"が出てきた。\n`;
                     if (c === ';') {
                         msg += 'C言語と違って文末の;は不要。';
                     } else if ((c === '{') || (c === '}')) {
@@ -370,8 +383,8 @@ export default class Compiler {
                         let number = Sunaba.readNumber(code, begin, l);
                         if (number !== null) {
                             if (Math.abs(number) > Sunaba.MAX_ABS_NUMBER) {
-                                msg = '行' + line + ': Sunabaでは扱えない大きな数' + number + 'が現れました。';
-                                msg = 'プラスマイナス' + Sunaba.MAX_ABS_NUMBER + 'の範囲しか使えません。';
+                                msg = `E002: 行{$line}: Sunabaでは扱えない大きな数${number}が現れました。\n`;
+                                msg += `プラスマイナス${Sunaba.MAX_ABS_NUMBER}の範囲しか使えません。`;
                                 break;
                             } else {
                                 tokens.push({type:'NUMBER', number:number, string:str, line:line});
@@ -384,12 +397,18 @@ export default class Compiler {
                     advance = false; //もう一回この文字から回す
                 }
             } else{
-                throw 'BUG';
+                throw 'BUG: Compiler.ts:400';
             }
+
             if (advance) {
                 i += 1;
             }
         }
+
+        if (0 < msg.length) {
+            throw msg;
+        }
+
         return {tokens:tokens, errorMessage:msg};
     }
 
@@ -399,7 +418,7 @@ export default class Compiler {
         let spaceCountStackPos:number = 1;
         let parenLevel:number = 0;
         let braceLevel:number = 0;
-        let msg = null;
+        let msg = '';
         let prevT = null;
         let emptyLine = true; //最初は空
 
@@ -410,7 +429,7 @@ export default class Compiler {
             } else if (t.type === ')') {
                 parenLevel -= 1;
                 if (parenLevel < 0) {
-                    msg = '行' + t.line + ': )が(より多い。';
+                    msg = `E010: 行${t.line}: )が(より多い。`;
                     break;
                 }
             } else if (t.type === '[') {
@@ -418,7 +437,7 @@ export default class Compiler {
             } else if (t.type === ']') {
                 braceLevel -= 1;
                 if (braceLevel < 0) {
-                    msg = '行' + t.line + ': ]が[より多い。';
+                    msg = `E011: 行:${t.line}: ]が[より多い。`;
                     break;
                 }
             }
@@ -450,14 +469,14 @@ export default class Compiler {
                         while (newCount < oldCount) { //ずれてる間回す
                             spaceCountStackPos -= 1;
                             if (spaceCountStackPos < 1) { //ありえない
-                                throw 'BUG';
+                                throw 'BUG: compipler.ts:472';
                             }
                             oldCount = spaceCountStack[spaceCountStackPos - 1];
                             r.push({type:'}', string:'}', line:t.line});
                         }
 
                         if (newCount != oldCount) { //ずれている
-                            msg = '行' + t.line + ': 字下げが不正。ずれてるよ。前の深さに合わせてね。';
+                            msg = `E012: 行${t.line}: 字下げが不正。ずれてるよ。前の深さに合わせてね。`;
                             break;
                         }
                     }
@@ -481,7 +500,15 @@ export default class Compiler {
 
         //ダミー最終トークン
         r.push({type:'END', string:"", line:tokens[tokens.length - 1].line});
-        return {errorMessage:msg, tokens:r};
+
+        if (0 < msg.length) {
+            throw msg;
+        }
+
+        return {
+            errorMessage: msg,
+            tokens: r
+        };
     }
 
 }

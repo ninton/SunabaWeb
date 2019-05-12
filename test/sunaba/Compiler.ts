@@ -67,7 +67,7 @@ suite('sunaba.Compiler', () => {
                 {type: "→"        , line: 1, string: "→"                    },
                 {type: "NUMBER"    , line: 1, string: "999999", number: 999999}
             ],
-            errorMessage: null
+            errorMessage:  ""
         };
 
         const actual = compiler.tokenize(code, Sunaba.locales.japanese);
@@ -92,7 +92,7 @@ suite('sunaba.Compiler', () => {
                 {type: "OPERATOR"  , line: 1, string: "*"     , operator: "*" },
                 {type: "NUMBER"    , line: 1, string: "2"     , number: 2     }
             ],
-            errorMessage: null
+            errorMessage: ""
         };
 
         const actual = compiler.tokenize(code, Sunaba.locales.japanese);
@@ -112,7 +112,7 @@ suite('sunaba.Compiler', () => {
                 {type: "NUMBER"    , line: 1, string: "1"     , number: 1     },
                 {type: "IF_POST"   , line: 1, string: "なら"                  }
             ],
-            errorMessage: null
+            errorMessage: ""
         };
 
         const actual = compiler.tokenize(code, Sunaba.locales.japanese);
@@ -132,7 +132,7 @@ suite('sunaba.Compiler', () => {
                 {type: "NUMBER"    , line: 1, string: "100"   , number: 100   },
                 {type: "WHILE_POST", line: 1, string: "な限り"                }
             ],
-            errorMessage: null
+            errorMessage: ""
         };
 
         const actual = compiler.tokenize(code, Sunaba.locales.japanese);
@@ -152,7 +152,7 @@ suite('sunaba.Compiler', () => {
                 {type: ")"         , line: 1, string: ")"                     },
                 {type: "DEF_POST"  , line: 1, string: "とは"                  }
             ],
-            errorMessage: null
+            errorMessage: ""
         };
 
         const actual = compiler.tokenize(code, Sunaba.locales.japanese);
@@ -182,7 +182,7 @@ suite('sunaba.Compiler', () => {
                 {type: ";"         , line: 1, string: ";"                     },
                 {type: "END"       , line: 1, string: ""                      }
             ],
-            errorMessage: null
+            errorMessage: ""
         };
 
         const actual = compiler.structurize(tokens);
@@ -223,7 +223,7 @@ suite('sunaba.Compiler', () => {
                 {type: ";"         , line: 1, string: ";"                     },
                 {type: "END"       , line: 1, string: ""                      }
             ],
-            errorMessage: null
+            errorMessage: ""
         };
 
         const actual = compiler.structurize(tokens);
@@ -254,7 +254,7 @@ suite('sunaba.Compiler', () => {
                 {type: ";"         , line: 1, string: ";"                     },
                 {type: "END"       , line: 1, string: ""                      }
             ],
-            errorMessage: null
+            errorMessage: ""
         };
 
         const actual = compiler.structurize(tokens);
@@ -285,7 +285,7 @@ suite('sunaba.Compiler', () => {
                 {type: ";"         , line: 1, string: ";"                     },
                 {type: "END"       , line: 1, string: ""                      }
             ],
-            errorMessage: null
+            errorMessage: ""
         };
 
         const actual = compiler.structurize(tokens);
@@ -316,7 +316,7 @@ suite('sunaba.Compiler', () => {
                 {type: ";"         , line: 1, string: ";"                     },
                 {type: "END"       , line: 1, string: ""                      }
             ],
-            errorMessage: null
+            errorMessage: ""
         };
 
         const actual = compiler.structurize(tokens);
@@ -325,8 +325,8 @@ suite('sunaba.Compiler', () => {
 
     test('compile #1', () => {
         const expected = {
-            result:   true,
-            commands: JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
+            errorMessage: '',
+            commands:     JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
         };
 
         const code = fs.readFileSync('test/fixture/04_code.sunaba').toString();
@@ -337,8 +337,8 @@ suite('sunaba.Compiler', () => {
 
     test('compile #2', () => {
         const expected = {
-            result:   true,
-            commands: JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
+            errorMessage: '',
+            commands:     JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
         };
 
         const code = "memory[65050] → 999999\n";
@@ -349,8 +349,8 @@ suite('sunaba.Compiler', () => {
 
     test('compile #3', () => {
         const expected = {
-            result:   true,
-            commands: JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
+            errorMessage: '',
+            commands:     JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
         };
 
         const code = "memory[65049 + 1] → 999900 + 99\n";
@@ -361,13 +361,25 @@ suite('sunaba.Compiler', () => {
 
     test('compile #4', () => {
         const expected = {
-            result:   true,
-            commands: JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
+            errorMessage: '',
+            commands:     JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
         };
 
         const code = "memory[65047 + 1 + 2] → 990000 + 9900 + 99\n";
         const actual = compiler.compile(code);
 
         assert.deepEqual(expected, actual);
+    });
+
+    test('compile #5', () => {
+        const expected = {
+            errorMessage: '',
+            commands:     JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
+        };
+
+        const code = "memory[65047 + 1 + 2] → 990000 + 9900 + \n";
+        const actual = compiler.compile(code);
+        
+        assert.equal(0, actual.errorMessage.indexOf("E001"));
     });
 });
