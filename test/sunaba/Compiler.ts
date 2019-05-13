@@ -397,4 +397,17 @@ suite('sunaba.Compiler', () => {
 
         assert.deepEqual(expected, actual);
     });
+
+    test('compile expression #3', () => {
+        const expected = {
+            errorMessage: '',
+            commands:     JSON.parse(fs.readFileSync('test/fixture/07_vmcode.json').toString())
+        };
+
+        const code = fs.readFileSync('test/fixture/07_sunaba.txt').toString()
+        const actual = compiler.compile(code);
+        //console.log(JSON.stringify(actual, undefined, 2));
+
+        assert.deepEqual(expected, actual);
+    });
 });

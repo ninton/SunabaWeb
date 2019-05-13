@@ -87,7 +87,7 @@ class Block {
         let statement = firstStatement;
         while (statement) {
             // 代入文なら、変数名を取得して登録。
-            if (statement.type == '→') {
+            if (statement.type === 'SET') {
                 const left = statement.child;
                 HLib.assert(left, `${__filename}:92`);
 

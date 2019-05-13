@@ -49,7 +49,7 @@ export default class Machine {
         };
 
         for (let i = 0; i < FREE_AND_PROGRAM_SIZE + STACK_SIZE + VRAM_SIZE; i += 1) {
-            this.memory[i] = 10000 + i;
+            this.memory[i] = 0;
         }
 
         this.callCount = 0;
