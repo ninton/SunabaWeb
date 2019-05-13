@@ -120,14 +120,14 @@ const KEYCODE_NAME_MAP:any = {
     13: 'key_enter'
 };
 
-document.getElementById('code').addEventListener('keydown', (event:any) => {
+window.addEventListener('keydown', (event:any) => {
     if (event.keyCode in KEYCODE_NAME_MAP) {
         const name = KEYCODE_NAME_MAP[event.keyCode];
         uiStatus[name] = 1;
     }
 });
 
-document.getElementById('code').addEventListener('keyup', (event:any) => {
+window.addEventListener('keyup', (event:any) => {
     if (event.keyCode in KEYCODE_NAME_MAP) {
         const name = KEYCODE_NAME_MAP[event.keyCode];
         uiStatus[name] = 0;
