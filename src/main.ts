@@ -68,22 +68,72 @@ document.getElementById("clearButton").onclick = function () {
     document.getElementById("message").value = "";
 };
 
-const uiStatus:any = {
-    'mouse_x'    : 10,
-    'mouse_y'    : 20,
-    'mouse_left' : 0,
-    'mouse_right': 0,
-    'key_up'     : 0,
-    'key_down'   : 0,
-    'key_left'   : 0,
-    'key_right'  : 0,
-    'key_space'  : 0,
-    'key_enter'  : 0
+let uiStatus:any = {
+    mouse_x    : 10,
+    mouse_y    : 20,
+    mouse_left : 0,
+    mouse_right: 0,
+    key_up     : 0,
+    key_down   : 0,
+    key_left   : 0,
+    key_right  : 0,
+    key_space  : 0,
+    key_enter  : 0
 };
 
 machine.setUICallback((name:string) => {
     return uiStatus[name];
 });
+
+
+canvas.addEventListener('mousemove', (event) => {
+    uiStatus.mouse_x = event.offsetX / 4;
+    uiStatus.mouse_y = event.offsetY / 4;
+});
+
+canvas.addEventListener('mousedown', (event) => {
+    uiStatus.mouse_x = event.offsetX / 4;
+    uiStatus.mouse_y = event.offsetY / 4;
+
+    if (event.button === 0) {
+        uiStatus.mouse_left = 1;
+    } else if (event.button === 2) {
+        uiStatus.mouse_right = 1;
+    }
+});
+
+canvas.addEventListener('mouseup', (event) => {
+    if (event.button === 0) {
+        uiStatus.mouse_left = 0;
+    } else if (event.button === 2) {
+        uiStatus.mouse_right = 0;
+    }
+});
+
+const KEYCODE_NAME_MAP:any = {
+    // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode#Value_of_keyCode
+    38: 'key_up',
+    40: 'key_down',
+    37: 'key_left',
+    39: 'key_right',
+    32: 'key_space',
+    13: 'key_enter'
+};
+
+document.getElementById('code').addEventListener('keydown', (event:any) => {
+    if (event.keyCode in KEYCODE_NAME_MAP) {
+        const name = KEYCODE_NAME_MAP[event.keyCode];
+        uiStatus[name] = 1;
+    }
+});
+
+document.getElementById('code').addEventListener('keyup', (event:any) => {
+    if (event.keyCode in KEYCODE_NAME_MAP) {
+        const name = KEYCODE_NAME_MAP[event.keyCode];
+        uiStatus[name] = 0;
+    }
+});
+
 
 const INTERVAL_MILLISEC = 1;
 const STEP_COUNT = 10;
