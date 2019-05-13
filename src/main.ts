@@ -62,8 +62,11 @@ if (runButton !== null) {
     };
 }
 
+document.getElementById("stopButton").onclick = function () {
+    machine.stop();
+};
+
 document.getElementById("clearButton").onclick = function () {
-    console.log("#1");
     document.getElementById("message").value = "";
 };
 

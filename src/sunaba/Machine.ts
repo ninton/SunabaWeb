@@ -90,6 +90,13 @@ export default class Machine {
         this.isRunning = true;
     }
 
+    public stop() {
+        if (this.isRunning) {
+            this.messageHandler('プログラムを中止しました');
+        }
+        this.isRunning = false;
+    }
+
     public step() {
         if (!this.isRunning) {
             return;
