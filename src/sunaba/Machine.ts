@@ -30,6 +30,7 @@ export default class Machine {
     stackPointer:   number;
     framePointer:   number;
     vramListener:   Function;
+    onWriteMemory:  Function;
     messageHandler: Function;
     callCount     ; number;
     isRunning     : boolean;
@@ -45,6 +46,7 @@ export default class Machine {
         this.stackPointer   = STACK_BASE;
         this.framePointer   = 0;
         this.vramListener   = () => {};
+        this.onWriteMemory  = () => {};
         this.messageHandler = (mesg:string) => {
             console.log(mesg);
         };
@@ -447,6 +449,8 @@ export default class Machine {
         this.memory[address] = value;
         if (VRAM_BASE <= address) {
             this.vramListener(address - VRAM_BASE, value);
+        } else {
+            this.onWriteMemory(address, value);
         }
     }
 
@@ -497,5 +501,9 @@ export default class Machine {
 
     public setUICallback(uiCallback:Function) {
         this.uiCallback = uiCallback;
+    }
+
+    public setOnWriteMemory(fn: Function) {
+        this.onWriteMemory = fn;
     }
 }

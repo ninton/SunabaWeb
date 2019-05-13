@@ -2,16 +2,32 @@ import { sprintf } from "sprintf-js";
 import Machine from "./sunaba/Machine";
 import Compiler from "./sunaba/Compiler";
 
-const canvas:any = document.getElementById("screen");
 const SCREEN_WIDTH:number  = 100;
 const SCREEN_HEIGHT:number = 100;
 
+const canvas2:any = document.getElementById("screen2");
+const ctx2:any = canvas2.getContext('2d');
+
+const canvas:any = document.getElementById("screen");
 const ctx:any = canvas.getContext('2d');
+
+const sync = () => {
+    const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    ctx2.putImageData(image, 0, 0);
+};
 
 const vramClear:Function = () => {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, SCREEN_WIDTH * 4, SCREEN_HEIGHT * 4);
+    sync();
 };
+
+const onWriteMemory:Function = (addr:number, value:number) => {
+    if  (addr === 55000) {
+        sync();
+        return;
+    }
+}
 
 const vramListener:Function = (addr:number, value:number) => {
     const x = addr % SCREEN_WIDTH;
@@ -57,6 +73,7 @@ document.getElementById("runButton").onclick = function () {
 
     vramClear();
     machine.setVramListener(vramListener);
+    machine.setOnWriteMemory(onWriteMemory);
     machine.loadProgram(results.commands);
 };
 
@@ -135,8 +152,8 @@ window.addEventListener('keyup', (event:any) => {
 });
 
 
-const INTERVAL_MILLISEC = 1;
-const STEP_COUNT = 10;
+const INTERVAL_MILLISEC = 16;
+const STEP_COUNT = 200;
 
 window.setInterval(() => {
     for (let i = 0; i < STEP_COUNT; i += 1) {
