@@ -388,14 +388,12 @@ suite('sunaba.Compiler', () => {
     test('compile expression #2', () => {
         const expected = {
             errorMessage: '',
-            commands:     JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
+            commands:     JSON.parse(fs.readFileSync('test/fixture/06_vmcode.json').toString())
         };
 
         const code = "点()\n\n点() とは\n\tメモリ[60000] → 999999\n";
         const actual = compiler.compile(code);
-
-        console.log(JSON.stringify(compiler.structurizedResults, undefined, 2));
-        console.log(JSON.stringify(compiler.rootNode, undefined, 2));
+        //console.log(JSON.stringify(actual, undefined, 2));
 
         assert.deepEqual(expected, actual);
     });

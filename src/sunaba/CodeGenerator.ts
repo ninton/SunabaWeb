@@ -40,27 +40,27 @@ export default class CodeGenerator {
         const mainFuncInfo = this.mFunctionMap["!main"] = new FunctionInfo();
 
         // 関数情報収集。関数コールを探しだして、見つけ次第、引数、出力、名前についての情報を収集してmapに格納
-        let child = node.mChild;
+        let child = node.child;
         while (child) {
-            if (child.mType == "FUNCTION") {
+            if (child.type == "FUNC") {
                 if (!this.collectFunctionDefinitionInformation(child)) { // main以外
                     return false;
                 }
             }
-            child = child.mBrother;
+            child = child.brother;
         }
 
         // 関数コールを探しだして、見つけ次第コード生成
-        child = node.mChild;
+        child = node.child;
         while (child) {
-            if (child.mType === "FUNCTION") {
+            if (child.type === "FUNC") {
                 if (!this.generateFunctionDefinition(child)) { // main以外
                     return false;
                 }
             } else if (this.isOutputValueSubstitution(child)) { // なければ出力があるか調べる
                 mainFuncInfo.setHasOutputValue(); // 戻り値があるのでフラグを立てる。
             }
-            child = child.mBrother;
+            child = child.brother;
         }
 
         // あとはmain
@@ -101,7 +101,7 @@ export default class CodeGenerator {
                     break;
                 }
                 argCount += 1;
-                arg = arg.mBrother;
+                arg = arg.brother;
             }
         }
         funcInfo.setArgCount(argCount);
