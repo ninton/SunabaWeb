@@ -59,8 +59,13 @@ if (runButton !== null) {
 
         console.log(results.commands);
         machine.loadProgram(results.commands);
-    }
+    };
 }
+
+document.getElementById("clearButton").onclick = function () {
+    console.log("#1");
+    document.getElementById("message").value = "";
+};
 
 window.setInterval(() => {
     for (let i = 0; i < 100; i += 1) {

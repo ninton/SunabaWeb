@@ -91,6 +91,10 @@ export default class Machine {
     }
 
     public step() {
+        if (!this.isRunning) {
+            return;
+        }
+
         console.log(`step:${this.programCounter}`);
         try {
             this.stepMain();
