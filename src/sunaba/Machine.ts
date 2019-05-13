@@ -33,6 +33,7 @@ export default class Machine {
     messageHandler: Function;
     callCount     ; number;
     isRunning     : boolean;
+    uiCallback    : Function;
 
     constructor() {
         this.VRAM_BASE  = VRAM_BASE;
@@ -54,6 +55,7 @@ export default class Machine {
 
         this.callCount = 0;
         this.isRunning = false;
+        this.uiCallback = (name:string) => 0;
     }
 
     public push(v:number) {
@@ -449,6 +451,23 @@ export default class Machine {
     }
 
     public loadMemory(address:number) {
+        const UI_ADDRESS_MAP:any = {
+            50000: 'mouse_x',
+            50001: 'mouse_y',
+            50002: 'mouse_left',
+            50003: 'mouse_right',
+            50004: 'key_up',
+            50005: 'key_down',
+            50006: 'key_left',
+            50007: 'key_right',
+            50008: 'key_space',
+            50009: 'key_enter'
+        };
+
+        if (address in UI_ADDRESS_MAP) {
+            const name = UI_ADDRESS_MAP[address];
+            return this.uiCallback(name);
+        }
         return this.memory[address];
     }
 
@@ -474,5 +493,9 @@ export default class Machine {
 
     public setMessageHandler(messageHandler:Function) {
         this.messageHandler = messageHandler;
+    }
+
+    public setUICallback(uiCallback:Function) {
+        this.uiCallback = uiCallback;
     }
 }

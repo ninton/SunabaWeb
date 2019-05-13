@@ -68,6 +68,23 @@ document.getElementById("clearButton").onclick = function () {
     document.getElementById("message").value = "";
 };
 
+const uiStatus:any = {
+    'mouse_x'    : 10,
+    'mouse_y'    : 20,
+    'mouse_left' : 0,
+    'mouse_right': 0,
+    'key_up'     : 0,
+    'key_down'   : 0,
+    'key_left'   : 0,
+    'key_right'  : 0,
+    'key_space'  : 0,
+    'key_enter'  : 0
+};
+
+machine.setUICallback((name:string) => {
+    return uiStatus[name];
+});
+
 const INTERVAL_MILLISEC = 1;
 const STEP_COUNT = 10;
 
