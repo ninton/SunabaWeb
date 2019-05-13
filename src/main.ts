@@ -69,7 +69,7 @@ document.getElementById("clearButton").onclick = function () {
 };
 
 const INTERVAL_MILLISEC = 1;
-const STEP_COUNT = 1000;
+const STEP_COUNT = 10;
 
 window.setInterval(() => {
     for (let i = 0; i < STEP_COUNT; i += 1) {

@@ -1,11 +1,14 @@
+// 設定定数。ただし、いじるとIOメモリの番号が変わるので、ソースコードが非互換になる。
 const FREE_AND_PROGRAM_SIZE = 40000;
 const STACK_SIZE            = 10000;
 const IO_MEMORY_SIZE        = 10000;
-const IO_WRITABLE_OFFSET    = 5000;
-const EXECUTION_UNIT        = 10000;
-const SCREEN_WIDTH          = 100;
-const SCREEN_HEIGHT         = 100;
-const MAX_CALL_COUNT        = 256;
+const IO_WRITABLE_OFFSET    =  5000;
+const EXECUTION_UNIT        = 10000;    // これだけの命令実行したらウィンドウ状態を見に行く。
+const MINIMUM_FREE_SIZE     =  1000;    // 最低これだけのメモリは0から空いている。プログラムサイズが制約される。
+const BUSY_SLEEP_THRESHOLD  =   100;    // syncなしでこれだけ時間が経ったら強制的に待ち
+const SCREEN_WIDTH          =   100;
+const SCREEN_HEIGHT         =   100;
+const MAX_CALL_COUNT        =   256;
 
 //自動計算定数類
 const STACK_BASE = FREE_AND_PROGRAM_SIZE;
@@ -292,25 +295,30 @@ export default class Machine {
         }
 
         if (addr < STACK_BASE) {
+            // データ＋プログラム領域
+            // js版は、プログラムをメモリにロードしないので、この領域はすべてデータとして使える
             //throw `E921: プログラムが入っているメモリを読みとろうとした(番号:${addr})`;
             return;
         }
 
         if (addr < IO_BASE) {
+            // スタック領域
             return;
         }
 
         if (addr < IO_WRITABLE_BEGIN) {
+            // IO_READ領域
             return;
         }
 
         if (addr < VRAM_BASE) {
+            // IO_WRITE領域
             throw `E922: このあたりのメモリはセットはできるが読み取ることはできない(番号:${addr})`;
         }
 
         if (addr < VRAM_BASE + VRAM_SIZE){
+            // VRAM領域
             throw `E923: 画面メモリは読み取れない(番号:${addr})`;
-
         }
 
         throw `E929: メモリ範囲外を読みとろうとした(番号:${addr})`;
@@ -353,25 +361,30 @@ export default class Machine {
         }
 
         if (addr < STACK_BASE) {
+            // データ＋プログラム領域
+            // js版は、プログラムをメモリにロードしないので、この領域はすべてデータとして使える
             //throw `E931: プログラムが入っているメモリにセットしようとした(番号:${addr},値:${value})`;
             return;
         }
 
         if (addr < IO_BASE) {
+            // スタック領域
             return;
         }
 
         if (addr < IO_WRITABLE_BEGIN) {
-            throw `E932: このあたりのメモリはセットはできるが読み取ることはできない(番号:${addr},値:${value})`;
+            // IO_READ領域
+            throw `E932: このあたりのメモリはセットできない(番号:${addr},値:${value})`;
         }
 
         if (addr < VRAM_BASE) {
-            throw `E933: このあたりのメモリは使えない(番号:${addr},値:${value})`;
+            // IO_WRITE領域
+            return;
         }
 
         if (addr < VRAM_BASE + VRAM_SIZE){
+            // VRAM領域
             return;
-
         }
 
         throw `E939: メモリ範囲外をいじろうとした(番号:${addr},値:${value})`;
