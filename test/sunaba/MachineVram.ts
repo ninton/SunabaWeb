@@ -29,7 +29,7 @@ suite('sunaba.Machine', () => {
 
         let cb_addr:number  = -1;
         let cb_value:number = -1;
-        machine.setVramDrawer((addr:number, value:number) => {
+        machine.setVramListener((addr:number, value:number) => {
             cb_addr  = addr;
             cb_value = value;
         });
@@ -61,7 +61,7 @@ suite('sunaba.Machine', () => {
 
         let cb_addr:number  = -1;
         let cb_value:number = -1;
-        machine.setVramDrawer((addr:number, value:number) => {
+        machine.setVramListener((addr:number, value:number) => {
             cb_addr  = addr;
             cb_value = value;
         });

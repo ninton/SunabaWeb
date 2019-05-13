@@ -2,19 +2,20 @@ import { sprintf } from "sprintf-js";
 import Machine from "./sunaba/Machine";
 import Compiler from "./sunaba/Compiler";
 
-var canvas = document.getElementById("screen");
-var ctx = {
-    fillStyle: "",
-    fillRect: (x:number, y:number, w:number, h:number) => {}
+const canvas:any = document.getElementById("screen");
+const SCREEN_WIDTH:number  = 100;
+const SCREEN_HEIGHT:number = 100;
+
+const ctx:any = canvas.getContext('2d');
+
+const vramClear:Function = () => {
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, SCREEN_WIDTH * 4, SCREEN_HEIGHT * 4);
 };
 
-if (canvas !== null) {
-    ctx = canvas.getContext('2d');
-}
-
-var vramDrawer = (addr:number, value:number) => {
-    const x = addr % 100;
-    const y = Math.floor(addr / 100);
+const vramListener:Function = (addr:number, value:number) => {
+    const x = addr % SCREEN_WIDTH;
+    const y = Math.floor(addr / SCREEN_WIDTH);
 
     let r = 0;
     let g = 0;
@@ -38,29 +39,25 @@ var vramDrawer = (addr:number, value:number) => {
     ctx.fillRect(x * 4, y * 4, 4, 4);
 }
 
-let machine:Machine = new Machine();
+const machine:Machine = new Machine();
 machine.setMessageHandler((mesg:string) => {
     document.getElementById("message").value += `${mesg}\n`;
 });
 
-let runButton = document.getElementById("runButton");
-if (runButton !== null) {
-    runButton.onclick = function () {
-        const code = document.getElementById("code").value;
+document.getElementById("runButton").onclick = function () {
+    const code = document.getElementById("code").value;
 
-        const compiler = new Compiler();
-        const results = compiler.compile(code);
-        if (0 < results.errorMessage.length) {
-            document.getElementById("message").value += `${results.errorMessage}\n`;
-            return;
-        }
+    const compiler = new Compiler();
+    const results = compiler.compile(code);
+    if (0 < results.errorMessage.length) {
+        document.getElementById("message").value += `${results.errorMessage}\n`;
+        return;
+    }
 
-        machine.setVramDrawer(vramDrawer);
-
-        console.log(results.commands);
-        machine.loadProgram(results.commands);
-    };
-}
+    vramClear();
+    machine.setVramListener(vramListener);
+    machine.loadProgram(results.commands);
+};
 
 document.getElementById("stopButton").onclick = function () {
     machine.stop();

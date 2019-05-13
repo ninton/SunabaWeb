@@ -26,7 +26,7 @@ export default class Machine {
     programCounter: number;
     stackPointer:   number;
     framePointer:   number;
-    vramDrawer:     Function;
+    vramListener:   Function;
     messageHandler: Function;
     callCount     ; number;
     isRunning     : boolean;
@@ -40,7 +40,7 @@ export default class Machine {
         this.programCounter = 0;
         this.stackPointer   = STACK_BASE;
         this.framePointer   = 0;
-        this.vramDrawer     = () => {};
+        this.vramListener   = () => {};
         this.messageHandler = (mesg:string) => {
             console.log(mesg);
         };
@@ -430,7 +430,7 @@ export default class Machine {
     public setMemory(address:number, value:number) {
         this.memory[address] = value;
         if (VRAM_BASE <= address) {
-            this.vramDrawer(address - VRAM_BASE, value);
+            this.vramListener(address - VRAM_BASE, value);
         }
     }
 
@@ -438,8 +438,8 @@ export default class Machine {
         return this.memory[address];
     }
 
-    public setVramDrawer(drawer: Function) {
-        this.vramDrawer = drawer;
+    public setVramListener(fn: Function) {
+        this.vramListener = fn;
     }
 
     public getProgramCounter(): number {
