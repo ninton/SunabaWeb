@@ -371,17 +371,32 @@ suite('sunaba.Compiler', () => {
         assert.deepEqual(expected, actual);
     });
 
-    test('compile #5', () => {
+    test('compile error #1', () => {
         const code = "memory[65047 + 1 + 2] → 990000 + 9900 + \n";
         const actual = compiler.compile(code);
 
         assert.equal(0, actual.errorMessage.indexOf("E181"));
     });
 
-    test('compile #6', () => {
+    test('compile error #2', () => {
         const code = "memory[65047 + 1 + 2] → 990000 / 0\n";
         const actual = compiler.compile(code);
 
         assert.equal(0, actual.errorMessage.indexOf("E171"));
     });
+
+    test('compile expression #2', () => {
+        const expected = {
+            errorMessage: '',
+            commands:     JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
+        };
+
+        const code = "点()\n\n点() とは\n\tメモリ[60000] → 999999\n";
+        const actual = compiler.compile(code);
+
+        console.log(JSON.stringify(actual, undefined, 3));
+        assert.deepEqual(expected, actual);
+    });
+
+
 });

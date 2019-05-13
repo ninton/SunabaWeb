@@ -1,4 +1,5 @@
 import assert = require("assert");
+import fs = require("fs");
 import Machine from "../../src/sunaba/Machine";
 
 suite('sunaba.Machine', () => {
@@ -552,5 +553,14 @@ suite('sunaba.Machine', () => {
 
         assert.equal(22, machine.getProgramCounter());
         assert.equal(11, machine.getFramePointer());
+    });
+
+    test('メモリ[0] → メモリ[0] + 1', () => {
+        const program = JSON.parse(fs.readFileSync('test/fixture/05_vmcode.json').toString());
+
+        machine.loadProgram(program);
+        while (machine.isRunning) {
+            machine.step();
+        }
     });
 });

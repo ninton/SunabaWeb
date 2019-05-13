@@ -102,7 +102,6 @@ export default class Machine {
             return;
         }
 
-        console.log(`step:${this.programCounter}`);
         try {
             this.stepMain();
         } catch (e) {
@@ -412,6 +411,8 @@ export default class Machine {
         if (this.callCount < 0) {
             throw `ret命令が多すぎている。絶対おかしい(命令:${this.programCounter})`;
         }
+
+        this.programCounter += 1;
     }
 
     public step_pop(cmd:any) {

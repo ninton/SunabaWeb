@@ -1,57 +1,72 @@
 [
-    {
+   {
       "name": "pop",
       "imm": -1,
       "comment": "#$mainの戻り値領域"
-    },
-    {
+   },
+   {
       "name": "call",
       "imm": 4,
       "comment": ""
-    },
-    {
+   },
+   {
       "name": "j",
-      "imm": 9,
+      "imm": 12,
       "comment": "#プログラム終了点へジャンプ"
-    },
-    {
+   },
+   {
       "name": "",
       "imm": "",
       "comment": "#部分プログラム\"!main\"の開始\n"
-    },
-    {
+   },
+   {
       "name": "label",
       "imm": "func_!main",
       "comment": ""
-    },
-    {
+   },
+   {
       "name": "i",
       "imm": 0,
       "comment": "#絶対アドレスなので0\n"
-    },
-    {
+   },
+   {
       "name": "i",
-      "imm": 999999,
-      "comment": "#即値プッシュ"
-    },
-    {
-      "name": "st",
-      "imm": 65050,
-      "comment": "#\"memory\"へストア"
-    },
-    {
-      "name": "ret",
       "imm": 0,
+      "comment": "#絶対アドレスなので0\n"
+   },
+   {
+      "name": "ld",
+      "imm": 0,
+      "comment": "\n"
+   },
+   {
+      "name": "i",
+      "imm": 1,
+      "comment": "#即値プッシュ"
+   },
+   {
+      "name": "add",
+      "imm": 0,
+      "comment": ""
+   },
+   {
+      "name": "st",
+      "imm": 0,
+      "comment": "#\"メモリ\"へストア"
+   },
+   {
+      "name": "ret",
+      "imm": -3,
       "comment": "#部分プログラム\"!mainの終了"
-    },
-    {
+   },
+   {
       "name": "label",
       "imm": "!end",
       "comment": ""
-    },
-    {
+   },
+   {
       "name": "pop",
       "imm": 1,
       "comment": "#!mainの戻り値を破棄。最終命令。なくてもいいが。"
-    }
-  ]
+   }
+]

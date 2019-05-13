@@ -46,6 +46,7 @@ machine.setMessageHandler((mesg:string) => {
 
 document.getElementById("runButton").onclick = function () {
     const code = document.getElementById("code").value;
+    console.log(code);
 
     const compiler = new Compiler();
     const results = compiler.compile(code);
@@ -67,11 +68,14 @@ document.getElementById("clearButton").onclick = function () {
     document.getElementById("message").value = "";
 };
 
+const INTERVAL_MILLISEC = 1;
+const STEP_COUNT = 1000;
+
 window.setInterval(() => {
-    for (let i = 0; i < 100; i += 1) {
+    for (let i = 0; i < STEP_COUNT; i += 1) {
         machine.step();
     }
-}, 1);
+}, INTERVAL_MILLISEC);
 
 function program_1(): Array<any> {
     const program:Array<any> = [];

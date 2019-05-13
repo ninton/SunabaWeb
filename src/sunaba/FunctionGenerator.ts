@@ -68,7 +68,7 @@ class Block {
     }
 
     public addVariable(name:string, isArgument:boolean = false): boolean {
-        if (!(name in this.mVariables)) {
+        if (name in this.mVariables) {
             return false;
         }
 
