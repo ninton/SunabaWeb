@@ -56,7 +56,7 @@ class Block {
 
     public beginError(node:any) {
         const token = node.token;
-        HLib.assert(token);
+        HLib.assert(token, `${__filename}:59`);
 
         let s = '';
         if (token.line != 0) {
@@ -89,10 +89,10 @@ class Block {
             // 代入文なら、変数名を取得して登録。
             if (statement.type == '→') {
                 const left = statement.child;
-                HLib.assert(left);
+                HLib.assert(left, `${__filename}:92`);
 
                 if (left.type === 'VARIABLE') { // 変数への代入文のみ扱う。配列要素や定数は無視。
-                    HLib.assert(left.token);
+                    HLib.assert(left.token, `${__filename}:95`);
                     const vName = left.token.string;
 
                     // ここより上にこの変数があるか調べる。
@@ -101,7 +101,7 @@ class Block {
                         // ない。新しい変数を生成
                         if (!this.addVariable(vName)) {
                             // ありえん
-                            HLib.assert(false);
+                            HLib.assert(false, `${__filename}:104`);
                         }
                     }
                 }
@@ -192,7 +192,7 @@ export default class FunctionGenerator {
                 break;
             }
 
-            HLib.assert(child.token);
+            HLib.assert(child.token, `${__filename}:195`);
             const variableName = child.token.string;
 
             if (!this.mCurrentBlock.addVariable(variableName, true)) {
@@ -242,14 +242,14 @@ export default class FunctionGenerator {
         // 出力の整合性チェック。
         // ifの中などで出力してるのに、ブロック外に出力がないケースを検出
         if (this.mInfo.hasOutputValue() != this.mOutputExist) {
-            HLib.assert(this.mOutputExist); // outputExistがfalseで、hasOutputValue()がtrueはありえない
+            HLib.assert(this.mOutputExist), `${__filename}:245`; // outputExistがfalseで、hasOutputValue()がtrueはありえない
             if (headNode.token) {
                 // 普通の関数ノード
                 this.beginError(headNode);
                 throw `E201: 部分プログラム"${this.mName}"は出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`;
             } else {
                 // プログラムノード
-                HLib.assert(headNode.child);
+                HLib.assert(headNode.child, `${__filename}:252`);
                 this.beginError(headNode.child);
                 throw `E202: このプログラムは出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`;
             }
@@ -302,7 +302,7 @@ export default class FunctionGenerator {
             //関数定義はもう処理済みなので無視。
             ; //スルー
         } else {
-            HLib.assert(false, `FcuntionGenerator.ts:318 node.type:${node.type}`);
+            HLib.assert(false, `${__filename}:305 node.type:${node.type}`);
         }
 
         return true;
@@ -324,7 +324,7 @@ export default class FunctionGenerator {
     whileEnd:
     */
     public generateWhile(node:any): boolean {
-        HLib.assert(node.type === 'WHILE');
+        HLib.assert(node.type === 'WHILE', `${__filename}:327`);
 
         //開始ラベル
         const whileBegin = `${this.mName}_whileBegin${this.mLabelId}`;
@@ -335,7 +335,7 @@ export default class FunctionGenerator {
 
         //Expression処理
         let child = node.child;
-        HLib.assert(child);
+        HLib.assert(child, `${__filename}:338`);
         if (!this.generateExpression(child)) {
             //最初の子はExpression
             return false;
@@ -372,11 +372,11 @@ export default class FunctionGenerator {
     ifEnd:
     */
     public generateIf(node:any): boolean {
-        HLib.assert(node.type === 'IF');
+        HLib.assert(node.type === 'IF', `${__filename}:375`);
 
         // Expression処理
         let  child = node.child;
-        HLib.assert(child);
+        HLib.assert(child, `${__filename}:379`);
         if (!this.generateExpression(child)) {
             // 最初の子はExpression
             return false;
@@ -417,10 +417,10 @@ export default class FunctionGenerator {
     
     // E210
     public generateFunction(node:any, isStatement:boolean): boolean {
-        HLib.assert(node.type === 'FUNCTION');
+        HLib.assert(node.type === 'CALL', `${__filename}:420`);
 
         // まず、その関数が存在していて、定義済みかを調べる。
-        HLib.assert(node.token);
+        HLib.assert(node.token, `${__filename}:423`);
         const funcName = node.token.string;
         if (!(funcName in this.mFunctionMap)) {
             this.beginError(node);
@@ -486,11 +486,11 @@ export default class FunctionGenerator {
     */
    // E220
     public generateSubstitution(node:any): boolean {
-        HLib.assert(node.type === 'SET');
+        HLib.assert(node.type === 'SET', `${__filename}:489`);
 
         // 左辺値のアドレスを求める。最初の子が左辺値
         let child = node.child;
-        HLib.assert(child);
+        HLib.assert(child, `${__filename}:493`);
 
         // 変数の定義状態を参照
         let v:Variable|null = null;
@@ -521,7 +521,7 @@ export default class FunctionGenerator {
 
         // 右辺処理
         child = child.brother;
-        HLib.assert(child);
+        HLib.assert(child, `${__filename}:524`);
         if (!this.generateExpression(child)) {
             return false;
         }
@@ -553,8 +553,8 @@ export default class FunctionGenerator {
                 this.addCommand('i', 0, "#()に対する単項マイナス用");
             }
             //項は必ず二つある。
-            HLib.assert(node.child);
-            HLib.assert(node.child.brother);
+            HLib.assert(node.child, `${__filename}:556`);
+            HLib.assert(node.child.brother, `${__filename}:557`);
             if (!this.generateTerm(node.child)) {
                 return false;
             }
@@ -592,7 +592,7 @@ export default class FunctionGenerator {
 
         if (!(operator in table)) {
             // これはParserのバグ。とりわけ、LE、GEは前の段階でGT,LTに変換されていることに注意
-            HLib.assert(false, `getFromOperator unkown operator: ${operator}`);
+            HLib.assert(false, `${__filename}:595 unkown operator: ${operator}`);
         }
 
         return table[operator];
@@ -681,14 +681,14 @@ export default class FunctionGenerator {
         params.fpRelative   = false;
         params.staticOffset = -0x7fffffff; //あからさまにおかしな値を入れておく。デバグのため。
 
-        HLib.assert((node.type === 'OUT') || (node.type === 'VARIABLE') || (node.type === 'ARRAY'));
+        HLib.assert((node.type === 'OUT') || (node.type === 'VARIABLE') || (node.type === 'ARRAY'), `${__filename}:684`);
 
         //トークンは数字ですか、名前ですか
         if (node.token) {
             if (node.token.type === 'OUT') {
                 const name = "!ret";
                 const v:any = this.mCurrentBlock.findVariable(name);
-                HLib.assert(v);
+                HLib.assert(v, `${__filename}:691`);
                 params.fpRelative = true; //変数直のみFP相対
                 params.staticOffset = v.offset();
                 this.mOutputExist = true;
@@ -718,7 +718,7 @@ export default class FunctionGenerator {
             }
         } else {
             //定数アクセス。トークンがない。
-            HLib.assert(node.type === 'ARRAY'); //インデクスがない定数アクセスはアドレスではありえない。
+            HLib.assert(node.type === 'ARRAY', `${__filename}:721`); //インデクスがない定数アクセスはアドレスではありえない。
             if (node.child) { //変数インデクス
                 if (!this.generateExpression(node.child)) { //アドレスをプッシュ
                     return false;
@@ -734,6 +734,6 @@ export default class FunctionGenerator {
 
     public beginError(node:any): void {
         const token = node.token;
-        HLib.assert(token);
+        HLib.assert(token, `${__filename}:737`);
     }
 }

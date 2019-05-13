@@ -394,9 +394,9 @@ suite('sunaba.Compiler', () => {
         const code = "点()\n\n点() とは\n\tメモリ[60000] → 999999\n";
         const actual = compiler.compile(code);
 
-        console.log(JSON.stringify(actual, undefined, 3));
+        console.log(JSON.stringify(compiler.structurizedResults, undefined, 2));
+        console.log(JSON.stringify(compiler.rootNode, undefined, 2));
+
         assert.deepEqual(expected, actual);
     });
-
-
 });

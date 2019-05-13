@@ -22,10 +22,9 @@ export default class Parser {
     //Program : (Const | FuncDef | Statement )*
     public parseProgram() {
         // 定数マップに「メモリ」と「memory」を登録
-        this.mConstants.memory = 0;
+        this.mConstants["memory"] = 0;
         let memoryWord = this.mLocale.memoryWord;
         this.mConstants[memoryWord] = 0;
-        this.mConstants["memory"] = 0;
 
         // Programノードを確保
         let node:any = {type:'PROGRAM', child:null, brother:null};
@@ -89,7 +88,7 @@ export default class Parser {
             this.beginError(t);
             throw `E101: 定数行のはずだが解釈できない。上の行からつながってないか。`;
         }
-        HLib.assert(t.type === 'CONST');
+        HLib.assert(t.type === 'CONST', `${__filename}:91`);
         this.mPos += 1;
 
         //名前
@@ -155,7 +154,7 @@ export default class Parser {
             t = tokens[this.mPos];
         }
         //ノード準備
-        let node:any = {type:'FUNC_DEF', token:t, child:null, brother:null};
+        let node:any = {type:'FUNC', token:t, child:null, brother:null};
         this.mPos += 1;
 
         //(
@@ -219,8 +218,7 @@ export default class Parser {
         t = tokens[this.mPos];
         if (t.type === '{') {
             this.mPos += 1;
-            t = tokens[this.mPos];
-            while (true) {
+            for (t = tokens[this.mPos]; true; t = tokens[this.mPos]) {
                 let child = null;
                 if (t.type === '}') { //終わり
                     this.mPos += 1;
@@ -470,7 +468,7 @@ export default class Parser {
         node.type = 'ARRAY';
 
         // [
-        HLib.assert(this.mTokens[this.mPos].type === '['); // getTermTypeで判定済み
+        HLib.assert(this.mTokens[this.mPos].type === '[', `${__filename}:471`); // getTermTypeで判定済み
         this.mPos += 1;
 
         // expression
@@ -500,7 +498,7 @@ export default class Parser {
     // Variable : name
     public parseVariable() {
         let t = this.mTokens[this.mPos];
-        HLib.assert(t.type === 'NAME');
+        HLib.assert(t.type === 'NAME', `${__filename}:501`);
         let node:any = {type:null, token:null, child:null, brother:null};
 
         //定数？変数？
@@ -520,7 +518,7 @@ export default class Parser {
     //Out : out
     public parseOut() {
         let t = this.mTokens[this.mPos];
-        HLib.assert(t.type === 'OUT');
+        HLib.assert(t.type === 'OUT', `${__filename}:521`);
         let node = {type:'OUT', token:t, child:null, brother:null};
         this.mPos += 1;
         return node;
@@ -650,7 +648,7 @@ export default class Parser {
         let termType = this.getTermType();
         let node = null;
         if (termType === 'EXPRESSION') {
-            HLib.assert(t.type === '(');
+            HLib.assert(t.type === '(', `${__filename}:651`);
             this.mPos += 1;
             node = this.parseExpression();
             t = this.mTokens[this.mPos];
@@ -683,50 +681,51 @@ export default class Parser {
         return node;
     };
     
-    //Function : name ( [ expression [ , expression ]* ] )
+    // Function : name ( [ expression [ , expression ]* ] )
     // E190
     public parseFunction() {
         let t = this.mTokens[this.mPos];
-        HLib.assert(t.type === 'NAME');
-        let node = {type:'FUNC', token:t, child:null, brother:null};
+        HLib.assert(t.type === 'NAME', `${__filename}:688`);
+        let node = {type:'CALL', token:t, child:null, brother:null};
         this.mPos += 1;
     
-        //(
+        // "(""
         t = this.mTokens[this.mPos];
-        HLib.assert(t.type === '(');
+        HLib.assert(t.type === '(', `${__filename}:694`);
         this.mPos += 1;
     
-        //引数ありか、なしか
+        // 引数ありか、なしか
         t = this.mTokens[this.mPos];
         if (t.type !== ')') { //括弧閉じないので引数あり
-        let exp = this.parseExpression();
-        if (exp === null) {
-            return null;
-        }
-        node.child = exp;
-    
-        //2個目以降はループで取る
-        let lastChild = exp;
-        while (true) {
-            t = this.mTokens[this.mPos];
-            if (t.type !== ',') {
-                break;
-            }
-            this.mPos += 1;
-            exp = this.parseExpression();
+            let exp = this.parseExpression();
             if (exp === null) {
                 return null;
             }
-            lastChild.brother = exp;
-            lastChild = exp;
-        }
+            node.child = exp;
+    
+            //2個目以降はループで取る
+            let lastChild = exp;
+            while (true) {
+                t = this.mTokens[this.mPos];
+                if (t.type !== ',') {
+                    break;
+                }
+                this.mPos += 1;
+                exp = this.parseExpression();
+                if (exp === null) {
+                    return null;
+                }
+                lastChild.brother = exp;
+                lastChild = exp;
+            }
         }
 
-        //)
+        // ")"
         if (t.type !== ')') {
             throw 'E190: 行' + t.line + ': 部分プログラムの入力が")"で終わるはずだが、「' + t.string + '」がある。';
         }
         this.mPos += 1;
+
         return node;
     }
 

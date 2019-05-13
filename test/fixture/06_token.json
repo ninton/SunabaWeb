@@ -1,0 +1,94 @@
+[
+    {
+      "type": "NAME",
+      "string": "点",
+      "line": 1
+    },
+    {
+      "type": "(",
+      "string": "(",
+      "line": 1
+    },
+    {
+      "type": ")",
+      "string": ")",
+      "line": 1
+    },
+    {
+      "type": ";",
+      "string": "行末",
+      "line": 3
+    },
+    {
+      "type": "NAME",
+      "string": "点",
+      "line": 3
+    },
+    {
+      "type": "(",
+      "string": "(",
+      "line": 3
+    },
+    {
+      "type": ")",
+      "string": ")",
+      "line": 3
+    },
+    {
+      "type": "DEF_POST",
+      "string": "とは",
+      "line": 3
+    },
+    {
+      "type": "{",
+      "string": "ブロック開始",
+      "line": 4
+    },
+    {
+      "type": "NAME",
+      "string": "メモリ",
+      "line": 4
+    },
+    {
+      "type": "[",
+      "string": "[",
+      "line": 4
+    },
+    {
+      "type": "NUMBER",
+      "number": 60000,
+      "string": "60000",
+      "line": 4
+    },
+    {
+      "type": "]",
+      "string": "]",
+      "line": 4
+    },
+    {
+      "type": "→",
+      "string": "→",
+      "line": 4
+    },
+    {
+      "type": "NUMBER",
+      "number": 999999,
+      "string": "999999",
+      "line": 4
+    },
+    {
+      "type": ";",
+      "string": "行末",
+      "line": 4
+    },
+    {
+      "type": "}",
+      "string": "ブロック末",
+      "line": 4
+    },
+    {
+      "type": "END",
+      "string": "",
+      "line": 4
+    }
+  ]

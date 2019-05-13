@@ -10,7 +10,7 @@ suite('sunaba.Parser', () => {
     teardown(() => {
     });
 
-    test('parseProgram', () => {
+    test('parseProgram　#1', () => {
         const tokens = [
             {type: "NAME"      , line: 1, string: "memory"                },
             {type: "["         , line: 1, string: "["                     },
@@ -26,6 +26,16 @@ suite('sunaba.Parser', () => {
         //console.log(JSON.stringify(root, null, 4));
 
         const expected = JSON.parse(fs.readFileSync('test/fixture/04_node.json').toString());
+        assert.deepEqual(expected, root);
+    });
+
+    test('parseProgram #2', () => {
+        const tokens = JSON.parse(fs.readFileSync('test/fixture/06_token.json').toString());
+        const parser = new Parser(tokens, Sunaba.locales.japanese);
+        const root = parser.parseProgram();
+        //console.log(JSON.stringify(root, null, 4));
+
+        const expected = JSON.parse(fs.readFileSync('test/fixture/06_node.json').toString());
         assert.deepEqual(expected, root);
     });
 });

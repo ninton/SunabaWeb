@@ -452,15 +452,15 @@ export default class Compiler {
                     if (newCount > oldCount) { //増えた
                         spaceCountStack[spaceCountStackPos] = newCount;
                         spaceCountStackPos += 1;
-                        r.push({type:'{', string:'{', line:t.line});
+                        r.push({type:'{', string:'ブロック開始', line:t.line});
                     } else if (newCount === oldCount) {
                         if (!emptyLine) { //空行でなければ
-                        r.push({type:';', string:';', line:t.line});
+                        r.push({type:';', string:'行末', line:t.line});
                         emptyLine = true;
                         }
                     } else{ //newCount < oldCount
                         if (!emptyLine) { //空行でなければ
-                            r.push({type:';', string:';', line:t.line});
+                            r.push({type:';', string:'行末', line:t.line});
                             emptyLine = true;
                         }
                         while (newCount < oldCount) { //ずれてる間回す
@@ -469,7 +469,7 @@ export default class Compiler {
                                 throw 'BUG: compipler.ts:472';
                             }
                             oldCount = spaceCountStack[spaceCountStackPos - 1];
-                            r.push({type:'}', string:'}', line:t.line});
+                            r.push({type:'}', string:'ブロック末', line:t.line});
                         }
 
                         if (newCount != oldCount) { //ずれている

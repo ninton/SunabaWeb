@@ -31,7 +31,7 @@ export default class CodeGenerator {
     }
 
     public generateProgram(node:any): any {
-        HLib.assert(node.type === 'PROGRAM');
+        HLib.assert(node.type === 'PROGRAM', `${__filename}:34`);
         this.addCommand("pop",   -1, "#$mainの戻り値領域");
         this.addCommand("call", "func_!main"); // main()呼び出し 160413: add等のアセンブラ命令と同名の関数があった時にラベルを命令と間違えて誤作動する問題の緊急回避
     
@@ -81,7 +81,7 @@ export default class CodeGenerator {
         let child = node.child;
 
         let funcInfo:FunctionInfo;
-        HLib.assert(node.token);
+        HLib.assert(node.token, `${__filename}:84`);
 
         funcName = node.token.string;
 
@@ -128,7 +128,7 @@ export default class CodeGenerator {
         }
 
         // 関数重複チェック
-        HLib.assert(this.mFunctionMap[funcName] !== undefined); //絶対ある
+        HLib.assert(this.mFunctionMap[funcName] !== undefined, `${__filename}:131`); //絶対ある
 
         const functionGenerator = new FunctionGenerator(this);
         functionGenerator.process(node, funcName);

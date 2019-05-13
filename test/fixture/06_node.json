@@ -1,0 +1,49 @@
+{
+    "type": "PROGRAM",
+    "child": {
+        "type": "CALL",
+        "token": {
+            "type": "NAME",
+            "string": "点",
+            "line": 1
+        },
+        "child": null,
+        "brother": {
+            "type": "FUNC",
+            "token": {
+                "type": "NAME",
+                "string": "点",
+                "line": 3
+            },
+            "child": {
+                "type": "SET",
+                "token": {
+                    "type": "NAME",
+                    "string": "メモリ",
+                    "line": 4
+                },
+                "child": {
+                    "type": "ARRAY",
+                    "token": null,
+                    "child": null,
+                    "brother": {
+                        "type": "NUMBER",
+                        "number": 999999,
+                        "token": {
+                            "type": "NUMBER",
+                            "number": 999999,
+                            "string": "999999",
+                            "line": 4
+                        },
+                        "child": null,
+                        "brother": null
+                    },
+                    "number": 60000
+                },
+                "brother": null
+            },
+            "brother": null
+        }
+    },
+    "brother": null
+}
