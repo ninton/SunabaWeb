@@ -11,7 +11,7 @@ export default class Parser {
     mRoot       : any;
     mPos        : number;
 
-    constructor(tokens:Array<any>, locale:any) {
+    constructor(tokens:Array<Token>, locale:any) {
         this.errorMessage = null;
 
         this.mTokens = tokens;

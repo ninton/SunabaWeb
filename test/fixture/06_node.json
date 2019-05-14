@@ -3,7 +3,7 @@
     "child": {
         "type": "CALL",
         "token": {
-            "type": "NAME",
+            "type": 15,
             "string": "点",
             "line": 1
         },
@@ -11,14 +11,14 @@
         "brother": {
             "type": "FUNC",
             "token": {
-                "type": "NAME",
+                "type": 15,
                 "string": "点",
                 "line": 3
             },
             "child": {
                 "type": "SET",
                 "token": {
-                    "type": "NAME",
+                    "type": 15,
                     "string": "メモリ",
                     "line": 4
                 },
@@ -30,7 +30,7 @@
                         "type": "NUMBER",
                         "number": 999999,
                         "token": {
-                            "type": "NUMBER",
+                            "type": 17,
                             "number": 999999,
                             "string": "999999",
                             "line": 4
