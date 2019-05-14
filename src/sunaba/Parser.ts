@@ -1,13 +1,15 @@
 import HLib from './HLib';
 import { stat } from 'fs';
+import Token from './Token';
+import { TokenType } from './TokenType';
 
 export default class Parser {
-    errorMessage:string;
-    mTokens:Array<any>;
-    mLocale:any;
-    mConstants:any;
-    mRoot:any;
-    mPos:number;
+    errorMessage: string;
+    mTokens     : Array<Token>;
+    mLocale     : any;
+    mConstants  : any;
+    mRoot       : any;
+    mPos        : number;
 
     constructor(tokens:Array<any>, locale:any) {
         this.errorMessage = null;
@@ -34,9 +36,9 @@ export default class Parser {
         let tokens = this.mTokens;
         let n = tokens.length;
         this.mPos = 0;
-        while (tokens[this.mPos].type !== 'END') {
+        while (tokens[this.mPos].type !== TokenType.TOKEN_END) {
             let t = tokens[this.mPos];
-            if (t.type === 'CONST') {
+            if (t.type === TokenType.TOKEN_CONST) {
                 if (!this.parseConst(false)) { //ノードを返さない。
                     return null;
                 }
@@ -48,7 +50,7 @@ export default class Parser {
         //残りを処理
         this.mPos = 0;
         let lastChild:any = null;
-        while (tokens[this.mPos].type !== 'END') {
+        while (tokens[this.mPos].type !== TokenType.TOKEN_END) {
             let statementType = this.getStatementType();
             let child = null;
             if (statementType === null) {
@@ -93,7 +95,7 @@ export default class Parser {
 
         //名前
         t = tokens[this.mPos];
-        if (t.type !== 'NAME') {
+        if (t.type !== TokenType.TOKEN_NAME) {
             this.beginError(t);
             throw `E102: 行${t.line}: 定数"の次は定数名。"${t.string}"は定数名と解釈できない。`;
         }
@@ -102,7 +104,7 @@ export default class Parser {
 
         //→
         t = tokens[this.mPos];
-        if (t.type !== '→') {
+        if (t.type !== TokenType.TOKEN_SUBSTITUTION) {
             this.beginError(t);
             throw `E103: 行${t.line}: 定数 [名前]、と来たら次は"→"のはずだが「${t.string}'」がある。`;
             return false;
@@ -124,7 +126,7 @@ export default class Parser {
 
         //文末
         t = tokens[this.mPos];
-        if (t.type !== ';') {
+        if (t.type !== TokenType.TOKEN_STATEMENT_END) {
             this.beginError(t);
             throw `行${t.line}: 定数作成の後に"${t.string}"がある。改行してくれ。\n`;
         }
@@ -148,7 +150,7 @@ export default class Parser {
         let tokens = this.mTokens;
         let t = tokens[this.mPos];
         let defFound = false;
-        if (t.type === 'DEF_PRE') {
+        if (t.type === TokenType.TOKEN_DEF_PRE) {
             this.mPos += 1;
             defFound = true;
             t = tokens[this.mPos];
@@ -159,7 +161,7 @@ export default class Parser {
 
         //(
         t = tokens[this.mPos];
-        if (t.type !== '(') {
+        if (t.type !== TokenType.TOKEN_LEFT_BRACKET) {
             throw `E110: 行${t.line}: 入力リスト開始の「(」があるはずだが、「${t.string}」がある。`;
         }
         this.mPos += 1;
@@ -167,7 +169,7 @@ export default class Parser {
         //次がnameなら引数が一つはある
         let lastChild:any = null;
         t = tokens[this.mPos];
-        if (t.type === 'NAME') {
+        if (t.type === TokenType.TOKEN_NAME) {
             let arg = this.parseVariable();
             if (arg === null) {
                 return null;
@@ -176,10 +178,10 @@ export default class Parser {
             node.child = arg;
             lastChild = arg;
             //第二引数以降を処理
-            while (tokens[this.mPos].type === ',') {
+            while (tokens[this.mPos].type === TokenType.TOKEN_COMMA) {
                 this.mPos += 1;
                 t = tokens[this.mPos];
-                if (t.type !== 'NAME') { //名前でないのはエラー
+                if (t.type !== TokenType.TOKEN_NAME) { //名前でないのはエラー
                     throw `E111: 行${t.line}: 入力リスト中に「,」がある以上、まだ入力があるはずだが、「${t.string}」がある。`;
                 }
 
@@ -199,14 +201,14 @@ export default class Parser {
         }
         //)
         t = tokens[this.mPos];
-        if (t.type !== ')') {
+        if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) {
             throw `E113: 行${t.line}: 入力リスト終了の「)」があるはずだが、「' + t.string + '」がある。`;
         }
         this.mPos += 1;
 
         //とは
         t = tokens[this.mPos];
-        if (t.type === 'DEF_POST') {
+        if (t.type === TokenType.TOKEN_DEF_POST) {
             if (defFound) {
                 throw `E114: 行${t.line}: 「def」と「とは」が両方ある。片方にしてほしい。`;
             }
@@ -216,14 +218,14 @@ export default class Parser {
 
         //関数定義の中身
         t = tokens[this.mPos];
-        if (t.type === '{') {
+        if (t.type === TokenType.TOKEN_BLOCK_BEGIN) {
             this.mPos += 1;
             for (t = tokens[this.mPos]; true; t = tokens[this.mPos]) {
                 let child = null;
-                if (t.type === '}') { //終わり
+                if (t.type === TokenType.TOKEN_BLOCK_END) { //終わり
                     this.mPos += 1;
                     break;
-                } else if (t.type === 'CONST') { //定数は関数定義の中では許しませんよ
+                } else if (t.type === TokenType.TOKEN_CONST) { //定数は関数定義の中では許しませんよ
                     throw `E115: 行${t.line}: 部分プログラム内で定数は作れない。`;
                 } else {
                     child = this.parseStatement();
@@ -240,7 +242,7 @@ export default class Parser {
 
                 lastChild = child;
             }
-        } else if (t.type === ';') { //いきなり空
+        } else if (t.type === TokenType.TOKEN_STATEMENT_END) { //いきなり空
             this.mPos += 1;
         } else { //エラー
             throw `E116: 行${t.line}: 部分プログラムの最初の行の行末に「${t.string}」が続いている。改行しよう。`;
@@ -269,8 +271,8 @@ export default class Parser {
             }
 
             t = this.mTokens[this.mPos];
-            if (t.type !== ';') { //文終わってないぞ
-                if (t.type === '{') {
+            if (t.type !== TokenType.TOKEN_STATEMENT_END) { //文終わってないぞ
+                if (t.type === TokenType.TOKEN_BLOCK_BEGIN) {
                     throw 'E121: 行' + t.line + ': 部分プログラムを作ろうとした？それは部分プログラムの外で「def」なり「とは」なりを使ってね。それとも、次の行の字下げが多すぎただけ？';
                 } else {
                     throw 'E122: 行' + t.line + ': 部分プログラム参照の後ろに、「' + t.string + '」がある。改行したら？';
@@ -295,38 +297,38 @@ export default class Parser {
         let tokens = this.mTokens;
         let t = tokens[pos];
         //文頭でわかるケースを判別
-        if (t.type === '{') {
+        if (t.type === TokenType.TOKEN_BLOCK_BEGIN) {
             throw 'E130: 行' + t.line + ': 字下げを間違っているはず。上の行より多くないか。';
             return null;
-        } else if ((t.type === 'WHILE_PRE') || (t.type === 'IF_PRE')) {
+        } else if ((t.type === TokenType.TOKEN_WHILE_PRE) || (t.type === TokenType.TOKEN_IF_PRE)) {
             return 'WHILE_OR_IF';
-        } else if (t.type === 'DEF') {
+        } else if (t.type === TokenType.TOKEN_DEF_PRE) {
             return 'DEF';
-        } else if (t.type === 'CONST') {
+        } else if (t.type === TokenType.TOKEN_CONST) {
             return 'CONST';
         }
         //文末までスキャン
         let endPos = pos;
-        while ((tokens[endPos].type !== ';') && (tokens[endPos].type !== '{')) {
+        while ((tokens[endPos].type !== TokenType.TOKEN_STATEMENT_END) && (tokens[endPos].type !== TokenType.TOKEN_BLOCK_BEGIN)) {
             endPos += 1;
         }
         //後置キーワード判定
         if (endPos > pos) {
             t = tokens[endPos - 1];
-            if ((t.type === 'WHILE_POST') || (t.type === 'IF_POST')) {
+            if ((t.type === TokenType.TOKEN_WHILE_POST) || (t.type === TokenType.TOKEN_IF_POST)) {
                 return 'WHILE_OR_IF';
-            } else if (t.type === 'DEF_POST') {
+            } else if (t.type === TokenType.TOKEN_DEF_POST) {
                 return 'DEF';
             }
         }
         //代入記号を探す
         for (let i = pos; i < endPos; i += 1) {
-            if (tokens[i].type === '→') {
+            if (tokens[i].type === TokenType.TOKEN_SUBSTITUTION) {
                 return 'SET';
             }
         }
         //残るは関数コール文?
-        if ((tokens[pos].type === 'NAME') && (tokens[pos + 1].type === '(')) {
+        if ((tokens[pos].type === TokenType.TOKEN_NAME) && (tokens[pos + 1].type === TokenType.TOKEN_LEFT_BRACKET)) {
             return 'FUNC';
         }
 
@@ -341,19 +343,19 @@ export default class Parser {
         //
         let tokens = this.mTokens;
         let t = tokens[this.mPos];
-        if ((t.type !== 'NAME') && (t.type !== 'OUT')) {
+        if ((t.type !== TokenType.TOKEN_NAME) && (t.type !== TokenType.TOKEN_OUT)) {
             throw 'E140: 行' + t.line + ': 「→」があるのでメモリセット行だと思うが、それなら「memory」とか「out」とか、名前付きメモリの名前とか、そういうものから始まるはず。'
         }
         let node = {type:'SET', token:t, child:null, brother:null};
 
         // 左辺
         let left:any = null;
-        if (t.type === 'OUT') {
+        if (t.type === TokenType.TOKEN_OUT) {
             left = {type:'OUT', token:t, child:null, brother:null};
             this.mPos += 1;
         } else {
             // 第一要素はNAME
-            if (tokens[this.mPos + 1].type === '[') {
+            if (tokens[this.mPos + 1].type === TokenType.TOKEN_INDEX_BEGIN) {
                 // 配列だ
                 left = this.parseArray();
             } else { // 変数
@@ -371,7 +373,7 @@ export default class Parser {
         
         // →
         t = tokens[this.mPos];
-        if (t.type !== '→') {
+        if (t.type !== TokenType.TOKEN_SUBSTITUTION) {
             throw 'E142: 行' + t.line + ': メモリセット行だと思ったのだが、あるべき場所に「→」がない。';
         }
         this.mPos += 1;
@@ -385,7 +387,7 @@ export default class Parser {
 
         // ;
         t = tokens[this.mPos];
-        if (t.type !== ';') {
+        if (t.type !== TokenType.TOKEN_STATEMENT_END) {
             throw 'E143: 行' + t.line + ': 次の行の字下げが多すぎるんじゃなかろうか。';
         }
         this.mPos += 1;
@@ -402,10 +404,10 @@ export default class Parser {
         let t = tokens[this.mPos];
         let node:any = {type:null, token:t, child:null, brother:null};
         //前置ならすぐ決まる
-        if (t.type === 'WHILE_PRE') {
+        if (t.type === TokenType.TOKEN_WHILE_PRE) {
             node.type = 'WHILE';
             this.mPos += 1;
-        } else if (t.type === 'IF_PRE') {
+        } else if (t.type === TokenType.TOKEN_IF_PRE) {
             node.type = 'IF';
             this.mPos += 1;
         }
@@ -419,9 +421,9 @@ export default class Parser {
         //まだどっちか確定してない場合、ここにキーワードがあるはず
         t = tokens[this.mPos];
         if (node.type === null) {
-            if (t.type === 'WHILE_POST') {
+            if (t.type === TokenType.TOKEN_WHILE_POST) {
                 node.type = 'WHILE';
-            } else if (t.type === 'IF_POST') {
+            } else if (t.type === TokenType.TOKEN_IF_POST) {
                 node.type = 'IF';
             }
             this.mPos += 1;
@@ -429,16 +431,16 @@ export default class Parser {
 
         //ブロックがあるなら処理
         t = tokens[this.mPos];
-        if (t.type === '{') {
+        if (t.type === TokenType.TOKEN_BLOCK_BEGIN) {
             this.mPos += 1;
             let lastChild = exp;
             while (true) {
                 let child = null;
                 t = tokens[this.mPos];
-                if (t.type === '}') {
+                if (t.type === TokenType.TOKEN_BLOCK_END) {
                     this.mPos += 1;
                     break;
-                } else if (t.type === 'CONST') {
+                } else if (t.type === TokenType.TOKEN_CONST) {
                     throw 'E150: 行' + t.line + ': 繰り返しや条件実行の中で定数は作れない。';
                 } else {
                     child = this.parseStatement();
@@ -450,7 +452,7 @@ export default class Parser {
                 lastChild.brother = child;
                 lastChild = child;
             }
-        } else if (t.type === ';') { //中身なしwhile/if
+        } else if (t.type === TokenType.TOKEN_STATEMENT_END) { //中身なしwhile/if
            this.mPos += 1;
         } else {
            throw 'E151: 行' + t.line + ': 条件行は条件の終わりで改行しよう。「' + t.string + '」が続いている。';
@@ -468,7 +470,7 @@ export default class Parser {
         node.type = 'ARRAY';
 
         // [
-        HLib.assert(this.mTokens[this.mPos].type === '[', `${__filename}:471`); // getTermTypeで判定済み
+        HLib.assert(this.mTokens[this.mPos].type === TokenType.TOKEN_INDEX_BEGIN, `${__filename}:471`); // getTermTypeで判定済み
         this.mPos += 1;
 
         // expression
@@ -485,7 +487,7 @@ export default class Parser {
         }
 
         //]
-        if (this.mTokens[this.mPos].type !== ']') {
+        if (this.mTokens[this.mPos].type !== TokenType.TOKEN_INDEX_END) {
             let t = this.mTokens[this.mPos];
             this.beginError(t);
             throw `E160: 行${t.line}: 名前つきメモリ[番号]の"]"の代わりに"${t.string}"がある。\n`;
@@ -498,7 +500,7 @@ export default class Parser {
     // Variable : name
     public parseVariable() {
         let t = this.mTokens[this.mPos];
-        HLib.assert(t.type === 'NAME', `${__filename}:501`);
+        HLib.assert(t.type === TokenType.TOKEN_NAME, `${__filename}:501`);
         let node:any = {type:null, token:null, child:null, brother:null};
 
         //定数？変数？
@@ -518,7 +520,7 @@ export default class Parser {
     //Out : out
     public parseOut() {
         let t = this.mTokens[this.mPos];
-        HLib.assert(t.type === 'OUT', `${__filename}:521`);
+        HLib.assert(t.type === TokenType.TOKEN_OUT, `${__filename}:521`);
         let node = {type:'OUT', token:t, child:null, brother:null};
         this.mPos += 1;
         return node;
@@ -536,7 +538,7 @@ export default class Parser {
         }
 
         // 演算子がつながる限りループ
-        for (let t = this.mTokens[this.mPos]; t.type === 'OPERATOR'; t = this.mTokens[this.mPos]) {
+        for (let t = this.mTokens[this.mPos]; t.type === TokenType.TOKEN_OPERATOR; t = this.mTokens[this.mPos]) {
             let node:any = {
                 type:'EXPRESSION',
                 token:t,
@@ -546,7 +548,7 @@ export default class Parser {
             };
             this.mPos += 1;
             t = this.mTokens[this.mPos];
-            if ((t.type === 'OPERATOR') && (t.operator !== '-')) { //-以外の演算子ならエラー
+            if ((t.type === TokenType.TOKEN_OPERATOR) && (t.operator !== '-')) { //-以外の演算子ならエラー
                 throw 'E170: 行' + t.line + ': 演算子が連続している。==や++や--はない。=>や=<は>=や<=の間違いだろう。';
             }
             let right = this.parseTerm();
@@ -613,20 +615,20 @@ export default class Parser {
         let t = this.mTokens[this.mPos];
         let r = null;
 
-        if (t.type === '(') {
+        if (t.type === TokenType.TOKEN_LEFT_BRACKET) {
             r = 'EXPRESSION';
-        } else if (t.type === 'NUMBER') {
+        } else if (t.type === TokenType.TOKEN_NUMBER) {
             r = 'NUMBER';
-        } else if (t.type === 'NAME') {
+        } else if (t.type === TokenType.TOKEN_NAME) {
             t = this.mTokens[this.mPos + 1];
-            if (t.type === '(') {
+            if (t.type === TokenType.TOKEN_LEFT_BRACKET) {
                 r = 'FUNC';
-            } else if (t.type === '[') {
+            } else if (t.type === TokenType.TOKEN_INDEX_BEGIN) {
                 r = 'ARRAY';
             } else {
                 r = 'VARIABLE';
             }
-        } else if (t.type === 'OUT') {
+        } else if (t.type === TokenType.TOKEN_OUT) {
             r = 'OUT';
         }
 
@@ -648,11 +650,11 @@ export default class Parser {
         let termType = this.getTermType();
         let node = null;
         if (termType === 'EXPRESSION') {
-            HLib.assert(t.type === '(', `${__filename}:651`);
+            HLib.assert(t.type === TokenType.TOKEN_LEFT_BRACKET, `${__filename}:651`);
             this.mPos += 1;
             node = this.parseExpression();
             t = this.mTokens[this.mPos];
-            if (t.type !== ')') {
+            if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) {
                 throw 'E180: 行' + t.line + ': ()で囲まれた式がありそうなのだが、終わりの")"の代わりに「' + t.string + '」がある。';
             }
             this.mPos += 1;
@@ -685,18 +687,18 @@ export default class Parser {
     // E190
     public parseFunction() {
         let t = this.mTokens[this.mPos];
-        HLib.assert(t.type === 'NAME', `${__filename}:688`);
+        HLib.assert(t.type === TokenType.TOKEN_NAME, `${__filename}:688`);
         let node = {type:'CALL', token:t, child:null, brother:null};
         this.mPos += 1;
     
         // "(""
         t = this.mTokens[this.mPos];
-        HLib.assert(t.type === '(', `${__filename}:694`);
+        HLib.assert(t.type === TokenType.TOKEN_LEFT_BRACKET, `${__filename}:694`);
         this.mPos += 1;
     
         // 引数ありか、なしか
         t = this.mTokens[this.mPos];
-        if (t.type !== ')') { //括弧閉じないので引数あり
+        if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) { //括弧閉じないので引数あり
             let exp = this.parseExpression();
             if (exp === null) {
                 return null;
@@ -707,7 +709,7 @@ export default class Parser {
             let lastChild = exp;
             while (true) {
                 t = this.mTokens[this.mPos];
-                if (t.type !== ',') {
+                if (t.type !== TokenType.TOKEN_COMMA) {
                     break;
                 }
                 this.mPos += 1;
@@ -721,7 +723,7 @@ export default class Parser {
         }
 
         // ")"
-        if (t.type !== ')') {
+        if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) {
             throw 'E190: 行' + t.line + ': 部分プログラムの入力が")"で終わるはずだが、「' + t.string + '」がある。';
         }
         this.mPos += 1;
