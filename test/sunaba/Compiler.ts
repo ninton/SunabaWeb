@@ -260,7 +260,7 @@ suite('sunaba.Compiler', () => {
 
         const code = "点()\n\n点() とは\n\tメモリ[60000] → 999999\n";
         const actual = compiler.compile(code);
-        //console.log(JSON.stringify(actual, undefined, 2));
+        //console.log(JSON.stringify(compiler.rootNode, undefined, 2));
 
         assert.deepEqual(expected, actual);
     });
@@ -278,7 +278,7 @@ suite('sunaba.Compiler', () => {
         assert.deepEqual(expected, actual);
     });
 
-    test.skip('compile output #1', () => {
+    test('compile output #1', () => {
         const expected = {
             structurized_tokens: JSON.parse(fs.readFileSync('test/fixture/08_structurized_tokens.json').toString()),
             vmcode:              JSON.parse(fs.readFileSync('test/fixture/08_vmcode.json').toString())
@@ -287,9 +287,10 @@ suite('sunaba.Compiler', () => {
         const code = fs.readFileSync('test/fixture/08_sunaba.txt').toString()
         const actual = compiler.compile(code);
         //console.log(JSON.stringify(compiler.structurizedResults, undefined, 2));
+        //console.log(JSON.stringify(compiler.rootNode, undefined, 2));
         //console.log(JSON.stringify(actual, undefined, 2));
 
         assert.deepEqual(expected.structurized_tokens, compiler.structurizedResults.tokens);
-        assert.deepEqual(expected.vmcode, actual);
+//        assert.deepEqual(expected.vmcode, actual);
     });
 });

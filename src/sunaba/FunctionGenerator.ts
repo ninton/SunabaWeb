@@ -244,17 +244,17 @@ export default class FunctionGenerator {
 
         // 出力の整合性チェック。
         // ifの中などで出力してるのに、ブロック外に出力がないケースを検出
-        if (this.mInfo.hasOutputValue() != this.mOutputExist) {
+        if (this.mInfo.hasOutputValue() !== this.mOutputExist) {
             HLib.assert(this.mOutputExist), `${__filename}:245`; // outputExistがfalseで、hasOutputValue()がtrueはありえない
             if (headNode.token) {
                 // 普通の関数ノード
                 this.beginError(headNode);
-                throw `E201: 部分プログラム"${this.mName}"は出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`;
+                throw `E202: 部分プログラム"${this.mName}"は出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`;
             } else {
                 // プログラムノード
                 HLib.assert(headNode.child !== null, `${__filename}:252`);
                 this.beginError(headNode.child);
-                throw `E202: このプログラムは出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`;
+                throw `E203: このプログラムは出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`;
             }
             return false;
         }

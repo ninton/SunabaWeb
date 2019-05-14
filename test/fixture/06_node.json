@@ -1,66 +1,66 @@
 {
     "type": 0,
-    "negation": false,
-    "number": 0,
-    "operator": "",
     "token": null,
     "child": {
-        "type": 10,
-        "negation": false,
+      "type": 10,
+      "token": {
+        "type": 15,
+        "line": 1,
+        "string": "点"
+      },
+      "child": null,
+      "brother": {
+        "type": 4,
+        "token": {
+          "type": 15,
+          "line": 3,
+          "string": "点"
+        },
+        "child": {
+          "type": 3,
+          "token": {
+            "type": 15,
+            "line": 4,
+            "string": "メモリ"
+          },
+          "child": {
+            "type": 9,
+            "token": null,
+            "child": null,
+            "brother": {
+              "type": 7,
+              "token": {
+                "type": 17,
+                "line": 4,
+                "string": "999999",
+                "number": 999999
+              },
+              "child": null,
+              "brother": null,
+              "operator": "",
+              "number": 999999,
+              "negation": false
+            },
+            "operator": "",
+            "number": 60000,
+            "negation": false
+          },
+          "brother": null,
+          "operator": "",
+          "number": 0,
+          "negation": false
+        },
+        "brother": null,
         "operator": "",
         "number": 0,
-        "token": {
-            "type": 15,
-            "string": "点",
-            "line": 1
-        },
-        "child": null,
-        "brother": {
-            "type": 4,
-            "negation": false,
-            "operator": "",
-            "number": 0,
-            "token": {
-                "type": 15,
-                "string": "点",
-                "line": 3
-            },
-            "child": {
-                "type": 3,
-                "negation": false,
-                "operator": "",
-                "number": 0,
-                "token": {
-                    "type": 15,
-                    "string": "メモリ",
-                    "line": 4
-                },
-                "child": {
-                    "type": 9,
-                    "negation": false,
-                    "operator": "",
-                    "token": null,
-                    "child": null,
-                    "brother": {
-                        "type": 7,
-                        "negation": false,
-                        "operator": "",
-                        "number": 999999,
-                        "token": {
-                            "type": 17,
-                            "number": 999999,
-                            "string": "999999",
-                            "line": 4
-                        },
-                        "child": null,
-                        "brother": null
-                    },
-                    "number": 60000
-                },
-                "brother": null
-            },
-            "brother": null
-        }
+        "negation": false
+      },
+      "operator": "",
+      "number": 0,
+      "negation": false
     },
-    "brother": null
-}
+    "brother": null,
+    "operator": "",
+    "number": 0,
+    "negation": false
+  }
