@@ -1,6 +1,7 @@
 import HLib from "./HLib";
 import CodeGenerator from "./CodeGenerator";
 import FunctionInfo from "./FunctionInfo";
+import { TokenType } from "./TokenType";
 
 class Variable {
     private mDefined    : boolean;
@@ -685,14 +686,14 @@ export default class FunctionGenerator {
 
         //トークンは数字ですか、名前ですか
         if (node.token) {
-            if (node.token.type === 'OUT') {
+            if (node.token.type === TokenType.TOKEN_OUT) {
                 const name = "!ret";
                 const v:any = this.mCurrentBlock.findVariable(name);
                 HLib.assert(v, `${__filename}:691`);
                 params.fpRelative = true; //変数直のみFP相対
                 params.staticOffset = v.offset();
                 this.mOutputExist = true;
-            } else if (node.token.type === 'NAME') {
+            } else if (node.token.type === TokenType.TOKEN_NAME) {
                 //変数の定義状態を参照
                 const name = node.token.string;
                 const v:any = this.mCurrentBlock.findVariable(name);
