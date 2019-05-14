@@ -262,11 +262,11 @@ export default class FunctionGenerator {
         return true;
     }
 
-    public generateStatement(node:any): boolean {
+    public generateStatement(node:Node): boolean {
         // ブロック生成命令は別扱い
         if ((node.type === NodeType.NODE_WHILE_STATEMENT) || (node.type === NodeType.NODE_IF_STATEMENT)) {
             //新ブロック生成
-            const newBlock = new Block(this.mCurrentBlock.mBaseOffset + this.mCurrentBlock.mFrameSize);
+            const newBlock:Block = new Block(this.mCurrentBlock.mBaseOffset + this.mCurrentBlock.mFrameSize);
             newBlock.mParent = this.mCurrentBlock; //親差し込み
             newBlock.collectVariables(node.child); //フレーム生成
             this.mCurrentBlock = newBlock;
@@ -326,19 +326,19 @@ export default class FunctionGenerator {
     b whileBegin // 最初へ
     whileEnd:
     */
-    public generateWhile(node:any): boolean {
+    public generateWhile(node:Node): boolean {
         HLib.assert(node.type === NodeType.NODE_WHILE_STATEMENT, `${__filename}:327`);
 
         //開始ラベル
-        const whileBegin = `${this.mName}_whileBegin${this.mLabelId}`;
-        const whileEnd   = `${this.mName}_whileEnd${this.mLabelId}`;
+        const whileBegin:string = `${this.mName}_whileBegin${this.mLabelId}`;
+        const whileEnd  :string = `${this.mName}_whileEnd${this.mLabelId}`;
         this.mLabelId += 1;
 
         this.addCommand('label', whileBegin);
 
         //Expression処理
-        let child = node.child;
-        HLib.assert(child, `${__filename}:338`);
+        let child:Node|null = node.child;
+        HLib.assert(child !== null, `${__filename}:338`);
         if (!this.generateExpression(child)) {
             //最初の子はExpression
             return false;
@@ -374,11 +374,11 @@ export default class FunctionGenerator {
     Statement...
     ifEnd:
     */
-    public generateIf(node:any): boolean {
+    public generateIf(node:Node): boolean {
         HLib.assert(node.type === NodeType.NODE_IF_STATEMENT, `${__filename}:375`);
 
         // Expression処理
-        let  child = node.child;
+        let child:Node = node.child;
         HLib.assert(child, `${__filename}:379`);
         if (!this.generateExpression(child)) {
             // 最初の子はExpression
@@ -392,12 +392,11 @@ export default class FunctionGenerator {
         this.addCommand('bz', label_ifEnd);
 
         // 内部の文を処理
-        child = child.brother;
-        while (child) {
+        while (child.brother) {
+            child = child.brother;
             if (!this.generateStatement(child)) {
                 return false;
             }
-            child = child.brother;
         }
 
         // ラベル生成
@@ -406,7 +405,7 @@ export default class FunctionGenerator {
         return true;
     }
     
-    public generateFunctionStatement(node:any): boolean {
+    public generateFunctionStatement(node:Node): boolean {
 	    // まず関数呼び出し
 	    if (!this.generateFunction(node, true)) {
 		    return false;
@@ -419,19 +418,19 @@ export default class FunctionGenerator {
     }
     
     // E210
-    public generateFunction(node:any, isStatement:boolean): boolean {
+    public generateFunction(node:Node, isStatement:boolean): boolean {
         HLib.assert(node.type === NodeType.NODE_FUNCTION, `${__filename}:420`);
 
         // まず、その関数が存在していて、定義済みかを調べる。
         HLib.assert(node.token, `${__filename}:423`);
-        const funcName = node.token.string;
+        const funcName:string = node.token.string || '';
         if (!(funcName in this.mFunctionMap)) {
             this.beginError(node);
             throw `E210: 部分プログラム"${funcName}"なんて知らない。`;
         }
 
-        const func = this.mFunctionMap[funcName];
-        let popCount = 0; // 後で引数/戻り値分ポップ
+        const func:FunctionInfo = this.mFunctionMap[funcName];
+        let popCount:number = 0; // 後で引数/戻り値分ポップ
         if (func.hasOutputValue()) {
             // 戻り値あるならプッシュ
             this.addCommand('pop', -1, `#${funcName}の戻り値領域`);
@@ -447,8 +446,8 @@ export default class FunctionGenerator {
         }
 
         // 引数の数をチェック
-        let arg = node.child;
-        let argCount = 0;
+        let arg:Node = node.child;
+        let argCount:number = 0;
         while (arg) {
             argCount += 1;
             arg = arg.brother;
@@ -471,7 +470,7 @@ export default class FunctionGenerator {
 
         // call命令生成
         // 160413: add等のアセンブラ命令と同名の関数があった時にラベルを命令と間違えて誤作動する問題の緊急回避
-        const label = `func_${funcName}`;
+        const label:string = `func_${funcName}`;
         this.addCommand("call", label);
 
         // 返ってきたら、引数/戻り値をポップ
@@ -488,18 +487,22 @@ export default class FunctionGenerator {
     st
     */
    // E220
-    public generateSubstitution(node:any): boolean {
+    public generateSubstitution(node:Node): boolean {
         HLib.assert(node.type === NodeType.NODE_SUBSTITUTION_STATEMENT, `${__filename}:489`);
 
         // 左辺値のアドレスを求める。最初の子が左辺値
-        let child = node.child;
-        HLib.assert(child, `${__filename}:493`);
+        if (node.child === null) {
+            HLib.assert(false, `${__filename}:496`)
+            return false;
+        }
+
+        let child:Node = node.child;
 
         // 変数の定義状態を参照
         let v:Variable|null = null;
 
         if ((child.type === NodeType.NODE_OUT) || child.token) { //変数があるなら
-            let name = child.token.string;
+            let name:string = child.token.string || '';
             if (child.type === NodeType.NODE_OUT) {
                 name = "!ret";
             }
@@ -508,7 +511,6 @@ export default class FunctionGenerator {
                 // 配列アクセス時でタイプミスすると変数が存在しないケースがある
                 this.beginError(child);
                 throw `E220:名前付きメモリか定数"${name}"は存在しないか、まだ作られていない。`;
-                return false; 
             } else if (!(v.isDefined())) { // 未定義ならここで定義
                 v.define();
             }
@@ -523,13 +525,16 @@ export default class FunctionGenerator {
         }
 
         // 右辺処理
-        child = child.brother;
-        HLib.assert(child, `${__filename}:524`);
-        if (!this.generateExpression(child)) {
+        if (child.brother === null) {
+            HLib.assert(false, `${__filename}:529`);
             return false;
         }
 
-        let cmd;
+        if (!this.generateExpression(child.brother)) {
+            return false;
+        }
+
+        let cmd:string;
         if (params.fpRelative) {
             cmd = 'fst';
         } else {
@@ -546,21 +551,31 @@ export default class FunctionGenerator {
     }
 
     //第一項、第二項、第二項オペレータ、第三項、第三項オペレータ...という具合に実行
-    public generateExpression(node:any): boolean {
+    public generateExpression(node:Node): boolean {
         //解決されて単項になっていれば、そのままgenerateTermに丸投げ。ただし単項マイナスはここで処理。
-        let ret = false;
+        let ret:boolean = false;
         if (node.type !== NodeType.NODE_EXPRESSION) {
             ret = this.generateTerm(node);
         } else {
             if (node.negation) {
                 this.addCommand('i', 0, "#()に対する単項マイナス用");
             }
+
             //項は必ず二つある。
-            HLib.assert(node.child, `${__filename}:556`);
-            HLib.assert(node.child.brother, `${__filename}:557`);
+            if (node.child === null) {
+                HLib.assert(false, `${__filename}:556`);
+                return false;
+            }
+            
+            if (node.brother === null) {
+                HLib.assert(false, `${__filename}:557`);
+                return false;
+            }
+
             if (!this.generateTerm(node.child)) {
                 return false;
             }
+
             if (!this.generateTerm(node.child.brother)) {
                 return false;
             }
@@ -602,7 +617,7 @@ export default class FunctionGenerator {
     }
 
     // E230
-    public generateTerm(node:any): boolean {
+    public generateTerm(node:Node): boolean {
         // 単項マイナス処理0から引く
         if (node.negation) {
             // 0をプッシュ
@@ -626,12 +641,12 @@ export default class FunctionGenerator {
 
             //変数の定義状態を参照
             if (node.token) { //変数があるなら
-                let name = node.token.string;
+                let name:string = node.token.string;
                 if (node.type === NodeType.NODE_OUT) {
                     name = "!ret";
                 }
 
-                let v = this.mCurrentBlock.findVariable(name);
+                let v:Variable|null = this.mCurrentBlock.findVariable(name);
                 //知らない変数。みつからないか、あるんだがまだその行まで行ってないか。				
                 if (!v) {
                     this.beginError(node);
@@ -649,7 +664,7 @@ export default class FunctionGenerator {
                 }
             }
 
-            const params = {
+            const params:any = {
                 staticOffset: 0,
                 fpRelative: false
             };
@@ -657,14 +672,14 @@ export default class FunctionGenerator {
                 return false;
             }
 
-            let cmd;
+            let cmd:string;
             if (params.fpRelative) {
                 cmd = "fld";
             } else {
                 cmd = "ld";
             }
 
-            let comment = "\n";
+            let comment:string = "\n";
             if (node.token) {
                 comment = `#変数"${node.token.string}"からロード`;
             }
@@ -689,21 +704,29 @@ export default class FunctionGenerator {
         //トークンは数字ですか、名前ですか
         if (node.token) {
             if (node.token.type === TokenType.TOKEN_OUT) {
-                const name = "!ret";
-                const v:any = this.mCurrentBlock.findVariable(name);
-                HLib.assert(v, `${__filename}:691`);
+                const name:string = "!ret";
+                const v:Variable|null = this.mCurrentBlock.findVariable(name);
+                if (v === null) {
+                    HLib.assert(false, `${__filename}:710`);
+                    return false;
+                }
+
                 params.fpRelative = true; //変数直のみFP相対
                 params.staticOffset = v.offset();
                 this.mOutputExist = true;
             } else if (node.token.type === TokenType.TOKEN_NAME) {
                 //変数の定義状態を参照
-                const name = node.token.string;
-                const v:any = this.mCurrentBlock.findVariable(name);
+                const name:string = node.token.string;
+                const v:Variable|null = this.mCurrentBlock.findVariable(name);
+                if (v === null) {
+                    HLib.assert(false, `${__filename}:710`);
+                    return false;
+                }
 
                 //配列ならExpressionを評価してプッシュ
                 if (node.type === NodeType.NODE_ARRAY_ELEMENT) {
                     this.addCommand('fld', v.offset(), `#ポインタ"${name}"からロード`);
-
+    
                     if (node.child) { //変数インデクス
                         if (!this.generateExpression(node.child)) { //アドレスオフセットがプッシュされる
                             return false;
