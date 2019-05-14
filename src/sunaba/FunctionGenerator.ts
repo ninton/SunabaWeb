@@ -3,6 +3,7 @@ import CodeGenerator from "./CodeGenerator";
 import FunctionInfo from "./FunctionInfo";
 import { TokenType } from "./TokenType";
 import { NodeType } from "./NodeType";
+import { Node } from './Node';
 
 class Variable {
     private mDefined    : boolean;
@@ -169,12 +170,12 @@ export default class FunctionGenerator {
     }
 
     // E200
-    public process(node:any, funcName:string): boolean {
+    public process(node:Node, funcName:string): boolean {
         this.mName = funcName;
         this.mInfo = this.mFunctionMap[this.mName];
 
         // 後でエラー出力に使うのでとっておく。
-        const headNode = node;
+        const headNode:Node = node;
 
         // FP相対オフセットを計算
         const argCount:number = this.mInfo.argCount();
@@ -188,13 +189,13 @@ export default class FunctionGenerator {
         // 引数処理
         // みつかった順にアドレスを割り振りながらマップに登録。
         // 呼ぶ時は前からプッシュし、このあとFP,PCをプッシュしたところがSPになる。
-        let child = node.child;
+        let child:Node|null = node.child;
         while (child) { // このループを抜けた段階で最初のchildは最初のstatementになっている
             if (child.type !== NodeType.NODE_VARIABLE) {
                 break;
             }
 
-            HLib.assert(child.token, `${__filename}:195`);
+            HLib.assert(child.token !== null, `${__filename}:195`);
             const variableName = child.token.string;
 
             if (!this.mCurrentBlock.addVariable(variableName, true)) {
@@ -226,7 +227,7 @@ export default class FunctionGenerator {
         }
 
         // 中身を処理
-        let lastStatement = 0;
+        let lastStatement:Node|null;
         while (child) {
             if (!this.generateStatement(child)) {
                 return false;
@@ -251,7 +252,7 @@ export default class FunctionGenerator {
                 throw `E201: 部分プログラム"${this.mName}"は出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`;
             } else {
                 // プログラムノード
-                HLib.assert(headNode.child, `${__filename}:252`);
+                HLib.assert(headNode.child !== null, `${__filename}:252`);
                 this.beginError(headNode.child);
                 throw `E202: このプログラムは出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`;
             }
