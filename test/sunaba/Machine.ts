@@ -311,15 +311,17 @@ suite('sunaba.Machine', () => {
             }
         ];
 
-        machine.setMemory(40100, 111111);
         machine.loadProgram(program);
+        machine.setMemory(40100, 111111);
         machine.step();
         machine.step();
 
         const actual:Array<number> = machine.getStack();
 
-        assert.equal(1, actual.length);
-        assert.equal(111111, actual[0]);
+        const expected = [
+            111111
+        ];
+        assert.deepEqual(actual, expected);
     });
 
     test('st', () => {
@@ -355,8 +357,8 @@ suite('sunaba.Machine', () => {
             }
         ];
 
-        machine.setMemory(40002, 9);
         machine.loadProgram(program);
+        machine.setMemory(40002, 9);
         machine.setFramePointer(40000);
         machine.step();
 
@@ -365,7 +367,7 @@ suite('sunaba.Machine', () => {
         const expected = [
             9
         ];
-        assert.deepEqual(expected, actual);
+        assert.deepEqual(actual, expected);
     });
 
     test('fst', () => {
