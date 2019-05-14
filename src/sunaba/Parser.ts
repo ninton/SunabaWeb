@@ -117,7 +117,7 @@ export default class Parser {
             return false;
         }
 
-        if (expression.type !== 'NUMBER') {  // 数字に解決されていなければ駄目。
+        if (expression.type !== NodeType.NODE_NUMBER) {  // 数字に解決されていなければ駄目。
             this.beginError(t);
             throw `E104: 行${t.line}: 定数の右辺の計算に失敗した。メモリや名前つきメモリ、部分プログラム参照などが入っていないか？`;
         }
@@ -145,7 +145,7 @@ export default class Parser {
 
     //FunctionDefinition : name ( name? [ , name ]* ) とは [{ statement* }]
     //FunctionDefinition : def name ( name? [ , name ]* ) [{ statement* }]
-    public parseFunctionDefinition() {
+    public parseFunctionDefinition(): Node|null {
         //defスキップ
         let tokens = this.mTokens;
         let t = tokens[this.mPos];
@@ -192,7 +192,7 @@ export default class Parser {
 
                 //引数名が定数なのは許さない
                 t = tokens[this.mPos];
-                if (arg.type === 'NUMBER') { //定数は構文解析中に解決されてNUMBERになってしまう。
+                if (arg.type === NodeType.NODE_NUMBER) { //定数は構文解析中に解決されてNUMBERになってしまう。
                     throw `E112: 行${t.line}: 定数と同じ名前は入力につけられない。`;
                 }
                 lastChild.brother = arg;
@@ -343,7 +343,7 @@ export default class Parser {
     }
 
     //Set: [out | memory | name | array] → expression ;
-    public parseSetStatement() {
+    public parseSetStatement(): Node|null{
         //
         let tokens = this.mTokens;
         let t = tokens[this.mPos];
@@ -403,7 +403,7 @@ export default class Parser {
     //while|if expression;
     //expression while_post|if_post [ { } ]
     //expression while_post|if_post ;
-    public parseWhileOrIfStatement() {
+    public parseWhileOrIfStatement(): Node|null {
         let tokens:Array<Token> = this.mTokens;
         let t:Token = tokens[this.mPos];
         let node:any = {type:null, token:t, child:null, brother:null};
@@ -466,33 +466,33 @@ export default class Parser {
     }
 
     // Array : name [ expression ]
-    public parseArray() {
-        let node:any = this.parseVariable();
+    public parseArray(): Node|null {
+        let node:Node|null = this.parseVariable();
         if (node === null) {
             return null;
         }
-        node.type = 'ARRAY';
+        node.type = NodeType.NODE_ARRAY_ELEMENT;
 
         // [
         HLib.assert(this.mTokens[this.mPos].type === TokenType.TOKEN_INDEX_BEGIN, `${__filename}:471`); // getTermTypeで判定済み
         this.mPos += 1;
 
         // expression
-        let expression:any = this.parseExpression();
+        let expression:Node|null = this.parseExpression();
         if (expression === null) {
             return null;
         }
         node.child = expression;
 
         // expressionが数値であれば、アドレス計算はここでやる
-        if (expression.type === 'NUMBER') {
+        if (expression.type === NodeType.NODE_NUMBER) {
             node.number += expression.number;
             node.child = null; // 子のExpressionを破棄
         }
 
         //]
         if (this.mTokens[this.mPos].type !== TokenType.TOKEN_INDEX_END) {
-            let t = this.mTokens[this.mPos];
+            let t:Token = this.mTokens[this.mPos];
             this.beginError(t);
             throw `E160: 行${t.line}: 名前つきメモリ[番号]の"]"の代わりに"${t.string}"がある。\n`;
         }
@@ -502,19 +502,18 @@ export default class Parser {
     }
  
     // Variable : name
-    public parseVariable() {
+    public parseVariable(): Node {
         let t = this.mTokens[this.mPos];
         HLib.assert(t.type === TokenType.TOKEN_NAME, `${__filename}:501`);
-        let node:any = {type:null, token:null, child:null, brother:null};
+        let node:Node;
 
         //定数？変数？
         let c = this.mConstants[t.string];
         if (typeof c !== 'undefined') {
-            node.type = 'NUMBER';
+            node = new Node(NodeType.NODE_NUMBER, t);
             node.number = c;
         } else {
-            node.type = 'VARIABLE';
-            node.token = t;
+            node = new Node(NodeType.NODE_VARIABLE, t);
         }
         this.mPos += 1;
 
@@ -522,10 +521,10 @@ export default class Parser {
     };
     
     //Out : out
-    public parseOut() {
-        let t = this.mTokens[this.mPos];
+    public parseOut(): Node {
+        let t:Token = this.mTokens[this.mPos];
         HLib.assert(t.type === TokenType.TOKEN_OUT, `${__filename}:521`);
-        let node = {type:'OUT', token:t, child:null, brother:null};
+        let node:Node = new Node(NodeType.NODE_OUT, t);
         this.mPos += 1;
         return node;
     }
@@ -686,10 +685,10 @@ export default class Parser {
     
     // Function : name ( [ expression [ , expression ]* ] )
     // E190
-    public parseFunction() {
-        let t = this.mTokens[this.mPos];
+    public parseFunction(): Node|null {
+        let t:Token = this.mTokens[this.mPos];
         HLib.assert(t.type === TokenType.TOKEN_NAME, `${__filename}:688`);
-        let node = {type:'CALL', token:t, child:null, brother:null};
+        let node:Node = new Node(NodeType.NODE_FUNCTION, t);
         this.mPos += 1;
     
         // "(""
@@ -700,14 +699,14 @@ export default class Parser {
         // 引数ありか、なしか
         t = this.mTokens[this.mPos];
         if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) { //括弧閉じないので引数あり
-            let exp = this.parseExpression();
+            let exp:Node|null = this.parseExpression();
             if (exp === null) {
                 return null;
             }
             node.child = exp;
     
             //2個目以降はループで取る
-            let lastChild = exp;
+            let lastChild:Node = exp;
             while (true) {
                 t = this.mTokens[this.mPos];
                 if (t.type !== TokenType.TOKEN_COMMA) {

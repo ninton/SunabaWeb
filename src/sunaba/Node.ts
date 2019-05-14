@@ -13,11 +13,11 @@ export class Node {
     operator: string;
     negation: boolean;
 
-    constructor(type:NodeType) {
+    constructor(type:NodeType, token:Token|null = null, child:Node|null = null, brother:Node|null = null) {
         this.type     = type;
-        this.child    = null;
-        this.brother  = null;
-        this.token    = null;
+        this.token    = token;
+        this.child    = child;
+        this.brother  = brother;
         this.operator = '';
         this.number   = 0;
         this.negation = false;
@@ -34,7 +34,7 @@ export class Node {
     }
 
     public static createNumber(token:Token, number:number|undefined, child:Node|null, brother:Node|null): Node {
-        const node:Node = new Node(NodeType.NODE_EXPRESSION);
+        const node:Node = new Node(NodeType.NODE_NUMBER);
         node.token    = token;
         node.number   = number || 0;
         node.child    = child;
