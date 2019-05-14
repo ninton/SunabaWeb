@@ -3,17 +3,14 @@ import {TokenType} from './TokenType';
 export default class Token {
     type:    TokenType;
     line:    number;
-    string:  string|undefined;
+    string:  string;
     number:  number|undefined;
     operator:string|undefined;
 
-    constructor(type:TokenType, line:number, string:string|undefined = undefined, number:number|undefined = undefined) {
+    constructor(type:TokenType, line:number, string:string = '', number:number|undefined = undefined) {
         this.type     = type;
         this.line     = line;
-
-        if (string !== undefined) {
-            this.string   = string;
-        }
+        this.string   = string;
 
         if (number !== undefined) {
             this.number   = number;

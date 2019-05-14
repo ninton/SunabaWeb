@@ -181,7 +181,7 @@ suite('sunaba.Compiler', () => {
                 {type: TokenType.TOKEN_SUBSTITUTION , line: 1, string: "→"                    },
                 {type: TokenType.TOKEN_NUMBER       , line: 1, string: "999999", number: 999999},
                 {type: TokenType.TOKEN_STATEMENT_END, line: 1, string: "行末"                  },
-                {type: TokenType.TOKEN_END          , line: 1                                  }
+                {type: TokenType.TOKEN_END          , line: 1, string: ''                      }
             ],
             errorMessage: ""
         };
