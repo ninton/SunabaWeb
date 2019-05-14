@@ -114,7 +114,7 @@ let uiStatus:any = {
     key_enter  : 0
 };
 
-machine.setUICallback((name:string) => {
+machine.setOnInputListener((name:string) => {
     return uiStatus[name];
 });
 

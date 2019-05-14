@@ -20,6 +20,25 @@ const IO_WRITABLE_BEGIN = IO_BASE + IO_WRITABLE_OFFSET;
 const VRAM_BASE  = IO_END;
 const VRAM_SIZE  = SCREEN_HEIGHT * SCREEN_WIDTH;
 
+const OUTPUT_MAP:any = {
+    55000: 'sync',
+    55001: 'autosync_disable',
+    55002: 'debug'
+};
+
+const INPUT_MAP:any = {
+    50000: 'mouse_x',
+    50001: 'mouse_y',
+    50002: 'mouse_left',
+    50003: 'mouse_right',
+    50004: 'key_up',
+    50005: 'key_down',
+    50006: 'key_left',
+    50007: 'key_right',
+    50008: 'key_space',
+    50009: 'key_enter'
+};
+
 export default class Machine {
     VRAM_BASE:      number;
     STACK_BASE:     number;
@@ -30,11 +49,11 @@ export default class Machine {
     stackPointer:   number;
     framePointer:   number;
     vramListener:   Function;
-    onOutputListener:  Function;
-    messageHandler: Function;
-    callCount     ; number;
-    isRunning     : boolean;
-    uiCallback    : Function;
+    onOutputListener: Function;
+    messageHandler  : Function;
+    callCount       : number;
+    isRunning       : boolean;
+    onInputListener : Function;
 
     constructor() {
         this.VRAM_BASE  = VRAM_BASE;
@@ -57,7 +76,7 @@ export default class Machine {
 
         this.callCount = 0;
         this.isRunning = false;
-        this.uiCallback = (name:string) => 0;
+        this.onInputListener = (name:string) => 0;
     }
 
     public push(v:number) {
@@ -450,12 +469,6 @@ export default class Machine {
         if (VRAM_BASE <= address) {
             this.vramListener(address - VRAM_BASE, value);
         } else {
-            const OUTPUT_MAP:any = {
-                55000: 'sync',
-                55001: 'autosync_disable',
-                55002: 'debug'
-            };
-
             if (address in OUTPUT_MAP) {
                 const name = OUTPUT_MAP[address];
                 this.onOutputListener(name, value);
@@ -464,22 +477,9 @@ export default class Machine {
     }
 
     public loadMemory(address:number) {
-        const UI_ADDRESS_MAP:any = {
-            50000: 'mouse_x',
-            50001: 'mouse_y',
-            50002: 'mouse_left',
-            50003: 'mouse_right',
-            50004: 'key_up',
-            50005: 'key_down',
-            50006: 'key_left',
-            50007: 'key_right',
-            50008: 'key_space',
-            50009: 'key_enter'
-        };
-
-        if (address in UI_ADDRESS_MAP) {
-            const name = UI_ADDRESS_MAP[address];
-            return this.uiCallback(name);
+        if (address in INPUT_MAP) {
+            const name = INPUT_MAP[address];
+            return this.onInputListener(name);
         }
         return this.memory[address];
     }
@@ -508,8 +508,8 @@ export default class Machine {
         this.messageHandler = messageHandler;
     }
 
-    public setUICallback(uiCallback:Function) {
-        this.uiCallback = uiCallback;
+    public setOnInputListener(fn:Function) {
+        this.onInputListener = fn;
     }
 
     public setOnOutputListener(fn: Function) {
