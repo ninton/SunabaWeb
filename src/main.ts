@@ -22,12 +22,28 @@ const vramClear:Function = () => {
     sync();
 };
 
-const onWriteMemory:Function = (addr:number, value:number) => {
-    if  (addr === 55000) {
+let isAutoSync:boolean = true;
+
+const onOutputListener:Function = (name:string, value:number) => {
+    if  (name === 'sync') {
         sync();
         return;
     }
-}
+
+    if (name === 'autosync_disable') {
+        isAutoSync = value ? false : true;
+        return;
+    }
+
+    if (name === 'debug') {
+        outputMessage(String.fromCharCode(value));
+        return;
+    }
+};
+
+const outputMessage = (s:string) => {
+    document.getElementById("message").value += s;
+};
 
 const vramListener:Function = (addr:number, value:number) => {
     const x = addr % SCREEN_WIDTH;
@@ -57,7 +73,7 @@ const vramListener:Function = (addr:number, value:number) => {
 
 const machine:Machine = new Machine();
 machine.setMessageHandler((mesg:string) => {
-    document.getElementById("message").value += `${mesg}\n`;
+    outputMessage(`${mesg}\n`);
 });
 
 document.getElementById("runButton").onclick = function () {
@@ -67,13 +83,13 @@ document.getElementById("runButton").onclick = function () {
     const compiler = new Compiler();
     const results = compiler.compile(code);
     if (0 < results.errorMessage.length) {
-        document.getElementById("message").value += `${results.errorMessage}\n`;
+        outputMessage(`${results.errorMessage}\n`);
         return;
     }
 
     vramClear();
     machine.setVramListener(vramListener);
-    machine.setOnWriteMemory(onWriteMemory);
+    machine.setOnOutputListener(onOutputListener);
     machine.loadProgram(results.commands);
 };
 
@@ -158,6 +174,10 @@ const STEP_COUNT = 200;
 window.setInterval(() => {
     for (let i = 0; i < STEP_COUNT; i += 1) {
         machine.step();
+    }
+
+    if (isAutoSync) {
+        sync();
     }
 }, INTERVAL_MILLISEC);
 

@@ -30,7 +30,7 @@ export default class Machine {
     stackPointer:   number;
     framePointer:   number;
     vramListener:   Function;
-    onWriteMemory:  Function;
+    onOutputListener:  Function;
     messageHandler: Function;
     callCount     ; number;
     isRunning     : boolean;
@@ -46,7 +46,7 @@ export default class Machine {
         this.stackPointer   = STACK_BASE;
         this.framePointer   = 0;
         this.vramListener   = () => {};
-        this.onWriteMemory  = () => {};
+        this.onOutputListener  = () => {};
         this.messageHandler = (mesg:string) => {
             console.log(mesg);
         };
@@ -450,7 +450,16 @@ export default class Machine {
         if (VRAM_BASE <= address) {
             this.vramListener(address - VRAM_BASE, value);
         } else {
-            this.onWriteMemory(address, value);
+            const OUTPUT_MAP:any = {
+                55000: 'sync',
+                55001: 'autosync_disable',
+                55002: 'debug'
+            };
+
+            if (address in OUTPUT_MAP) {
+                const name = OUTPUT_MAP[address];
+                this.onOutputListener(name, value);
+            }
         }
     }
 
@@ -503,7 +512,7 @@ export default class Machine {
         this.uiCallback = uiCallback;
     }
 
-    public setOnWriteMemory(fn: Function) {
-        this.onWriteMemory = fn;
+    public setOnOutputListener(fn: Function) {
+        this.onOutputListener = fn;
     }
 }
