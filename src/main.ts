@@ -176,7 +176,7 @@ window.setInterval(() => {
         machine.step();
     }
 
-    if (isAutoSync) {
+    if (isAutoSync || !machine.isRunning) {
         sync();
     }
 }, INTERVAL_MILLISEC);
