@@ -294,11 +294,13 @@ export default class Compiler {
         2 文字列
         */
         let tokens:Array<Token> = [];
-        let msg = "";
-        let end = code.length;
-        let mode = 0;
-        let begin = 0;
-        let line = 1;
+        let msg:string   = "";
+        let end:number   = code.length;
+        let mode:number  = 0;
+        let begin:number = 0;
+        let line:number  = 1;
+
+        // TODO: u()は削除できる。
         const u = function(s:string) { //1文字目のunicodeを返す関数を短く定義
             return s;
         };
@@ -412,7 +414,7 @@ export default class Compiler {
         return {tokens:tokens, errorMessage:msg};
     }
 
-    public structurize(tokens:Array<any>): any {
+    public structurize(tokens:Array<Token>): any {
         let r:Array<any> = [];
         let spaceCountStack = [0];
         let spaceCountStackPos:number = 1;

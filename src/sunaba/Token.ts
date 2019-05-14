@@ -3,15 +3,21 @@ import {TokenType} from './TokenType';
 export default class Token {
     type:    TokenType;
     line:    number;
-    string:  string;
+    string:  string|undefined;
     number:  number|undefined;
     operator:string|undefined;
 
-    constructor(type:TokenType, line:number, string:string, number:number|undefined = undefined) {
+    constructor(type:TokenType, line:number, string:string|undefined = undefined, number:number|undefined = undefined) {
         this.type     = type;
         this.line     = line;
-        this.string   = string;
-        this.number   = number;
+
+        if (string !== undefined) {
+            this.string   = string;
+        }
+
+        if (number !== undefined) {
+            this.number   = number;
+        }
     }
 
     public static createcOperater(line:number, string:string): Token {
