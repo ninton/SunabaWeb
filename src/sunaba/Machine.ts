@@ -70,10 +70,7 @@ export default class Machine {
             console.log(mesg);
         };
 
-        for (let i = 0; i < FREE_AND_PROGRAM_SIZE + STACK_SIZE + VRAM_SIZE; i += 1) {
-            this.memory[i] = 0;
-        }
-
+        this.clearMemory();
         this.callCount = 0;
         this.isRunning = false;
         this.onInputListener = (name:string) => 0;
@@ -107,7 +104,14 @@ export default class Machine {
         }
     }
 
+    public clearMemory() {
+        for (let i = 0; i < FREE_AND_PROGRAM_SIZE + STACK_SIZE + VRAM_SIZE; i += 1) {
+            this.memory[i] = 0;
+        }
+    }
+
     public loadProgram(program:Array<any>) {
+        this.clearMemory();
         this.program = program;
         this.programCounter = 0;
         this.stackPointer = STACK_BASE;
