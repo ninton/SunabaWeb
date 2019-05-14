@@ -1,6 +1,7 @@
 import assert = require("assert");
 import fs = require("fs");
 import Sunaba from "../../src/sunaba/Sunaba";
+import { TokenType } from "../../src/sunaba/TokenType";
 import Parser from "../../src/sunaba/Parser";
 
 suite('sunaba.Parser', () => {
@@ -12,14 +13,14 @@ suite('sunaba.Parser', () => {
 
     test('parseProgram　#1', () => {
         const tokens = [
-            {type: "NAME"      , line: 1, string: "memory"                },
-            {type: "["         , line: 1, string: "["                     },
-            {type: "NUMBER"    , line: 1, string: "65050" , number: 65050 },
-            {type: "]"         , line: 1, string: "]"                     },
-            {type: "→"        , line: 1, string: "→"                    },
-            {type: "NUMBER"    , line: 1, string: "999999", number: 999999},
-            {type: ";"         , line: 1, string: ";"                     },
-            {type: "END"       , line: 1, string: ""                      }
+            {type: TokenType.TOKEN_NAME         , line: 1, string: "memory"                },
+            {type: TokenType.TOKEN_INDEX_BEGIN  , line: 1, string: "["                     },
+            {type: TokenType.TOKEN_NUMBER       , line: 1, string: "65050" , number: 65050 },
+            {type: TokenType.TOKEN_INDEX_END    , line: 1, string: "]"                     },
+            {type: TokenType.TOKEN_SUBSTITUTION , line: 1, string: "→"                    },
+            {type: TokenType.TOKEN_NUMBER       , line: 1, string: "999999", number: 999999},
+            {type: TokenType.TOKEN_STATEMENT_END, line: 1, string: "行末"                  },
+            {type: TokenType.TOKEN_END          , line: 1                                  }
         ];
         const parser = new Parser(tokens, Sunaba.locales.japanese);
         const root = parser.parseProgram();

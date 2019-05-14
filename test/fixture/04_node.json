@@ -3,7 +3,7 @@
     "child": {
         "type": "SET",
         "token": {
-            "type": "NAME",
+            "type": 15,
             "line": 1,
             "string": "memory"
         },
@@ -15,7 +15,7 @@
                 "type": "NUMBER",
                 "number": 999999,
                 "token": {
-                    "type": "NUMBER",
+                    "type": 17,
                     "line": 1,
                     "string": "999999",
                     "number": 999999
