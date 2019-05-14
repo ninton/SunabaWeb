@@ -20,18 +20,18 @@ export enum StatementType {
 }
 
 export enum NodeType {
-	NODE_PROGRAM, //[Statement | FunctionDefinition] ...
+	NODE_PROGRAM = 0, //[Statement | FunctionDefinition] ...
 	//Statement
-	NODE_WHILE_STATEMENT, // Expression,Statement...
-	NODE_IF_STATEMENT, // Expression,Statement...
-	NODE_SUBSTITUTION_STATEMENT, //[ Memory | Variable | ArrayElement ] ,Expression
-	NODE_FUNCTION_DEFINITION, //Variable... Statement... [ Return ]
-	NODE_EXPRESSION, //Expression, Expression
-	NODE_VARIABLE,
-	NODE_NUMBER,
-	NODE_OUT,
-	NODE_ARRAY_ELEMENT, //Expression
-	NODE_FUNCTION, //Expression ...
+	NODE_WHILE_STATEMENT = 1, // Expression,Statement...
+	NODE_IF_STATEMENT = 2, // Expression,Statement...
+	NODE_SUBSTITUTION_STATEMENT = 3, //[ Memory | Variable | ArrayElement ] ,Expression
+	NODE_FUNCTION_DEFINITION = 4, //Variable... Statement... [ Return ]
+	NODE_EXPRESSION = 5, //Expression, Expression
+	NODE_VARIABLE = 6,
+	NODE_NUMBER = 7,
+	NODE_OUT = 8,
+	NODE_ARRAY_ELEMENT = 9, //Expression
+	NODE_FUNCTION = 10, //Expression ...
 
 	NODE_UNKNOWN = 99    
 }

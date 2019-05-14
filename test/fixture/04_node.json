@@ -1,18 +1,34 @@
 {
-    "type": "PROGRAM",
+    "type": 0,
+    "negation": false,
+    "operator": "",
+    "number": 0,
+    "token": null,
     "child": {
-        "type": "SET",
+        "type": 3,
+        "negation": false,
+        "operator": "",
+        "number": 0,
         "token": {
             "type": 15,
             "line": 1,
             "string": "memory"
-        },
+        },        
         "child": {
-            "type": "ARRAY",
-            "token": null,
+            "type": 9,
+            "negation": false,
+            "operator": "",
+            "number": 65050,
+            "token": {
+                "type": 15,
+                "line": 1,
+                "string": "memory"
+            },        
             "child": null,
             "brother": {
-                "type": "NUMBER",
+                "type": 7,
+                "negation": false,
+                "operator": "",
                 "number": 999999,
                 "token": {
                     "type": 17,
@@ -22,8 +38,7 @@
                 },
                 "child": null,
                 "brother": null
-            },
-            "number": 65050
+            }
         },
         "brother": null
     },
