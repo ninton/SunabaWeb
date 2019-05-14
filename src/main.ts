@@ -11,9 +11,12 @@ const ctx2:any = canvas2.getContext('2d');
 const canvas:any = document.getElementById("screen");
 const ctx:any = canvas.getContext('2d');
 
+let waitSync:boolean = false;
+
 const sync = () => {
     const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
     ctx2.putImageData(image, 0, 0);
+    waitSync = false;
 };
 
 const vramClear:Function = () => {
@@ -26,12 +29,13 @@ let isAutoSync:boolean = true;
 
 const onOutputListener:Function = (name:string, value:number) => {
     if  (name === 'sync') {
-        sync();
+        waitSync = true;
         return;
     }
 
     if (name === 'autosync_disable') {
         isAutoSync = value ? false : true;
+        console.log(`${name} ${value} ${isAutoSync}`);
         return;
     }
 
@@ -168,17 +172,34 @@ window.addEventListener('keyup', (event:any) => {
 });
 
 
-const INTERVAL_MILLISEC = 16;
-const STEP_COUNT = 200;
+const INTERVAL_MILLISEC = 33;
+
+const time_ms = ():number => {
+    const date = new Date();
+    const t_ms:number = date.getTime() * 1000 + date.getMilliseconds();
+    return t_ms;
+}
 
 window.setInterval(() => {
-    for (let i = 0; i < STEP_COUNT; i += 1) {
+    const t0_ms:number = time_ms();
+
+    while (true) {
         machine.step();
+        if (waitSync) {
+            break;
+        }
+
+        const t1_ms = time_ms();
+        const dt_ms = t1_ms - t0_ms;
+        if (INTERVAL_MILLISEC - 2 <= dt_ms) {
+            break;
+        }
     }
 
-    if (isAutoSync || !machine.isRunning) {
+    if (isAutoSync || waitSync) {
         sync();
     }
+
 }, INTERVAL_MILLISEC);
 
 function program_1(): Array<any> {
