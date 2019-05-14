@@ -288,6 +288,7 @@ export default class Compiler {
     public tokenize(code:string, loc:any): any {
         //トークン分解
         /*
+            TODO: modeをenum定義する
         [モード]
         0 行頭
         1 行頭以外1文字目
@@ -415,28 +416,28 @@ export default class Compiler {
     }
 
     public structurize(tokens:Array<Token>): any {
-        let r:Array<any> = [];
-        let spaceCountStack = [0];
-        let spaceCountStackPos:number = 1;
+        let r:Array<Token>                = [];
+        let spaceCountStack:Array<number> = [0];
+        let spaceCountStackPos:number     = 1;
         let parenLevel:number = 0;
         let braceLevel:number = 0;
-        let msg = '';
-        let prevT = null;
-        let emptyLine = true; //最初は空
+        let msg:string        = '';
+        let prevT:Token|null  = null;
+        let emptyLine:boolean = true; //最初は空
 
         for (let i = 0; i < tokens.length; i += 1) {
             let t = tokens[i];
-            if (t.type === '(') {
+            if (t.type === TokenType.TOKEN_LEFT_BRACKET) {
                 parenLevel += 1;
-            } else if (t.type === ')') {
+            } else if (t.type === TokenType.TOKEN_RIGHT_BRACKET) {
                 parenLevel -= 1;
                 if (parenLevel < 0) {
                     msg = `E010: 行${t.line}: )が(より多い。`;
                     break;
                 }
-            } else if (t.type === '[') {
+            } else if (t.type === TokenType.TOKEN_INDEX_BEGIN) {
                 braceLevel += 1;
-            } else if (t.type === ']') {
+            } else if (t.type === TokenType.TOKEN_INDEX_END) {
                 braceLevel -= 1;
                 if (braceLevel < 0) {
                     msg = `E011: 行:${t.line}: ]が[より多い。`;
@@ -444,28 +445,28 @@ export default class Compiler {
                 }
             }
 
-            if (t.type === 'LINE_BEGIN') { //行頭
+            if (t.type === TokenType.TOKEN_LINE_BEGIN) { //行頭
                 let prevIsOp = false; //前のトークンは演算子か代入か？
-                if ((prevT !== null) && ((prevT.type === 'OPERATOR') || (prevT.type === '→'))) {
+                if ((prevT !== null) && ((prevT.type === TokenType.TOKEN_OPERATOR) || (prevT.type === TokenType.TOKEN_SUBSTITUTION))) {
                     prevIsOp = true;
                 }
 
                 //()や[]の中におらず、前のトークンが演算子や代入記号でなければ、
                 if ((parenLevel === 0) && (braceLevel === 0) && (!prevIsOp)) {
-                    let newCount = t.number;
-                    let oldCount = spaceCountStack[spaceCountStackPos - 1];
+                    let newCount:number = t.number;
+                    let oldCount:number = spaceCountStack[spaceCountStackPos - 1];
                     if (newCount > oldCount) { //増えた
                         spaceCountStack[spaceCountStackPos] = newCount;
                         spaceCountStackPos += 1;
-                        r.push({type:'{', string:'ブロック開始', line:t.line});
+                        r.push(new Token(TokenType.TOKEN_BLOCK_BEGIN, t.line, 'ブロック開始'));
                     } else if (newCount === oldCount) {
                         if (!emptyLine) { //空行でなければ
-                        r.push({type:';', string:'行末', line:t.line});
+                        r.push(new Token(TokenType.TOKEN_STATEMENT_END, t.line, '行末'));
                         emptyLine = true;
                         }
                     } else{ //newCount < oldCount
                         if (!emptyLine) { //空行でなければ
-                            r.push({type:';', string:'行末', line:t.line});
+                            r.push(new Token(TokenType.TOKEN_STATEMENT_END, t.line, '行末'));
                             emptyLine = true;
                         }
                         while (newCount < oldCount) { //ずれてる間回す
@@ -474,7 +475,7 @@ export default class Compiler {
                                 throw 'BUG: compipler.ts:472';
                             }
                             oldCount = spaceCountStack[spaceCountStackPos - 1];
-                            r.push({type:'}', string:'ブロック末', line:t.line});
+                            r.push(new Token(TokenType.TOKEN_BLOCK_END, t.line, 'ブロック末'));
                         }
 
                         if (newCount != oldCount) { //ずれている
@@ -491,17 +492,17 @@ export default class Compiler {
         }
 
         if (!emptyLine) { //最後の行を終わらせる
-            r.push({type:';', string:'行末', line:prevT.line});
+            r.push(new Token(TokenType.TOKEN_STATEMENT_END, prevT.line, '行末'));
         }
 
         //ブロック終了を補う
         while (spaceCountStackPos > 1) {
             spaceCountStackPos -= 1;
-            r.push({type:'}', string:'ブロック末', line:prevT.line});
+            r.push(new Token(TokenType.TOKEN_BLOCK_END, prevT.line, 'ブロック末'));
         }
 
         //ダミー最終トークン
-        r.push({type:'END', string:"", line:tokens[tokens.length - 1].line});
+        r.push(new Token(TokenType.TOKEN_END, tokens[tokens.length - 1].line));
 
         if (0 < msg.length) {
             throw msg;

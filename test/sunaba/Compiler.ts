@@ -151,7 +151,7 @@ suite('sunaba.Compiler', () => {
                 {type: TokenType.TOKEN_COMMA        , line: 1, string: ","                     },
                 {type: TokenType.TOKEN_NAME         , line: 1, string: "横"                    },
                 {type: TokenType.TOKEN_RIGHT_BRACKET, line: 1, string: ")"                     },
-                {type: TokenType.TOKEN_DEF_POST   , line: 1, string: "とは"                    }
+                {type: TokenType.TOKEN_DEF_POST     , line: 1, string: "とは"                  }
             ],
             errorMessage: ""
         };
@@ -174,7 +174,6 @@ suite('sunaba.Compiler', () => {
         ];
         const expected = {
             tokens: [
-                {type: TokenType.TOKEN_LINE_BEGIN   , line: 1, string: "",       number: 0     },
                 {type: TokenType.TOKEN_NAME         , line: 1, string: "メモリ"                },
                 {type: TokenType.TOKEN_INDEX_BEGIN  , line: 1, string: "["                     },
                 {type: TokenType.TOKEN_NUMBER       , line: 1, string: "60000" , number: 60000 },
