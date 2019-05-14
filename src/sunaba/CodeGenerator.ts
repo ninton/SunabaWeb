@@ -44,7 +44,7 @@ export default class CodeGenerator {
         // 関数情報収集。関数コールを探しだして、見つけ次第、引数、出力、名前についての情報を収集してmapに格納
         let child = node.child;
         while (child) {
-            if (child.type === NodeType.NODE_FUNCTION) {
+            if (child.type === NodeType.NODE_FUNCTION_DEFINITION) {
                 if (!this.collectFunctionDefinitionInformation(child)) { // main以外
                     return false;
                 }
@@ -55,7 +55,7 @@ export default class CodeGenerator {
         // 関数コールを探しだして、見つけ次第コード生成
         child = node.child;
         while (child) {
-            if (child.type === NodeType.NODE_FUNCTION) {
+            if (child.type === NodeType.NODE_FUNCTION_DEFINITION) {
                 if (!this.generateFunctionDefinition(child)) { // main以外
                     return false;
                 }

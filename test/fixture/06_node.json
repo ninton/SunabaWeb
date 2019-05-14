@@ -1,7 +1,14 @@
 {
-    "type": "PROGRAM",
+    "type": 0,
+    "negation": false,
+    "number": 0,
+    "operator": "",
+    "token": null,
     "child": {
-        "type": "CALL",
+        "type": 10,
+        "negation": false,
+        "operator": "",
+        "number": 0,
         "token": {
             "type": 15,
             "string": "点",
@@ -9,25 +16,35 @@
         },
         "child": null,
         "brother": {
-            "type": "FUNC",
+            "type": 4,
+            "negation": false,
+            "operator": "",
+            "number": 0,
             "token": {
                 "type": 15,
                 "string": "点",
                 "line": 3
             },
             "child": {
-                "type": "SET",
+                "type": 3,
+                "negation": false,
+                "operator": "",
+                "number": 0,
                 "token": {
                     "type": 15,
                     "string": "メモリ",
                     "line": 4
                 },
                 "child": {
-                    "type": "ARRAY",
+                    "type": 9,
+                    "negation": false,
+                    "operator": "",
                     "token": null,
                     "child": null,
                     "brother": {
-                        "type": "NUMBER",
+                        "type": 7,
+                        "negation": false,
+                        "operator": "",
                         "number": 999999,
                         "token": {
                             "type": 17,

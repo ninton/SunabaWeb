@@ -67,7 +67,7 @@ export default class Machine {
         this.vramListener   = () => {};
         this.onOutputListener  = () => {};
         this.messageHandler = (mesg:string) => {
-            console.log(mesg);
+//            console.log(mesg);
         };
 
         this.clearMemory();

@@ -366,7 +366,7 @@ export default class Parser {
             // 第一要素はNAME
             if (tokens[this.mPos + 1].type === TokenType.TOKEN_INDEX_BEGIN) {
                 // 配列だ
-                left = this.parseArray();
+                left = this.parseArrayElement();
             } else { // 変数
                 left = this.parseVariable();
                 if (left.type === NodeType.NODE_NUMBER) {
@@ -472,7 +472,7 @@ export default class Parser {
     }
 
     // Array : name [ expression ]
-    public parseArray(): Node|null {
+    public parseArrayElement(): Node|null {
         let node:Node|null = this.parseVariable();
         if (node === null) {
             return null;
@@ -516,7 +516,7 @@ export default class Parser {
         //定数？変数？
         const c = this.mConstMap[t.string];
         if (typeof c !== 'undefined') {
-            node = new Node(NodeType.NODE_NUMBER, t);
+            node = new Node(NodeType.NODE_NUMBER);
             node.number = c;
         } else {
             node = new Node(NodeType.NODE_VARIABLE, t);
@@ -670,7 +670,7 @@ export default class Parser {
         } else if (termType === TermType.TERM_FUNCTION) {
             node = this.parseFunction();
         } else if (termType === TermType.TERM_ARRAY_ELEMENT) {
-            node = this.parseArray();
+            node = this.parseArrayElement();
         } else if (termType === TermType.TERM_VARIABLE) {
             node = this.parseVariable();
         } else if (termType === TermType.TERM_OUT) {
