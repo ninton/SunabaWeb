@@ -9,23 +9,23 @@ export default class Parser {
     errorMessage: string;
     mTokens     : Array<Token>;
     mLocale     : any;
-    mConstants  : any;
+    mConstMap   : any;
     mPos        : number;
 
     constructor(tokens:Array<Token>, locale:any) {
         this.errorMessage = '';
         this.mTokens    = tokens;
         this.mLocale    = locale;
-        this.mConstants = {};
+        this.mConstMap  = {};
         this.mPos       = 0;
     }
 
     //Program : (Const | FuncDef | Statement )*
     public parseProgram(): Node|null {
         // 定数マップに「メモリ」と「memory」を登録
-        this.mConstants["memory"] = 0;
-        let memoryWord:string = this.mLocale.memoryWord;
-        this.mConstants[memoryWord] = 0;
+        this.mConstMap["memory"] = 0;
+        const memoryWord:string = this.mLocale.memoryWord;
+        this.mConstMap[memoryWord] = 0;
 
         // Programノードを確保
         //let node:Node = {type:'PROGRAM', child:null, brother:null};
@@ -134,10 +134,10 @@ export default class Parser {
 
         //マップに登録
         if (!skipFlag) {
-            if (constName in this.mConstants) { //もうある
+            if (constName in this.mConstMap) { //もうある
                 throw `E105: 行${t.line}: 定数「${constName}」はすでに同じ名前の定数がある。`;
             }
-            this.mConstants[constName] = constValue;
+            this.mConstMap[constName] = constValue;
         }
 
         return true;
@@ -285,7 +285,7 @@ export default class Parser {
 
             this.mPos += 1;
         } else if (statementType === StatementType.STATEMENT_SUBSTITUTION) { //代入
-            node = this.parseSetStatement();
+            node = this.parseSubstitutionStatement();
         } else if (statementType === StatementType.STATEMENT_UNKNOWN) { //不明。エラー文字列は作ってあるので上へ
             return null;
         } else {
@@ -348,7 +348,7 @@ export default class Parser {
     }
 
     //Set: [out | memory | name | array] → expression ;
-    public parseSetStatement(): Node|null{
+    public parseSubstitutionStatement(): Node|null{
         //
         let tokens:Array<Token> = this.mTokens;
         let t:Token = tokens[this.mPos];
@@ -514,7 +514,7 @@ export default class Parser {
         let node:Node;
 
         //定数？変数？
-        const c = this.mConstants[t.string];
+        const c = this.mConstMap[t.string];
         if (typeof c !== 'undefined') {
             node = new Node(NodeType.NODE_NUMBER, t);
             node.number = c;

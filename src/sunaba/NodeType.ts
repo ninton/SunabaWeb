@@ -20,18 +20,18 @@ export enum StatementType {
 }
 
 export enum NodeType {
-	NODE_PROGRAM = 0, //[Statement | FunctionDefinition] ...
-	//Statement
-	NODE_WHILE_STATEMENT = 1, // Expression,Statement...
-	NODE_IF_STATEMENT = 2, // Expression,Statement...
-	NODE_SUBSTITUTION_STATEMENT = 3, //[ Memory | Variable | ArrayElement ] ,Expression
-	NODE_FUNCTION_DEFINITION = 4, //Variable... Statement... [ Return ]
-	NODE_EXPRESSION = 5, //Expression, Expression
-	NODE_VARIABLE = 6,
-	NODE_NUMBER = 7,
-	NODE_OUT = 8,
-	NODE_ARRAY_ELEMENT = 9, //Expression
-	NODE_FUNCTION = 10, //Expression ...
+	// test/fixture/??_vmcode.json に記述しているので、値を固定した
+	NODE_PROGRAM                = 0,
+	NODE_WHILE_STATEMENT        = 1,
+	NODE_IF_STATEMENT           = 2,
+	NODE_SUBSTITUTION_STATEMENT = 3,
+	NODE_FUNCTION_DEFINITION    = 4,
+	NODE_EXPRESSION             = 5,
+	NODE_VARIABLE               = 6,
+	NODE_NUMBER                 = 7,
+	NODE_OUT                    = 8,
+	NODE_ARRAY_ELEMENT          = 9,
+	NODE_FUNCTION               = 10,
 
-	NODE_UNKNOWN = 99    
+	NODE_UNKNOWN                = 99
 }

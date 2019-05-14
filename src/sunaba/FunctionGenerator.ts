@@ -486,7 +486,7 @@ export default class FunctionGenerator {
     Expression
     st
     */
-   // E220
+    // E220
     public generateSubstitution(node:Node): boolean {
         HLib.assert(node.type === NodeType.NODE_SUBSTITUTION_STATEMENT, `${__filename}:489`);
 
