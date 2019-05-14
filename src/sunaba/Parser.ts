@@ -52,16 +52,16 @@ export default class Parser {
         this.mPos = 0;
         let lastChild:any = null;
         while (tokens[this.mPos].type !== TokenType.TOKEN_END) {
-            let statementType = this.getStatementType();
+            let statementType:StatementType = this.getStatementType();
             let child = null;
             if (statementType === null) {
                 return null;
-            } else if (statementType === 'CONST') { //定数は処理済みなのでスキップ
+            } else if (statementType === StatementType.STATEMENT_CONST) { //定数は処理済みなのでスキップ
                 if (!this.parseConst(true)) {
                     return null;
                 }
             } else {
-                if (statementType === 'DEF') {
+                if (statementType === StatementType.STATEMENT_DEF) {
                     child = this.parseFunctionDefinition();
                 } else {
                     child = this.parseStatement();
@@ -84,14 +84,14 @@ export default class Parser {
     // Const : const name -> expression;
     // ノードを生成しないので、boolを返す。
     public parseConst(skipFlag:boolean): boolean {
-        let tokens:Array<any> = this.mTokens;
+        let tokens:Array<Token> = this.mTokens;
         let t = tokens[this.mPos];
 
-        if (t.type !== 'CONST') {
+        if (t.type !== TokenType.TOKEN_CONST) {
             this.beginError(t);
             throw `E101: 定数行のはずだが解釈できない。上の行からつながってないか。`;
         }
-        HLib.assert(t.type === 'CONST', `${__filename}:91`);
+        HLib.assert(t.type === TokenType.TOKEN_CONST, `${__filename}:91`);
         this.mPos += 1;
 
         //名前
@@ -100,7 +100,7 @@ export default class Parser {
             this.beginError(t);
             throw `E102: 行${t.line}: 定数"の次は定数名。"${t.string}"は定数名と解釈できない。`;
         }
-        let constName = t.name;
+        let constName:string = t.string || '';
         this.mPos += 1;
 
         //→
@@ -254,18 +254,18 @@ export default class Parser {
 
     //Statement : ( while | if | return | funcDef | func | set )
     public parseStatement() {
-        let statementType = this.getStatementType();
+        let statementType:StatementType = this.getStatementType();
         let node = null;
         let t = null;
-        if (statementType === 'WHILE_OR_IF') {
+        if (statementType === StatementType.STATEMENT_WHILE_OR_IF) {
             node = this.parseWhileOrIfStatement();
-        } else if (statementType === 'DEF') { //これはエラー
+        } else if (statementType === StatementType.STATEMENT_DEF) { //これはエラー
             t = this.mTokens[this.mPos];
             throw 'E120: 行' + t.line + ': 部分プログラム内で部分プログラムは作れない。';
             return null;
-        } else if (statementType === 'CONST') { //これはありえない
+        } else if (statementType === StatementType.STATEMENT_CONST) { //これはありえない
             throw 'BUG parseStatement CONST';
-        } else if (statementType === 'FUNC') { //関数呼び出し文
+        } else if (statementType === StatementType.STATEMENT_FUNCTION) { //関数呼び出し文
             node = this.parseFunction();
             if (node === null) {
                 return null;
@@ -281,12 +281,12 @@ export default class Parser {
             }
 
             this.mPos += 1;
-        } else if (statementType === 'SET') { //代入
+        } else if (statementType === StatementType.STATEMENT_SUBSTITUTION) { //代入
             node = this.parseSetStatement();
-        } else if (statementType === null) { //不明。エラー文字列は作ってあるので上へ
+        } else if (statementType === StatementType.STATEMENT_UNKNOWN) { //不明。エラー文字列は作ってあるので上へ
             return null;
         } else {
-            throw 'BUG parseStatement #1';
+            throw `BUG parseStatement`;
         }
         return node;     
     }
@@ -405,8 +405,8 @@ export default class Parser {
     //expression while_post|if_post [ { } ]
     //expression while_post|if_post ;
     public parseWhileOrIfStatement() {
-        let tokens = this.mTokens;
-        let t = tokens[this.mPos];
+        let tokens:Array<Token> = this.mTokens;
+        let t:Token = tokens[this.mPos];
         let node:any = {type:null, token:t, child:null, brother:null};
         //前置ならすぐ決まる
         if (t.type === TokenType.TOKEN_WHILE_PRE) {
