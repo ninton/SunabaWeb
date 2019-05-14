@@ -1,3 +1,6 @@
+import { TokenType } from './TokenType';
+import Token from './Token';
+
 export default class Sunaba {
     static MAX_ABS_NUMBER = 2147483647; //2^31 - 1
 
@@ -32,26 +35,27 @@ export default class Sunaba {
         (code.charCodeAt(0) >= 0x100); //マルチバイト文字は全てオーケー。半角相当品がある全角は置換済み。
     };
  
-    public static readKeyword = function(s:string, loc:any): string {
-        var r;
+    public static readKeyword = function(s:string, loc:any): TokenType {
+        let r:TokenType;
+
         if (s === 'while') {
-            r = 'WHILE_PRE';
+            r = TokenType.TOKEN_WHILE_PRE;
         } else if ((s === loc.whileWord0) || (s === loc.whileWord1)) {
-            r = (loc.whileAtHead) ? 'WHILE_PRE' : 'WHILE_POST';
+            r = (loc.whileAtHead) ? TokenType.TOKEN_WHILE_PRE : TokenType.TOKEN_WHILE_POST;
         } else if (s === 'if') {
-            r = 'IF_PRE';
+            r = TokenType.TOKEN_IF_PRE;
         } else if (s === loc.ifWord) {
-            r = (loc.ifAtHead) ? 'IF_PRE' : 'IF_POST';
+            r = (loc.ifAtHead) ? TokenType.TOKEN_IF_PRE : TokenType.TOKEN_IF_POST;
         } else if (s === 'def') {
-            r = 'DEF_PRE';
+            r = TokenType.TOKEN_DEF_PRE;
         } else if (s === loc.defWord) {
-            r = (loc.defAtHead) ? 'DEF_PRE' : 'DEF_POST';
+            r = (loc.defAtHead) ? TokenType.TOKEN_DEF_PRE : TokenType.TOKEN_DEF_POST;
         } else if ((s === 'const') || (s === loc.constWord)) {
-            r = 'CONST';
+            r = TokenType.TOKEN_CONST;
         } else if ((s === 'out') || (s === loc.outWord)) {
-            r = 'OUT';
+            r = TokenType.TOKEN_OUT;
         } else{
-            r = '';
+            r = TokenType.TOKEN_UNKNOWN;
         }
         return r;
     };

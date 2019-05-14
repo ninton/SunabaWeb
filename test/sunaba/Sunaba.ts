@@ -1,6 +1,7 @@
 import assert = require("assert");
 import fs = require("fs");
 import Sunaba from "../../src/sunaba/Sunaba";
+import { TokenType } from "../../src/sunaba/TokenType";
 
 suite('sunaba.Sunaba', () => {
     setup(() => {
@@ -33,19 +34,19 @@ suite('sunaba.Sunaba', () => {
     });
 
     test('readKeyword', () => {
-        assert.equal("WHILE_PRE", Sunaba.readKeyword("while", Sunaba.locales.japanese));
-        assert.equal("DEF_PRE"  , Sunaba.readKeyword("def"  , Sunaba.locales.japanese));
-        assert.equal("IF_PRE"   , Sunaba.readKeyword("if"   , Sunaba.locales.japanese));
-        assert.equal("CONST"    , Sunaba.readKeyword("const", Sunaba.locales.japanese));
-        assert.equal("OUT"      , Sunaba.readKeyword("out"  , Sunaba.locales.japanese));
-        assert.equal(""         , Sunaba.readKeyword("hoge" , Sunaba.locales.japanese));
+        assert.equal(TokenType.TOKEN_WHILE_PRE, Sunaba.readKeyword("while", Sunaba.locales.japanese));
+        assert.equal(TokenType.TOKEN_DEF_PRE  , Sunaba.readKeyword("def"  , Sunaba.locales.japanese));
+        assert.equal(TokenType.TOKEN_IF_PRE   , Sunaba.readKeyword("if"   , Sunaba.locales.japanese));
+        assert.equal(TokenType.TOKEN_CONST    , Sunaba.readKeyword("const", Sunaba.locales.japanese));
+        assert.equal(TokenType.TOKEN_OUT      , Sunaba.readKeyword("out"  , Sunaba.locales.japanese));
+        assert.equal(TokenType.TOKEN_UNKNOWN  , Sunaba.readKeyword("hoge" , Sunaba.locales.japanese));
 
-        assert.equal("WHILE_POST", Sunaba.readKeyword("なかぎり", Sunaba.locales.japanese));
-        assert.equal("WHILE_POST", Sunaba.readKeyword("な限り"  , Sunaba.locales.japanese));
-        assert.equal("IF_POST"   , Sunaba.readKeyword("なら"    , Sunaba.locales.japanese));
-        assert.equal("DEF_POST"  , Sunaba.readKeyword("とは"    , Sunaba.locales.japanese));
-        assert.equal("CONST"     , Sunaba.readKeyword("定数"    , Sunaba.locales.japanese));
-        assert.equal("OUT"       , Sunaba.readKeyword("出力"    , Sunaba.locales.japanese));
+        assert.equal(TokenType.TOKEN_WHILE_POST, Sunaba.readKeyword("なかぎり", Sunaba.locales.japanese));
+        assert.equal(TokenType.TOKEN_WHILE_POST, Sunaba.readKeyword("な限り"  , Sunaba.locales.japanese));
+        assert.equal(TokenType.TOKEN_IF_POST   , Sunaba.readKeyword("なら"    , Sunaba.locales.japanese));
+        assert.equal(TokenType.TOKEN_DEF_POST  , Sunaba.readKeyword("とは"    , Sunaba.locales.japanese));
+        assert.equal(TokenType.TOKEN_CONST     , Sunaba.readKeyword("定数"    , Sunaba.locales.japanese));
+        assert.equal(TokenType.TOKEN_OUT       , Sunaba.readKeyword("出力"    , Sunaba.locales.japanese));
     });
 
     test('readInstruction', () => {

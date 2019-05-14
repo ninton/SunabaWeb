@@ -1,7 +1,9 @@
 import Sunaba from './Sunaba';
+import Token from './Token';
 import Parser from './Parser';
 import CodeGenerator from './CodeGenerator';
 import Assembler from './Assembler';
+import { TokenType } from './TokenType';
 
 export default class Compiler {
     code                :string;
@@ -291,7 +293,7 @@ export default class Compiler {
         1 行頭以外1文字目
         2 文字列
         */
-        let tokens:Array<any> = [];
+        let tokens:Array<Token> = [];
         let msg = "";
         let end = code.length;
         let mode = 0;
@@ -313,43 +315,44 @@ export default class Compiler {
                     begin = i + 1; //開始
                     line += 1;
                 } else { //行頭を出力
-                    tokens.push({type:'LINE_BEGIN', line:line, number:l}); //numberに空白数を入れる
+                    //tokens.push({type:'LINE_BEGIN', line:line, number:l}); //numberに空白数を入れる
+                    tokens.push(new Token(TokenType.TOKEN_LINE_BEGIN, line, '', l)); //numberに空白数を入れる
                     mode = 1;
                     advance = false; //この文字もう一度
                 }
             } else if (mode === 1) { //行頭以外のトークン先頭
                 if (c === u('(')) {
-                    tokens.push({type:'(', string:'(', line:line});
+                    tokens.push(new Token(TokenType.TOKEN_LEFT_BRACKET, line, '('));
                 } else if (c === u(')')) {
-                    tokens.push({type:')', string:')', line:line});
+                    tokens.push(new Token(TokenType.TOKEN_RIGHT_BRACKET, line, ')'));
                 } else if (c === u('[')) {
-                    tokens.push({type:'[', string:'[', line:line});
+                    tokens.push(new Token(TokenType.TOKEN_INDEX_BEGIN, line, '['));
                 } else if (c === u(']')) {
-                    tokens.push({type:']', string:']', line:line});
+                    tokens.push(new Token(TokenType.TOKEN_INDEX_END, line, ']'));
                 } else if (c === u(',')) {
-                    tokens.push({type:',', string:',', line:line});
+                    tokens.push(new Token(TokenType.TOKEN_COMMA, line, ','));
                 } else if (c === u('→')) {
-                    tokens.push({type:'→', string:'→', line:line});
+                    tokens.push(new Token(TokenType.TOKEN_SUBSTITUTION, line, '→'));
                 } else if (c === u('+')) {
-                    tokens.push({type:'OPERATOR', operator:'+', string:'+', line:line});
+                    tokens.push(Token.createcOperater(line, '+'));
                 } else if (c === u('-')) {
-                    tokens.push({type:'OPERATOR', operator:'-', string:'-', line:line});
+                    tokens.push(Token.createcOperater(line, '-'));
                 } else if (c === u('*')) {
-                    tokens.push({type:'OPERATOR', operator:'*', string:'*', line:line});
+                    tokens.push(Token.createcOperater(line, '*'));
                 } else if (c === u('/')) {
-                    tokens.push({type:'OPERATOR', operator:'/', string:'/', line:line});
+                    tokens.push(Token.createcOperater(line, '/'));
                 } else if (c === u('=')) {
-                    tokens.push({type:'OPERATOR', operator:'=', string:'=', line:line});
+                    tokens.push(Token.createcOperater(line, '='));
                 } else if (c === u('≠')) {
-                    tokens.push({type:'OPERATOR', operator:'≠', string:'≠', line:line});
+                    tokens.push(Token.createcOperater(line, '≠'));
                 } else if (c === u('<')) {
-                    tokens.push({type:'OPERATOR', operator:'<', string:'<', line:line});
+                    tokens.push(Token.createcOperater(line, '<'));
                 } else if (c === u('>')) {
-                    tokens.push({type:'OPERATOR', operator:'>', string:'>', line:line});
+                    tokens.push(Token.createcOperater(line, '>'));
                 } else if (c === u('≤')) {
-                    tokens.push({type:'OPERATOR', operator:'≤', string:'≤', line:line});
+                    tokens.push(Token.createcOperater(line, '≤'));
                 } else if (c === u('≥')) {
-                    tokens.push({type:'OPERATOR', operator:'≥', string:'≥', line:line});
+                    tokens.push(Token.createcOperater(line, '≥'));
                 } else if (c === u('\n')) { //行末
                     mode = 0;
                     begin = i + 1;
@@ -373,9 +376,9 @@ export default class Compiler {
                     ;
                 } else { //その他の場合、出力
                     let str = code.substr(begin, l);
-                    let keyword = Sunaba.readKeyword(str, loc); //キーワード
-                    if (keyword !== "") {
-                        tokens.push({type:keyword, string:str, line:line});
+                    let tokenType = Sunaba.readKeyword(str, loc); //キーワード
+                    if (tokenType !== TokenType.TOKEN_UNKNOWN) {
+                        tokens.push(new Token(tokenType, line, str));
                     } else {
                         let number = Sunaba.readNumber(code, begin, l);
                         if (number !== null) {
@@ -384,10 +387,10 @@ export default class Compiler {
                                 msg += `プラスマイナス${Sunaba.MAX_ABS_NUMBER}の範囲しか使えません。`;
                                 break;
                             } else {
-                                tokens.push({type:'NUMBER', number:number, string:str, line:line});
+                                tokens.push(new Token(TokenType.TOKEN_NUMBER, line, str, number));
                             }
                         } else { //キーワードでも数字でもないので名前
-                            tokens.push({type:'NAME', string:str, line:line});
+                            tokens.push(new Token(TokenType.TOKEN_NAME, line, str));
                         }
                     }
                     mode = 1;
