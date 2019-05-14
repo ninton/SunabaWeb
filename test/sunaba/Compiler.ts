@@ -238,6 +238,18 @@ suite('sunaba.Compiler', () => {
         assert.deepEqual(expected, actual);
     });
 
+    test('compile #5', () => {
+        const expected = {
+            errorMessage: '',
+            commands:     JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
+        };
+
+        const code = "memory[1] → memory[1] + 1\n";
+        const actual = compiler.compile(code);
+
+        assert.deepEqual(expected, actual);
+    });
+
     test('compile error #1', () => {
         const code = "memory[65047 + 1 + 2] → 990000 + 9900 + \n";
         const actual = compiler.compile(code);
