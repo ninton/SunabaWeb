@@ -695,7 +695,7 @@ export default class FunctionGenerator {
         return true;
     }
 
-    public pushDynamicOffset(params:any, node:any): boolean {
+    public pushDynamicOffset(params:any, node:Node): boolean {
         params.fpRelative   = false;
         params.staticOffset = -0x7fffffff; //あからさまにおかしな値を入れておく。デバグのため。
 

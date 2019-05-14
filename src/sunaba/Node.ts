@@ -42,4 +42,12 @@ export class Node {
 
         return node;
     }
+
+    public isOutputValueSubstitution(): boolean {
+        if (this.token === null) {
+            return false;
+        }
+        
+        return this.token.type === TokenType.TOKEN_OUT;
+    }
 }

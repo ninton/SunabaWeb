@@ -291,6 +291,6 @@ suite('sunaba.Compiler', () => {
         //console.log(JSON.stringify(actual, undefined, 2));
 
         assert.deepEqual(expected.structurized_tokens, compiler.structurizedResults.tokens);
-//        assert.deepEqual(expected.vmcode, actual);
+        assert.deepEqual(expected.vmcode, actual.commands);
     });
 });

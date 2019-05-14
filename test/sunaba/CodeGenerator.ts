@@ -14,17 +14,4 @@ suite('sunaba.CodeGenerator', () => {
 
     teardown(() => {
     });
-
-    test('generateProgram', () => {
-        const rootNode = JSON.parse(fs.readFileSync("test/fixture/04_node.json").toString());
-        const expected = JSON.parse(fs.readFileSync("test/fixture/04_assemble.json").toString());
-
-        const result = codeGenerator.generateProgram(rootNode);
-        const commands = codeGenerator.getCommands();
-
-        // console.log(JSON.stringify(commands, undefined, 2));
-
-        assert.ok(result);
-        assert.deepEqual(expected, commands);
-    });
 });
