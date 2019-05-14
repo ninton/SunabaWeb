@@ -3,42 +3,41 @@ import { stat } from 'fs';
 import Token from './Token';
 import { TokenType } from './TokenType';
 import { TermType, StatementType, NodeType } from './NodeType';
+import { Node } from './Node';
 
 export default class Parser {
     errorMessage: string;
     mTokens     : Array<Token>;
     mLocale     : any;
     mConstants  : any;
-    mRoot       : any;
     mPos        : number;
 
     constructor(tokens:Array<Token>, locale:any) {
-        this.errorMessage = null;
-
-        this.mTokens = tokens;
-        this.mLocale = locale;
+        this.errorMessage = '';
+        this.mTokens    = tokens;
+        this.mLocale    = locale;
         this.mConstants = {};
-        this.mRoot = null;
-        this.mPos = 0;
+        this.mPos       = 0;
     }
 
     //Program : (Const | FuncDef | Statement )*
-    public parseProgram() {
+    public parseProgram(): Node|null {
         // 定数マップに「メモリ」と「memory」を登録
         this.mConstants["memory"] = 0;
-        let memoryWord = this.mLocale.memoryWord;
+        let memoryWord:string = this.mLocale.memoryWord;
         this.mConstants[memoryWord] = 0;
 
         // Programノードを確保
-        let node:any = {type:'PROGRAM', child:null, brother:null};
+        //let node:Node = {type:'PROGRAM', child:null, brother:null};
+        let node:Node = new Node(NodeType.NODE_PROGRAM);
 
         // 定数全て処理
         // このループを消して、後ろのループのparseConstのtrueを消せば、定数定義を前に限定できる
-        let tokens = this.mTokens;
-        let n = tokens.length;
+        let tokens:Array<Token> = this.mTokens;
+        let n:number = tokens.length;
         this.mPos = 0;
         while (tokens[this.mPos].type !== TokenType.TOKEN_END) {
-            let t = tokens[this.mPos];
+            let t:Token = tokens[this.mPos];
             if (t.type === TokenType.TOKEN_CONST) {
                 if (!this.parseConst(false)) { //ノードを返さない。
                     return null;
@@ -50,10 +49,10 @@ export default class Parser {
 
         //残りを処理
         this.mPos = 0;
-        let lastChild:any = null;
+        let lastChild:Node|null = null;
         while (tokens[this.mPos].type !== TokenType.TOKEN_END) {
             let statementType:StatementType = this.getStatementType();
-            let child = null;
+            let child:Node|null = null;
             if (statementType === null) {
                 return null;
             } else if (statementType === StatementType.STATEMENT_CONST) { //定数は処理済みなのでスキップ
@@ -85,7 +84,7 @@ export default class Parser {
     // ノードを生成しないので、boolを返す。
     public parseConst(skipFlag:boolean): boolean {
         let tokens:Array<Token> = this.mTokens;
-        let t = tokens[this.mPos];
+        let t:Token = tokens[this.mPos];
 
         if (t.type !== TokenType.TOKEN_CONST) {
             this.beginError(t);
@@ -534,29 +533,24 @@ export default class Parser {
     // Expression : expression +|-|*|/|<|>|≤|≥|≠|= expression
     // 左結合の木になる。途中で回転が行われることがある。
     // E170
-    public parseExpression() {
+    public parseExpression(): Node|null {
         // ボトムアップ構築して、左結合の木を作る。
 	    // 最初の左ノードを生成
-        let left:any = this.parseTerm();
+        let left:Node|null = this.parseTerm();
         if (left === null) {
             return null;
         }
 
         // 演算子がつながる限りループ
-        for (let t = this.mTokens[this.mPos]; t.type === TokenType.TOKEN_OPERATOR; t = this.mTokens[this.mPos]) {
-            let node:any = {
-                type:'EXPRESSION',
-                token:t,
-                operator:t.operator,
-                child:null,
-                brother:null
-            };
+        for (let t:Token = this.mTokens[this.mPos]; t.type === TokenType.TOKEN_OPERATOR; t = this.mTokens[this.mPos]) {
+            let node:Node = Node.createExpression(t, t.operator||'', null, null);
+
             this.mPos += 1;
             t = this.mTokens[this.mPos];
             if ((t.type === TokenType.TOKEN_OPERATOR) && (t.operator !== '-')) { //-以外の演算子ならエラー
                 throw 'E170: 行' + t.line + ': 演算子が連続している。==や++や--はない。=>や=<は>=や<=の間違いだろう。';
             }
-            let right = this.parseTerm();
+            let right:Node|null = this.parseTerm();
             if (right === null) {
                 return null;
             }
@@ -564,7 +558,7 @@ export default class Parser {
             //GT,GEなら左右交換して不等号の向きを逆に
             if ((node.operator === '>') || (node.operator === '≥')) {
                 let tmp = left;
-                left = right;
+                left  = right;
                 right = tmp;
                 if (node.operator === '>') {
                     node.operator = '<';
@@ -575,9 +569,9 @@ export default class Parser {
 
             // 最適化。定数の使い勝手向上のために必須 TODO:a + 2 + 3がa+5にならないよねこれ
             let preComputed = null;
-            if ((left.type === 'NUMBER') && (right.type === 'NUMBER')) {
-                let a = left.number;
-                let b = right.number;
+            if ((left.type === NodeType.NODE_NUMBER) && (right.type === NodeType.NODE_NUMBER)) {
+                let a:number = left.number;
+                let b:number = right.number;
                 if (node.operator === '+') {
                     preComputed = a + b;
                 } else if (node.operator === '-') {
@@ -603,12 +597,13 @@ export default class Parser {
             }
 
             if (preComputed !== null) { //事前計算でノードをマージ
-                node.type = 'NUMBER';
+                node.type   = NodeType.NODE_NUMBER;
                 node.number = preComputed;
             } else {
-                node.child = left;
+                node.child   = left;
                 left.brother = right;
             }
+
             //現ノードを左の子として継続
             left = node;
         }
@@ -617,7 +612,7 @@ export default class Parser {
     }
     
     public getTermType(): TermType {
-        let t:Token = this.mTokens[this.mPos];
+        let t:Token    = this.mTokens[this.mPos];
         let r:TermType = TermType.TERM_UNKNOWN;
 
         if (t.type === TokenType.TOKEN_LEFT_BRACKET) {
@@ -644,7 +639,7 @@ export default class Parser {
     // E180
     public parseTerm() {
         let t:Token = this.mTokens[this.mPos];
-        let minus = false;
+        let minus:boolean = false;
 
         if (t.operator === '-') {
             minus = true;
@@ -653,7 +648,8 @@ export default class Parser {
 
         t = this.mTokens[this.mPos];
         let termType:TermType = this.getTermType();
-        let node = null;
+        let node:Node|null = null;
+
         if (termType === TermType.TERM_EXPRESSION) {
             HLib.assert(t.type === TokenType.TOKEN_LEFT_BRACKET, `${__filename}:651`);
             this.mPos += 1;
@@ -664,7 +660,7 @@ export default class Parser {
             }
             this.mPos += 1;
         } else if (termType === TermType.TERM_NUMBER) {
-            node = {type:'NUMBER', number:t.number, token:t, child:null, brother:null};
+            node = Node.createNumber(t, t.number, null, null);
             this.mPos += 1;
         } else if (termType === TermType.TERM_FUNCTION) {
             node = this.parseFunction();
@@ -679,7 +675,7 @@ export default class Parser {
         }
 
         if ((node !== null) && minus) {
-            if (node.type === 'NUMBER') { //この場で反転
+            if (node.type === NodeType.NODE_NUMBER) { //この場で反転
                 node.number = -(node.number);
             } else { //反転は後に伝える
                 node.negation = true;
