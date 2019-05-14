@@ -2,6 +2,7 @@ import HLib from './HLib';
 import { stat } from 'fs';
 import Token from './Token';
 import { TokenType } from './TokenType';
+import { TermType, StatementType, NodeType } from './NodeType';
 
 export default class Parser {
     errorMessage: string;
@@ -292,47 +293,51 @@ export default class Parser {
 
     //文タイプを判定
     //DEF, FUNC, WHILE_OR_IF, CONST, SET, nullのどれかが返る。メンバは変更しない。
-    public getStatementType() {
-        let pos = this.mPos; //コピーを作ってこっちをいじる。オブジェクトの状態は変えない。
-        let tokens = this.mTokens;
-        let t = tokens[pos];
-        //文頭でわかるケースを判別
+    public getStatementType(): StatementType {
+        let pos:number = this.mPos; //コピーを作ってこっちをいじる。オブジェクトの状態は変えない。
+        let tokens:Array<Token> = this.mTokens;
+        let t:Token = tokens[pos];
+
+        // 文頭でわかるケースを判別
         if (t.type === TokenType.TOKEN_BLOCK_BEGIN) {
             throw 'E130: 行' + t.line + ': 字下げを間違っているはず。上の行より多くないか。';
-            return null;
         } else if ((t.type === TokenType.TOKEN_WHILE_PRE) || (t.type === TokenType.TOKEN_IF_PRE)) {
-            return 'WHILE_OR_IF';
+            return StatementType.STATEMENT_WHILE_OR_IF;
         } else if (t.type === TokenType.TOKEN_DEF_PRE) {
-            return 'DEF';
+            return StatementType.STATEMENT_DEF;
         } else if (t.type === TokenType.TOKEN_CONST) {
-            return 'CONST';
+            return StatementType.STATEMENT_CONST;
         }
-        //文末までスキャン
+
+        // 文末までスキャン
         let endPos = pos;
         while ((tokens[endPos].type !== TokenType.TOKEN_STATEMENT_END) && (tokens[endPos].type !== TokenType.TOKEN_BLOCK_BEGIN)) {
             endPos += 1;
         }
-        //後置キーワード判定
+
+        // 後置キーワード判定
         if (endPos > pos) {
             t = tokens[endPos - 1];
             if ((t.type === TokenType.TOKEN_WHILE_POST) || (t.type === TokenType.TOKEN_IF_POST)) {
-                return 'WHILE_OR_IF';
+                return StatementType.STATEMENT_WHILE_OR_IF;
             } else if (t.type === TokenType.TOKEN_DEF_POST) {
-                return 'DEF';
+                return StatementType.STATEMENT_DEF;
             }
-        }
-        //代入記号を探す
-        for (let i = pos; i < endPos; i += 1) {
-            if (tokens[i].type === TokenType.TOKEN_SUBSTITUTION) {
-                return 'SET';
-            }
-        }
-        //残るは関数コール文?
-        if ((tokens[pos].type === TokenType.TOKEN_NAME) && (tokens[pos + 1].type === TokenType.TOKEN_LEFT_BRACKET)) {
-            return 'FUNC';
         }
 
-        //解釈不能。ありがちなのは「なかぎり」「なら」の左に空白がないケース
+        // 代入記号を探す
+        for (let i = pos; i < endPos; i += 1) {
+            if (tokens[i].type === TokenType.TOKEN_SUBSTITUTION) {
+                return StatementType.STATEMENT_SUBSTITUTION;
+            }
+        }
+
+        // 残るは関数コール文?
+        if ((tokens[pos].type === TokenType.TOKEN_NAME) && (tokens[pos + 1].type === TokenType.TOKEN_LEFT_BRACKET)) {
+            return StatementType.STATEMENT_FUNCTION;
+        }
+
+        // 解釈不能。ありがちなのは「なかぎり」「なら」の左に空白がないケース
         throw 'E131: 行' + t.line + ': 解釈できない。注釈は//じゃなくて#だよ？あと、「なかぎり」「なら」の前には空白ある？それと、メモリセットは=じゃなくて→だよ？';
         //TODO: どんなエラーか推測してやれ
         //TODO: 後ろにゴミがあるくらいなら無視して進む手もあるが、要検討

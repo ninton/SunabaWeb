@@ -29,7 +29,7 @@ export enum TokenType {
 	TOKEN_BLOCK_END,
 	TOKEN_LINE_BEGIN,
 	TOKEN_END,  //終わり
-    TOKEN_UNKNOWN,
-    
+
+	TOKEN_UNKNOWN = 99,
     TOKEN_LARGE_NUMBER //エラーメッセージ用
 }
