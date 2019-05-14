@@ -172,16 +172,16 @@ window.addEventListener('keyup', (event:any) => {
 });
 
 
-const INTERVAL_MILLISEC = 33;
+const INTERVAL_MILLSECONDS = 16;
 
-const time_ms = ():number => {
+const time_miliiSeconds = ():number => {
     const date = new Date();
-    const t_ms:number = date.getTime() * 1000 + date.getMilliseconds();
+    const t_ms:number = date.getTime();
     return t_ms;
 }
 
 window.setInterval(() => {
-    const t0_ms:number = time_ms();
+    const t0_ms:number = time_miliiSeconds();
 
     while (true) {
         machine.step();
@@ -189,9 +189,9 @@ window.setInterval(() => {
             break;
         }
 
-        const t1_ms = time_ms();
-        const dt_ms = t1_ms - t0_ms;
-        if (INTERVAL_MILLISEC - 2 <= dt_ms) {
+        const t1_ms:number = time_miliiSeconds();
+        const dt_ms:number = t1_ms - t0_ms;
+        if (INTERVAL_MILLSECONDS - 2 <= dt_ms) {
             break;
         }
     }
@@ -200,7 +200,7 @@ window.setInterval(() => {
         sync();
     }
 
-}, INTERVAL_MILLISEC);
+}, INTERVAL_MILLSECONDS);
 
 function program_1(): Array<any> {
     const program:Array<any> = [];
