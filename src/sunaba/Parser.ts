@@ -616,25 +616,25 @@ export default class Parser {
         return left;
     }
     
-    public getTermType() {
-        let t = this.mTokens[this.mPos];
-        let r = null;
+    public getTermType(): TermType {
+        let t:Token = this.mTokens[this.mPos];
+        let r:TermType = TermType.TERM_UNKNOWN;
 
         if (t.type === TokenType.TOKEN_LEFT_BRACKET) {
-            r = 'EXPRESSION';
+            r = TermType.TERM_EXPRESSION;
         } else if (t.type === TokenType.TOKEN_NUMBER) {
-            r = 'NUMBER';
+            r = TermType.TERM_NUMBER;
         } else if (t.type === TokenType.TOKEN_NAME) {
             t = this.mTokens[this.mPos + 1];
             if (t.type === TokenType.TOKEN_LEFT_BRACKET) {
-                r = 'FUNC';
+                r = TermType.TERM_FUNCTION;
             } else if (t.type === TokenType.TOKEN_INDEX_BEGIN) {
-                r = 'ARRAY';
+                r = TermType.TERM_ARRAY_ELEMENT;
             } else {
-                r = 'VARIABLE';
+                r = TermType.TERM_VARIABLE;
             }
         } else if (t.type === TokenType.TOKEN_OUT) {
-            r = 'OUT';
+            r = TermType.TERM_OUT;
         }
 
         return r;
@@ -643,7 +643,7 @@ export default class Parser {
     //Term : [-] function|variable|out|array|number|(expression)
     // E180
     public parseTerm() {
-        let t = this.mTokens[this.mPos];
+        let t:Token = this.mTokens[this.mPos];
         let minus = false;
 
         if (t.operator === '-') {
@@ -652,9 +652,9 @@ export default class Parser {
         }
 
         t = this.mTokens[this.mPos];
-        let termType = this.getTermType();
+        let termType:TermType = this.getTermType();
         let node = null;
-        if (termType === 'EXPRESSION') {
+        if (termType === TermType.TERM_EXPRESSION) {
             HLib.assert(t.type === TokenType.TOKEN_LEFT_BRACKET, `${__filename}:651`);
             this.mPos += 1;
             node = this.parseExpression();
@@ -663,16 +663,16 @@ export default class Parser {
                 throw 'E180: 行' + t.line + ': ()で囲まれた式がありそうなのだが、終わりの")"の代わりに「' + t.string + '」がある。';
             }
             this.mPos += 1;
-        } else if (termType === 'NUMBER') {
+        } else if (termType === TermType.TERM_NUMBER) {
             node = {type:'NUMBER', number:t.number, token:t, child:null, brother:null};
             this.mPos += 1;
-        } else if (termType === 'FUNC') {
+        } else if (termType === TermType.TERM_FUNCTION) {
             node = this.parseFunction();
-        } else if (termType === 'ARRAY') {
+        } else if (termType === TermType.TERM_ARRAY_ELEMENT) {
             node = this.parseArray();
-        } else if (termType === 'VARIABLE') {
+        } else if (termType === TermType.TERM_VARIABLE) {
             node = this.parseVariable();
-        } else if (termType === 'OUT') {
+        } else if (termType === TermType.TERM_OUT) {
             node = this.parseOut();
         } else {
             throw `E181: 行${t.line}: ここには、()で囲まれた式、memory[]、数、名前つきメモリ、部分プログラム参照、のどれかがあるはずなのだが、代わりに「${t.string}」がある。`;

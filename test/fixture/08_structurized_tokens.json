@@ -1,0 +1,104 @@
+[
+  {
+    "type": 15,
+    "string": "点",
+    "line": 1
+  },
+  {
+    "type": 8,
+    "string": "(",
+    "line": 1
+  },
+  {
+    "type": 9,
+    "string": ")",
+    "line": 1
+  },
+  {
+    "type": 5,
+    "string": "とは",
+    "line": 1
+  },
+  {
+    "type": 20,
+    "string": "ブロック開始",
+    "line": 2
+  },
+  {
+    "type": 14,
+    "string": "出力",
+    "line": 2
+  },
+  {
+    "type": 13,
+    "string": "→",
+    "line": 2
+  },
+  {
+    "type": 17,
+    "number": 999999,
+    "string": "999999",
+    "line": 2
+  },
+  {
+    "type": 19,
+    "string": "行末",
+    "line": 4
+  },
+  {
+    "type": 21,
+    "string": "ブロック末",
+    "line": 4
+  },
+  {
+    "type": 15,
+    "string": "メモリ",
+    "line": 4
+  },
+  {
+    "type": 11,
+    "string": "[",
+    "line": 4
+  },
+  {
+    "type": 17,
+    "number": 60500,
+    "string": "60500",
+    "line": 4
+  },
+  {
+    "type": 12,
+    "string": "]",
+    "line": 4
+  },
+  {
+    "type": 13,
+    "string": "→",
+    "line": 4
+  },
+  {
+    "type": 15,
+    "string": "点",
+    "line": 4
+  },
+  {
+    "type": 8,
+    "string": "(",
+    "line": 4
+  },
+  {
+    "type": 9,
+    "string": ")",
+    "line": 4
+  },
+  {
+    "type": 19,
+    "string": "行末",
+    "line": 4
+  },
+  {
+    "type": 23,
+    "string": "",
+    "line": 4
+  }
+]
