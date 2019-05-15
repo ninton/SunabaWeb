@@ -241,7 +241,7 @@ suite('sunaba.Compiler', () => {
     test('compile #5', () => {
         const expected = {
             errorMessage: '',
-            commands:     JSON.parse(fs.readFileSync('test/fixture/04_vmcode.json').toString())
+            commands:     JSON.parse(fs.readFileSync('test/fixture/09_vmcode.json').toString())
         };
 
         const code = "memory[1] → memory[1] + 1\n";

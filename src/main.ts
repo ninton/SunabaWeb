@@ -172,7 +172,9 @@ window.addEventListener('keyup', (event:any) => {
 });
 
 
-const INTERVAL_MILLSECONDS = 16;
+// TODO: UIスライダーで調整できるようにしたい
+const INTERVAL_MILLSECONDS = 33;    // 16:速すぎ、33:まだ速い
+const MAX_STEP_COUNT_PER_FRAME = 1000;
 
 const time_miliiSeconds = ():number => {
     const date = new Date();
@@ -183,7 +185,7 @@ const time_miliiSeconds = ():number => {
 window.setInterval(() => {
     const t0_ms:number = time_miliiSeconds();
 
-    while (true) {
+    for (let i = 0; i < MAX_STEP_COUNT_PER_FRAME; i += 1) {
         machine.step();
         if (waitSync) {
             break;
@@ -201,108 +203,3 @@ window.setInterval(() => {
     }
 
 }, INTERVAL_MILLSECONDS);
-
-function program_1(): Array<any> {
-    const program:Array<any> = [];
-
-    for (let y = 0; y < 100; y += 1) {
-        for (let x = 0; x < 100; x += 1) {
-            let addr = y * 100 + x;
-
-            program.push({
-                name: 'i',
-                imm: 888888
-            });
-            program.push({
-                name: 'i',
-                imm: 60000 + addr
-            });
-            program.push({
-                name: 'st',
-                imm: 0
-            });
-        }
-    }
-
-    return program;
-}
-
-function program_2(): Array<any> {
-    return [
-        {
-            "name": "i",
-            "imm": 0,
-            "comment": "#絶対アドレスなので0\n"
-        },
-        {
-            "name": "i",
-            "imm": 999999,
-            "comment": "#即値プッシュ"
-        },
-        {
-            "name": "st",
-            "imm": 60110,
-            "comment": "#\"memory\"へストア"
-        },
-    ];
-}
-
-function program_3(): Array<any> {
-    return [
-        {
-        "name": "pop",
-        "imm": -1,
-        "comment": "#$mainの戻り値領域"
-        },
-        {
-        "name": "call",
-        "imm": 4,
-        "comment": ""
-        },
-        {
-        "name": "j",
-        "imm": 9,
-        "comment": "#プログラム終了点へジャンプ"
-        },
-        {
-        "name": "",
-        "imm": "",
-        "comment": "#部分プログラム\"!main\"の開始\n"
-        },
-        {
-        "name": "label",
-        "imm": "func_!main",
-        "comment": ""
-        },
-        {
-        "name": "i",
-        "imm": 0,
-        "comment": "#絶対アドレスなので0\n"
-        },
-        {
-        "name": "i",
-        "imm": 999999,
-        "comment": "#即値プッシュ"
-        },
-        {
-        "name": "st",
-        "imm": 60110,
-        "comment": "#\"memory\"へストア"
-        },
-        {
-        "name": "ret",
-        "imm": -3,
-        "comment": "#部分プログラム\"!mainの終了"
-        },
-        {
-        "name": "label",
-        "imm": "!end",
-        "comment": ""
-        },
-        {
-        "name": "pop",
-        "imm": 1,
-        "comment": "#!mainの戻り値を破棄。最終命令。なくてもいいが。"
-        }
-    ];
-}

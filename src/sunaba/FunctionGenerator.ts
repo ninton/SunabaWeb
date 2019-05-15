@@ -550,9 +550,9 @@ export default class FunctionGenerator {
         return true;
     }
 
-    //第一項、第二項、第二項オペレータ、第三項、第三項オペレータ...という具合に実行
+    // 第一項、第二項、第二項オペレータ、第三項、第三項オペレータ...という具合に実行
     public generateExpression(node:Node): boolean {
-        //解決されて単項になっていれば、そのままgenerateTermに丸投げ。ただし単項マイナスはここで処理。
+        // 解決されて単項になっていれば、そのままgenerateTermに丸投げ。ただし単項マイナスはここで処理。
         let ret:boolean = false;
         if (node.type !== NodeType.NODE_EXPRESSION) {
             ret = this.generateTerm(node);
@@ -567,7 +567,7 @@ export default class FunctionGenerator {
                 return false;
             }
             
-            if (node.brother === null) {
+            if (node.child.brother === null) {
                 HLib.assert(false, `${__filename}:557`);
                 return false;
             }

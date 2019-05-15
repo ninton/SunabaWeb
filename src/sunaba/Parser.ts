@@ -548,19 +548,24 @@ export default class Parser {
 
         // 演算子がつながる限りループ
         for (let t:Token = this.mTokens[this.mPos]; t.type === TokenType.TOKEN_OPERATOR; t = this.mTokens[this.mPos]) {
+    		// ノードを生成
+	    	// 演算子を設定
             const node:Node = Node.createExpression(t, t.operator||'', null, null);
-
             this.mPos += 1;
+
+            // 連続して演算子なら親切にエラーを吐いてやる。
             t = this.mTokens[this.mPos];
             if ((t.type === TokenType.TOKEN_OPERATOR) && (t.operator !== '-')) { //-以外の演算子ならエラー
                 throw `E170: 行${t.line}: 演算子が連続している。==や++や--はない。=>や=<は>=や<=の間違いだろう。`;
             }
+
+            // 右の子を生成
             let right:Node|null = this.parseTerm();
             if (right === null) {
                 return null;
             }
 
-            //GT,GEなら左右交換して不等号の向きを逆に
+            // GT,GEなら左右交換して不等号の向きを逆に
             if ((node.operator === '>') || (node.operator === '≥')) {
                 let tmp = left;
                 left  = right;
@@ -572,6 +577,7 @@ export default class Parser {
                 }
             }
 
+            // 最適化。左右ノードが両方数値なら計算をここでやる
             // 最適化。定数の使い勝手向上のために必須 TODO:a + 2 + 3がa+5にならないよねこれ
             let preComputed = null;
             if ((left.type === NodeType.NODE_NUMBER) && (right.type === NodeType.NODE_NUMBER)) {
@@ -604,12 +610,14 @@ export default class Parser {
             if (preComputed !== null) { //事前計算でノードをマージ
                 node.type   = NodeType.NODE_NUMBER;
                 node.number = preComputed;
+                left        = null;
+                right       = null;
             } else {
                 node.child   = left;
                 left.brother = right;
             }
 
-            //現ノードを左の子として継続
+            // 現ノードを左の子として継続
             left = node;
         }
 
