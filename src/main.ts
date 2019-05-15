@@ -105,7 +105,7 @@ document.getElementById("clearButton")!.onclick = function () {
     document.getElementById("message").value = "";
 };
 
-let uiStatus:any = {
+let uiStatus:{[key:string]: number;} = {
     mouse_x    : 10,
     mouse_y    : 20,
     mouse_left : 0,
@@ -150,7 +150,7 @@ canvas2.addEventListener('mouseup', (event:MouseEvent) => {
     }
 });
 
-const KEYCODE_NAME_MAP:any = {
+const KEYCODE_NAME_MAP:{[key:number]: string} = {
     // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode#Value_of_keyCode
     38: 'key_up',
     40: 'key_down',

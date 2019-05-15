@@ -43,7 +43,7 @@ class Block {
     public mParent    :Block|null;
     public mBaseOffset:number;
     public mFrameSize :number;
-    private mVariables:any;
+    private mVariables:{[key:string]: Variable;};
     private stream:any;
 
     constructor(baseOffset:number) {
@@ -597,7 +597,7 @@ export default class FunctionGenerator {
     public getOpFromOperator(operator:string): string {
         let op:string;
 
-        const table:any = {
+        const table:{[key:string]: string;} = {
             '+': "add",
             '-': "sub",
             '*': "mul",

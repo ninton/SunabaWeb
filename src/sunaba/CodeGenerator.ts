@@ -5,7 +5,7 @@ import { Node } from './Node';
 import { NodeType } from './NodeType';
 
 export default class CodeGenerator {
-    mFunctionMap:any;
+    mFunctionMap:{[key:string]: FunctionInfo;};
     cmds:Array<any>;
 
     constructor() {

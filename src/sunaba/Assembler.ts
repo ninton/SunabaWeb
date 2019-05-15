@@ -15,7 +15,7 @@ export default class Assembler {
 
     // E300
     public collectLabel(cmds:Array<any>): any {
-        const labelAddressMap:any = {};
+        const labelAddressMap:{[key:string]: number;} = {};
 
         for (let i = 0; i < cmds.length; i += 1) {
             const cmd = cmds[i];

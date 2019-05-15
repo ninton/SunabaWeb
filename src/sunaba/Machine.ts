@@ -20,13 +20,13 @@ const IO_WRITABLE_BEGIN = IO_BASE + IO_WRITABLE_OFFSET;
 const VRAM_BASE  = IO_END;
 const VRAM_SIZE  = SCREEN_HEIGHT * SCREEN_WIDTH;
 
-const OUTPUT_MAP:any = {
+const OUTPUT_MAP:{[key:number]: string;} = {
     55000: 'sync',
     55001: 'autosync_disable',
     55002: 'debug'
 };
 
-const INPUT_MAP:any = {
+const INPUT_MAP:{[key:number]: string;} = {
     50000: 'mouse_x',
     50001: 'mouse_y',
     50002: 'mouse_left',
