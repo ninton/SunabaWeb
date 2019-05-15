@@ -265,10 +265,10 @@ export default class Machine {
     public step_div(cmd:any) {
         const op1 = this.pop();
         const op0 = this.pop();
-        if (op1 == 0) {
+        if (op1 === 0) {
             throw "E910: 0で割ろうとした。";
         }
-        const v = op0 / op1;
+        const v = Math.floor(op0 / op1);
         this.push(v);
         this.programCounter += 1;
     }
@@ -480,10 +480,11 @@ export default class Machine {
         }
     }
 
-    public loadMemory(address:number) {
+    public loadMemory(address:number): number {
         if (address in INPUT_MAP) {
-            const name = INPUT_MAP[address];
-            return this.onInputListener(name);
+            const name:string = INPUT_MAP[address];
+            const value:number = this.onInputListener(name);
+            return value;
         }
         return this.memory[address];
     }

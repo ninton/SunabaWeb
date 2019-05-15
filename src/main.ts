@@ -46,7 +46,7 @@ const onOutputListener:Function = (name:string, value:number) => {
 };
 
 const outputMessage = (s:string) => {
-    document.getElementById("message").value += s;
+    document.getElementById("message")!.value += s;
 };
 
 const vramListener:Function = (addr:number, value:number) => {
@@ -80,7 +80,7 @@ machine.setMessageHandler((mesg:string) => {
     outputMessage(`${mesg}\n`);
 });
 
-document.getElementById("runButton").onclick = function () {
+document.getElementById("runButton")!.onclick = function () {
     const code = document.getElementById("code").value;
     console.log(code);
 
@@ -97,11 +97,11 @@ document.getElementById("runButton").onclick = function () {
     machine.loadProgram(results.commands);
 };
 
-document.getElementById("stopButton").onclick = function () {
+document.getElementById("stopButton")!.onclick = function () {
     machine.stop();
 };
 
-document.getElementById("clearButton").onclick = function () {
+document.getElementById("clearButton")!.onclick = function () {
     document.getElementById("message").value = "";
 };
 
@@ -123,14 +123,14 @@ machine.setOnInputListener((name:string) => {
 });
 
 
-canvas.addEventListener('mousemove', (event) => {
-    uiStatus.mouse_x = event.offsetX / 4;
-    uiStatus.mouse_y = event.offsetY / 4;
+canvas2.addEventListener('mousemove', (event:MouseEvent) => {
+    uiStatus.mouse_x = Math.floor(event.offsetX / 4);
+    uiStatus.mouse_y = Math.floor(event.offsetY / 4);
 });
 
-canvas.addEventListener('mousedown', (event) => {
-    uiStatus.mouse_x = event.offsetX / 4;
-    uiStatus.mouse_y = event.offsetY / 4;
+canvas2.addEventListener('mousedown', (event:MouseEvent) => {
+    uiStatus.mouse_x = Math.floor(event.offsetX / 4);
+    uiStatus.mouse_y = Math.floor(event.offsetY / 4);
 
     if (event.button === 0) {
         uiStatus.mouse_left = 1;
@@ -139,7 +139,10 @@ canvas.addEventListener('mousedown', (event) => {
     }
 });
 
-canvas.addEventListener('mouseup', (event) => {
+canvas2.addEventListener('mouseup', (event:MouseEvent) => {
+    uiStatus.mouse_x = Math.floor(event.offsetX / 4);
+    uiStatus.mouse_y = Math.floor(event.offsetY / 4);
+
     if (event.button === 0) {
         uiStatus.mouse_left = 0;
     } else if (event.button === 2) {
@@ -157,14 +160,14 @@ const KEYCODE_NAME_MAP:any = {
     13: 'key_enter'
 };
 
-window.addEventListener('keydown', (event:any) => {
+window.addEventListener('keydown', (event:KeyboardEvent) => {
     if (event.keyCode in KEYCODE_NAME_MAP) {
         const name = KEYCODE_NAME_MAP[event.keyCode];
         uiStatus[name] = 1;
     }
 });
 
-window.addEventListener('keyup', (event:any) => {
+window.addEventListener('keyup', (event:KeyboardEvent) => {
     if (event.keyCode in KEYCODE_NAME_MAP) {
         const name = KEYCODE_NAME_MAP[event.keyCode];
         uiStatus[name] = 0;
