@@ -1,4 +1,4 @@
-import Command from './Command';
+import VmCommand from './VmCommand';
 
 // 設定定数。ただし、いじるとIOメモリの番号が変わるので、ソースコードが非互換になる。
 const FREE_AND_PROGRAM_SIZE = 40000;
@@ -234,12 +234,12 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_i(cmd:Command) {
+    public step_i(cmd:VmCommand) {
         this.push(cmd.imm);
         this.programCounter += 1;
     }
 
-    public step_add(cmd:Command) {
+    public step_add(cmd:VmCommand) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 + op1;
@@ -247,7 +247,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_sub(cmd:Command) {
+    public step_sub(cmd:VmCommand) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 - op1;
@@ -255,7 +255,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_mul(cmd:Command) {
+    public step_mul(cmd:VmCommand) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 * op1;
@@ -264,7 +264,7 @@ export default class Machine {
     }
 
     // E910
-    public step_div(cmd:Command) {
+    public step_div(cmd:VmCommand) {
         const op1 = this.pop();
         const op0 = this.pop();
         if (op1 === 0) {
@@ -275,7 +275,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_lt(cmd:Command) {
+    public step_lt(cmd:VmCommand) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 < op1 ? 1 : 0;
@@ -283,7 +283,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_le(cmd:Command) {
+    public step_le(cmd:VmCommand) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 <= op1 ? 1 : 0;
@@ -291,7 +291,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_eq(cmd:Command) {
+    public step_eq(cmd:VmCommand) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 === op1 ? 1 : 0;
@@ -299,7 +299,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_ne(cmd:Command) {
+    public step_ne(cmd:VmCommand) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 !== op1 ? 1 : 0;
@@ -307,7 +307,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_ld(cmd:Command) {
+    public step_ld(cmd:VmCommand) {
         const op0 = this.pop_or_framepointer(cmd.name);
         const addr = op0 + cmd.imm;
 
@@ -371,7 +371,7 @@ export default class Machine {
         return op;
     }
 
-    public step_st(cmd:Command) {
+    public step_st(cmd:VmCommand) {
         const op1 = this.pop();
         const val  = op1;
 
@@ -419,11 +419,11 @@ export default class Machine {
         throw `E939: メモリ範囲外をいじろうとした(番号:${addr},値:${value})`;
     }
 
-    public step_j(cmd:Command) {
+    public step_j(cmd:VmCommand) {
         this.programCounter = cmd.imm;
     }
 
-    public step_bz(cmd:Command) {
+    public step_bz(cmd:VmCommand) {
         const op0 = this.pop();
         if (op0 === 0) {
             this.programCounter = cmd.imm;
@@ -432,7 +432,7 @@ export default class Machine {
         }
     }
 
-    public step_call(cmd:Command) {
+    public step_call(cmd:VmCommand) {
         this.push(this.framePointer);
         this.push(this.programCounter);
         this.framePointer = this.stackPointer;
@@ -444,7 +444,7 @@ export default class Machine {
         }
     }
 
-    public step_ret(cmd:Command) {
+    public step_ret(cmd:VmCommand) {
         this.popN(cmd.imm);
         this.programCounter = this.pop();
         this.framePointer = this.pop();
@@ -457,7 +457,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_pop(cmd:Command) {
+    public step_pop(cmd:VmCommand) {
         this.popN(cmd.imm);
         this.programCounter += 1;
     }

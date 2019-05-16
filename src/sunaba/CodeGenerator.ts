@@ -3,11 +3,11 @@ import FunctionInfo from './FunctionInfo';
 import FunctionGenerator from './FunctionGenerator';
 import { Node } from './Node';
 import { NodeType } from './NodeType';
-import Command from './Command';
+import AsmCommand from './AsmCommand';
 
 export default class CodeGenerator {
     mFunctionMap:{[key:string]: FunctionInfo;};
-    cmds:Array<Command>;
+    cmds:Array<AsmCommand>;
 
     constructor() {
         this.mFunctionMap = {}; 
@@ -15,11 +15,11 @@ export default class CodeGenerator {
     }
 
     public addCommand(name:string, imm:number|string = 0, comment:string = "") {
-        const cmd:Command = new Command(name, imm, comment);
+        const cmd:AsmCommand = new AsmCommand(name, imm, comment);
         this.cmds.push(cmd);
     }
 
-    public mergeCommands(cmds:Array<Command>) {
+    public mergeCommands(cmds:Array<AsmCommand>) {
         cmds.forEach((item:any) => {
             this.cmds.push(item);
         });

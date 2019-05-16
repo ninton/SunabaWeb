@@ -1,7 +1,6 @@
 import { TokenType } from './TokenType';
 import Token from './Token';
 import Locale from './Locale';
-import Command from './Command';
 
 export default class Sunaba {
     static MAX_ABS_NUMBER = 2147483647; //2^31 - 1
