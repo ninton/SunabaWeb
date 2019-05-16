@@ -14,7 +14,7 @@ export default class CodeGenerator {
         this.cmds = [];
     }
 
-    public addCommand(name:string, imm:number = 0, comment:string = "") {
+    public addCommand(name:string, imm:number|string = 0, comment:string = "") {
         const cmd:AsmCommand = new AsmCommand('', name, imm, comment);
         this.cmds.push(cmd);
     }
