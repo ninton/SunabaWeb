@@ -77,7 +77,7 @@ export default class Parser {
     }
 
     return node;
-   }
+  }
 
   // Const : const name -> expression;
   // ノードを生成しないので、boolを返す。
@@ -178,7 +178,7 @@ export default class Parser {
 
       node.child = arg;
       lastChild = arg;
-      
+
       // 第二引数以降を処理
       while (tokens[this.mPos].type === TokenType.TOKEN_COMMA) {
         this.mPos += 1;
@@ -236,7 +236,7 @@ export default class Parser {
             return null;
           }
         }
-        
+
         if (lastChild !== null) {
           lastChild.brother = child;
         } else {
@@ -291,7 +291,7 @@ export default class Parser {
       throw new Error('BUG parseStatement');
     }
 
-    return node;   
+    return node;
   }
 
   // 文タイプを判定
@@ -348,7 +348,7 @@ export default class Parser {
 
   // Set: [out | memory | name | array] → expression ;
   public parseSubstitutionStatement(): Node|null{
-    // 
+    //
     let tokens:Array<Token> = this.mTokens;
     let t:Token = tokens[this.mPos];
     if ((t.type !== TokenType.TOKEN_NAME) && (t.type !== TokenType.TOKEN_OUT)) {
@@ -378,7 +378,7 @@ export default class Parser {
       return null;
     }
     node.child = left;
-    
+
     // →
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_SUBSTITUTION) {
@@ -411,7 +411,7 @@ export default class Parser {
     const tokens:Array<Token> = this.mTokens;
     let t:Token = tokens[this.mPos];
     const node:Node = new Node(NodeType.NODE_UNKNOWN, t);
-    
+
     // 前置ならすぐ決まる
     if (t.type === TokenType.TOKEN_WHILE_PRE) {
       node.type = NodeType.NODE_WHILE_STATEMENT;
@@ -426,7 +426,7 @@ export default class Parser {
       return null;
     }
     node.child = exp;
-   
+
     // まだどっちか確定してない場合、ここにキーワードがあるはず
     t = tokens[this.mPos];
     if (node.type === NodeType.NODE_UNKNOWN) {
@@ -462,9 +462,9 @@ export default class Parser {
         lastChild = child;
       }
     } else if (t.type === TokenType.TOKEN_STATEMENT_END) { // 中身なしwhile/if
-       this.mPos += 1;
+      this.mPos += 1;
     } else {
-       throw new Error(`E151: 行${t.line}: 条件行は条件の終わりで改行しよう。「${t.string}」が続いている。`);
+      throw new Error(`E151: 行${t.line}: 条件行は条件の終わりで改行しよう。「${t.string}」が続いている。`);
     }
 
     return node;
@@ -505,7 +505,7 @@ export default class Parser {
 
     return node;
   }
- 
+
   // Variable : name
   public parseVariable(): Node {
     const t:Token = this.mTokens[this.mPos];
@@ -524,7 +524,7 @@ export default class Parser {
 
     return node;
   };
-  
+
   // Out : out
   public parseOut(): Node {
     const t:Token = this.mTokens[this.mPos];
@@ -533,13 +533,13 @@ export default class Parser {
     this.mPos += 1;
     return node;
   }
-  
+
   // Expression : expression +|-|*|/|<|>|≤|≥|≠|= expression
   // 左結合の木になる。途中で回転が行われることがある。
   // E170
   public parseExpression(): Node|null {
     // ボトムアップ構築して、左結合の木を作る。
-	  // 最初の左ノードを生成
+    // 最初の左ノードを生成
     let left:Node|null = this.parseTerm();
     if (left === null) {
       return null;
@@ -547,8 +547,8 @@ export default class Parser {
 
     // 演算子がつながる限りループ
     for (let t:Token = this.mTokens[this.mPos]; t.type === TokenType.TOKEN_OPERATOR; t = this.mTokens[this.mPos]) {
-  		// ノードを生成
-	  	// 演算子を設定
+      // ノードを生成
+      // 演算子を設定
       const node:Node = Node.createExpression(t, t.operator||'', null, null);
       this.mPos += 1;
 
@@ -622,7 +622,7 @@ export default class Parser {
 
     return left;
   }
-  
+
   public getTermType(): TermType {
     let t:Token  = this.mTokens[this.mPos];
     let r:TermType = TermType.TERM_UNKNOWN;
@@ -646,7 +646,7 @@ export default class Parser {
 
     return r;
   };
-  
+
   // Term : [-] function|variable|out|array|number|(expression)
   // E180
   public parseTerm() {
@@ -695,7 +695,7 @@ export default class Parser {
     }
     return node;
   };
-  
+
   // Function : name ( [ expression [ , expression ]* ] )
   // E190
   public parseFunction(): Node|null {
@@ -703,12 +703,12 @@ export default class Parser {
     HLib.assert(t.type === TokenType.TOKEN_NAME, `${__filename}:688`);
     let node:Node = new Node(NodeType.NODE_FUNCTION, t);
     this.mPos += 1;
-  
+
     // '(''
     t = this.mTokens[this.mPos];
     HLib.assert(t.type === TokenType.TOKEN_LEFT_BRACKET, `${__filename}:694`);
     this.mPos += 1;
-  
+
     // 引数ありか、なしか
     t = this.mTokens[this.mPos];
     if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) { // 括弧閉じないので引数あり
@@ -717,7 +717,7 @@ export default class Parser {
         return null;
       }
       node.child = exp;
-  
+
       // 2個目以降はループで取る
       let lastChild:Node = exp;
       while (true) {
