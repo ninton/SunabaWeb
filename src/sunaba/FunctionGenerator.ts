@@ -129,6 +129,19 @@ class Block {
   }
 }
 
+class OffsetParams {
+  fpRelative: boolean = false;
+  staticOffset: number = 0;
+
+  public setFpRelative(fpRelative:boolean): void {
+    this.fpRelative = fpRelative;
+  }
+
+  public setStaticOffset(staticOffset:number): void {
+    this.staticOffset = staticOffset;
+  }
+}
+
 export default class FunctionGenerator {
   codeGen:CodeGenerator;
   cmds:Array<AsmCommand>;
@@ -528,10 +541,7 @@ export default class FunctionGenerator {
       }
     }
 
-    const params = {
-      staticOffset:0,
-      fpRelative:false,
-    };
+    const params = new OffsetParams();
     if (!this.pushDynamicOffset(params, child)) {
       return false;
     }
@@ -676,10 +686,7 @@ export default class FunctionGenerator {
         }
       }
 
-      const params:any = {
-        staticOffset: 0,
-        fpRelative: false,
-      };
+      const params = new OffsetParams();
       if (!this.pushDynamicOffset(params, node)) {
         return false;
       }
@@ -707,9 +714,9 @@ export default class FunctionGenerator {
     return true;
   }
 
-  public pushDynamicOffset(params:any, node:Node): boolean {
-    params.fpRelative   = false;
-    params.staticOffset = -0x7fffffff; // あからさまにおかしな値を入れておく。デバグのため。
+  public pushDynamicOffset(params:OffsetParams, node:Node): boolean {
+    params.setFpRelative(false);
+    params.setStaticOffset(-0x7fffffff); // あからさまにおかしな値を入れておく。デバグのため。
 
     HLib.assert((node.type === NodeType.NODE_OUT) || (node.type === NodeType.NODE_VARIABLE) || (node.type === NodeType.NODE_ARRAY_ELEMENT), `${__filename}:684`);
 
@@ -723,8 +730,8 @@ export default class FunctionGenerator {
           return false;
         }
 
-        params.fpRelative = true; // 変数直のみFP相対
-        params.staticOffset = v.offset();
+        params.setFpRelative(true); // 変数直のみFP相対
+        params.setStaticOffset(v.offset());
         this.mOutputExist = true;
       } else if (node.token.type === TokenType.TOKEN_NAME) {
         // 変数の定義状態を参照
@@ -744,13 +751,13 @@ export default class FunctionGenerator {
               return false;
             }
             this.addCommand('add');
-            params.staticOffset = 0;
+            params.setStaticOffset(0);
           } else { // 定数インデクス
-            params.staticOffset = node.number;
+            params.setStaticOffset(node.number);
           }
         } else {
-          params.fpRelative   = true; // 変数直のみFP相対
-          params.staticOffset = v.offset();
+          params.setFpRelative(true); // 変数直のみFP相対
+          params.setStaticOffset(v.offset());
         }
       }
     } else {
@@ -763,7 +770,7 @@ export default class FunctionGenerator {
       } else {
         this.addCommand('i', 0, '#絶対アドレスなので0\n'); // 絶対アドレスアクセス
       }
-      params.staticOffset = node.number;
+      params.setStaticOffset(node.number);
     }
 
     return true;
