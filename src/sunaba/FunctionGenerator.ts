@@ -58,7 +58,7 @@ class Block {
   }
 
   public beginError(node:any) {
-    const token = node.token;
+    const { token } = node;
     HLib.assert(token, `${__filename}:59`);
 
     let s = '';
@@ -190,7 +190,7 @@ export default class FunctionGenerator {
     // 引数処理
     // みつかった順にアドレスを割り振りながらマップに登録。
     // 呼ぶ時は前からプッシュし、このあとFP,PCをプッシュしたところがSPになる。
-    let child:Node|null = node.child;
+    let { child } = node;
     while (child) { // このループを抜けた段階で最初のchildは最初のstatementになっている
       if (child.type !== NodeType.NODE_VARIABLE) {
         break;
@@ -345,7 +345,7 @@ export default class FunctionGenerator {
     this.addLabel(whileBegin);
 
     // Expression処理
-    let child:Node|null = node.child;
+    let { child } = node;
     if (!this.generateExpression(child)) {
       // 最初の子はExpression
       return false;
@@ -355,12 +355,12 @@ export default class FunctionGenerator {
     this.addCommand('bz', whileEnd);
 
     // 内部の文を処理
-    child = child.brother;
-    while (child) {
-      if (!this.generateStatement(child)) {
+    let bro:Node|null = child.brother;
+    while (bro) {
+      if (!this.generateStatement(bro)) {
         return false;
       }
-      child = child.brother;
+      bro = bro.brother;
     }
 
     // ループの最初へ飛ぶジャンプを生成
@@ -388,7 +388,7 @@ export default class FunctionGenerator {
     }
 
     // Expression処理
-    let child:Node = node.child;
+    let { child } = node;
     if (!this.generateExpression(child)) {
       // 最初の子はExpression
       return false;
@@ -507,7 +507,7 @@ export default class FunctionGenerator {
       return false;
     }
 
-    let child:Node = node.child;
+    let { child } = node;
 
     // 変数の定義状態を参照
     let v:Variable|null = null;
@@ -772,7 +772,7 @@ export default class FunctionGenerator {
   }
 
   public beginError(node:any): void {
-    const token = node.token;
+    const { token } = node;
     HLib.assert(token, `${__filename}:737`);
   }
 }
