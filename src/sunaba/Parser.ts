@@ -85,7 +85,6 @@ export default class Parser {
     let t:Token = tokens[this.mPos];
 
     if (t.type !== TokenType.TOKEN_CONST) {
-      this.beginError(t);
       throw new Error('E101: 定数行のはずだが解釈できない。上の行からつながってないか。');
     }
     HLib.assert(t.type === TokenType.TOKEN_CONST, `${__filename}:91`);
@@ -94,7 +93,6 @@ export default class Parser {
     // 名前
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_NAME) {
-      this.beginError(t);
       throw new Error(`E102: 行${t.line}: 定数'の次は定数名。'${t.string}'は定数名と解釈できない。`);
     }
     const constName:string = t.string || '';
@@ -103,7 +101,6 @@ export default class Parser {
     // →
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_SUBSTITUTION) {
-      this.beginError(t);
       throw new Error(`E103: 行${t.line}: 定数 [名前]、と来たら次は'→'のはずだが「${t.string}'」がある。`);
     }
     this.mPos += 1;
@@ -115,7 +112,6 @@ export default class Parser {
     }
 
     if (expression.type !== NodeType.NODE_NUMBER) {  // 数字に解決されていなければ駄目。
-      this.beginError(t);
       throw new Error(`E104: 行${t.line}: 定数の右辺の計算に失敗した。メモリや名前つきメモリ、部分プログラム参照などが入っていないか？`);
     }
     const constValue = expression.number;
@@ -124,7 +120,6 @@ export default class Parser {
     // 文末
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_STATEMENT_END) {
-      this.beginError(t);
       throw new Error(`行${t.line}: 定数作成の後に'${t.string}'がある。改行してくれ。\n`);
     }
     this.mPos += 1;
@@ -496,7 +491,6 @@ export default class Parser {
     // ]
     if (this.mTokens[this.mPos].type !== TokenType.TOKEN_INDEX_END) {
       const t:Token = this.mTokens[this.mPos];
-      this.beginError(t);
       throw new Error(`E160: 行${t.line}: 名前つきメモリ[番号]の']'の代わりに'${t.string}'がある。\n`);
     }
     this.mPos += 1;
@@ -740,8 +734,5 @@ export default class Parser {
     this.mPos += 1;
 
     return node;
-  }
-
-  public beginError(node:any) {
   }
 }
