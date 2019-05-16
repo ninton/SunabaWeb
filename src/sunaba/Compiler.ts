@@ -5,6 +5,7 @@ import CodeGenerator from './CodeGenerator';
 import Assembler from './Assembler';
 import { TokenType } from './TokenType';
 import Locale from './Locale';
+import VmCommand from './VmCommand';
 
 export default class Compiler {
     code                :string;
@@ -13,7 +14,7 @@ export default class Compiler {
     rootNode            :any;
     parserResults       :any;
     codeGeneratorResults:any;
-    assemblerResults    :any;
+    vmCommands          :Array<VmCommand>;
 
     constructor() {
         this.code                 = "";
@@ -22,7 +23,7 @@ export default class Compiler {
         this.rootNode             = {};
         this.parserResults        = {};
         this.codeGeneratorResults = {}
-        this.assemblerResults     = {};
+        this.vmCommands           = [];
     }
 
     public compile(code:string) {
@@ -35,7 +36,7 @@ export default class Compiler {
         }
 
         return {
-            commands: this.assemblerResults.commands,
+            commands: this.vmCommands,
             errorMessage: errorMessage
         };
     }
@@ -68,7 +69,7 @@ export default class Compiler {
         this.codeGeneratorResults.commands = codeGenerator.getCommands();
 
         const assembler = new Assembler();
-        this.assemblerResults = assembler.assemble(this.codeGeneratorResults.commands);
+        this.vmCommands = assembler.assemble(this.codeGeneratorResults.commands);
     }
 
     public unifySpace(code:string): string {
