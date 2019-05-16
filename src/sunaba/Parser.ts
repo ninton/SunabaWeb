@@ -470,7 +470,7 @@ export default class Parser {
 
   // Array : name [ expression ]
   public parseArrayElement(): Node|null {
-    let node:Node|null = this.parseVariable();
+    const node:Node|null = this.parseVariable();
     if (node === null) {
       return null;
     }
@@ -481,7 +481,7 @@ export default class Parser {
     this.mPos += 1;
 
     // expression
-    let expression:Node|null = this.parseExpression();
+    const expression:Node|null = this.parseExpression();
     if (expression === null) {
       return null;
     }
@@ -495,7 +495,7 @@ export default class Parser {
 
     // ]
     if (this.mTokens[this.mPos].type !== TokenType.TOKEN_INDEX_END) {
-      let t:Token = this.mTokens[this.mPos];
+      const t:Token = this.mTokens[this.mPos];
       this.beginError(t);
       throw new Error(`E160: 行${t.line}: 名前つきメモリ[番号]の']'の代わりに'${t.string}'がある。\n`);
     }
