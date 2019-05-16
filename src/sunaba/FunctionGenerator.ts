@@ -417,12 +417,12 @@ export default class FunctionGenerator {
   }
   
   public generateFunctionStatement(node:Node): boolean {
-	  // まず関数呼び出し
-	  if (!this.generateFunction(node, true)) {
-		  return false;
+    // まず関数呼び出し
+    if (!this.generateFunction(node, true)) {
+      return false;
     }
 
-	  // 関数の戻り値がプッシュされているので捨てます。
+    // 関数の戻り値がプッシュされているので捨てます。
     // this.addCommandg('pop', 1, '#戻り値を使わないので、破棄');
 
     return true;
