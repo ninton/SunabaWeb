@@ -183,7 +183,8 @@ export default class FunctionGenerator {
     const argCount:number = this.mInfo.argCount();
 
     // ルートブロック生成(TODO:このnew本来不要。コンストラクタでスタックに持つようにできるはず)
-    this.mCurrentBlock = this.mRootBlock = new Block(-argCount - 3);  // 戻り値、引数*N、FP、CPと詰めたところが今のFP。戻り値の位置は-argcount-3
+    this.mRootBlock = new Block(-argCount - 3);   // 戻り値、引数*N、FP、CPと詰めたところが今のFP。戻り値の位置は-argcount-3
+    this.mCurrentBlock = this.mRootBlock;
 
     // 戻り値変数を変数マップに登録
     this.mCurrentBlock.addVariable('!ret');
@@ -345,7 +346,7 @@ export default class FunctionGenerator {
     this.addLabel(whileBegin);
 
     // Expression処理
-    let { child } = node;
+    const { child } = node;
     if (!this.generateExpression(child)) {
       // 最初の子はExpression
       return false;
@@ -453,7 +454,7 @@ export default class FunctionGenerator {
     } else if (!isStatement) {
       // 戻り値がないなら式の中にあっちゃだめ
       this.beginError(node);
-      throw new Error(`E211: 部分プログラム\'${funcName}'は、'出力'か'out'という名前付きメモリがないので、出力は使えない。ifやwhileの中にあってもダメ。`);
+      throw new Error(`E211: 部分プログラム'${funcName}'は、'出力'か'out'という名前付きメモリがないので、出力は使えない。ifやwhileの中にあってもダメ。`);
     }
 
     // 引数の数をチェック
@@ -507,7 +508,7 @@ export default class FunctionGenerator {
       return false;
     }
 
-    let { child } = node;
+    const { child } = node;
 
     // 変数の定義状態を参照
     let v:Variable|null = null;
@@ -659,7 +660,7 @@ export default class FunctionGenerator {
           name = '!ret';
         }
 
-        let v:Variable|null = this.mCurrentBlock.findVariable(name);
+        const v:Variable|null = this.mCurrentBlock.findVariable(name);
         // 知らない変数。みつからないか、あるんだがまだその行まで行ってないか。
         if (!v) {
           this.beginError(node);
