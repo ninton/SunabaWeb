@@ -53,7 +53,9 @@ export default class Parser {
       let child:Node|null = null;
       if (statementType === null) {
         return null;
-      } else if (statementType === StatementType.STATEMENT_CONST) { // 定数は処理済みなのでスキップ
+      }
+
+      if (statementType === StatementType.STATEMENT_CONST) { // 定数は処理済みなのでスキップ
         if (!this.parseConst(true)) {
           return null;
         }
@@ -66,7 +68,9 @@ export default class Parser {
 
         if (child === null) {
           return null;
-        } else if (!lastChild) {
+        }
+
+        if (!lastChild) {
           node.child = child;
         } else {
           lastChild.brother = child;
@@ -316,7 +320,9 @@ export default class Parser {
       t = tokens[endPos - 1];
       if ((t.type === TokenType.TOKEN_WHILE_POST) || (t.type === TokenType.TOKEN_IF_POST)) {
         return StatementType.STATEMENT_WHILE_OR_IF;
-      } else if (t.type === TokenType.TOKEN_DEF_POST) {
+      }
+
+      if (t.type === TokenType.TOKEN_DEF_POST) {
         return StatementType.STATEMENT_DEF;
       }
     }
@@ -355,8 +361,8 @@ export default class Parser {
       left = new Node(NodeType.NODE_OUT, t);
       this.mPos += 1;
     } else if (tokens[this.mPos + 1].type === TokenType.TOKEN_INDEX_BEGIN) {
-        // 配列だ
-        left = this.parseArrayElement();
+      // 配列だ
+      left = this.parseArrayElement();
     } else { // 変数
       left = this.parseVariable();
       if (left.type === NodeType.NODE_NUMBER) {
