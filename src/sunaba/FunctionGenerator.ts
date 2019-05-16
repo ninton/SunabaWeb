@@ -294,6 +294,9 @@ export default class FunctionGenerator {
             if (this.mCurrentBlock.mFrameSize > 0) {
                 this.addCommand("pop", this.mCurrentBlock.mFrameSize, "#ブロックローカル変数破棄");
             }
+            if (this.mCurrentBlock.mParent === null) {
+                throw `BUG: this.mCurrentBlock.mParent === null ${__filename}:#298`;
+            }
             this.mCurrentBlock = this.mCurrentBlock.mParent; //スタック戻し
 
         } else if (node.type === NodeType.NODE_SUBSTITUTION_STATEMENT) {
