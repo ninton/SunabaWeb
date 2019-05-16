@@ -87,7 +87,7 @@ export default class Parser {
 
     if (t.type !== TokenType.TOKEN_CONST) {
       this.beginError(t);
-      throw `E101: 定数行のはずだが解釈できない。上の行からつながってないか。`;
+      throw new Error(`E101: 定数行のはずだが解釈できない。上の行からつながってないか。`);
     }
     HLib.assert(t.type === TokenType.TOKEN_CONST, `${__filename}:91`);
     this.mPos += 1;
@@ -96,7 +96,7 @@ export default class Parser {
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_NAME) {
       this.beginError(t);
-      throw `E102: 行${t.line}: 定数'の次は定数名。'${t.string}'は定数名と解釈できない。`;
+      throw new Error(`E102: 行${t.line}: 定数'の次は定数名。'${t.string}'は定数名と解釈できない。`);
     }
     let constName:string = t.string || '';
     this.mPos += 1;
@@ -105,7 +105,7 @@ export default class Parser {
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_SUBSTITUTION) {
       this.beginError(t);
-      throw `E103: 行${t.line}: 定数 [名前]、と来たら次は'→'のはずだが「${t.string}'」がある。`;
+      throw new Error(`E103: 行${t.line}: 定数 [名前]、と来たら次は'→'のはずだが「${t.string}'」がある。`);
       return false;
     }
     this.mPos += 1;
@@ -118,7 +118,7 @@ export default class Parser {
 
     if (expression.type !== NodeType.NODE_NUMBER) {  // 数字に解決されていなければ駄目。
       this.beginError(t);
-      throw `E104: 行${t.line}: 定数の右辺の計算に失敗した。メモリや名前つきメモリ、部分プログラム参照などが入っていないか？`;
+      throw new Error(`E104: 行${t.line}: 定数の右辺の計算に失敗した。メモリや名前つきメモリ、部分プログラム参照などが入っていないか？`);
     }
     let constValue = expression.number;
     // this.mPos += 1; // C#版は += 1していないのでコメント化した
@@ -127,14 +127,14 @@ export default class Parser {
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_STATEMENT_END) {
       this.beginError(t);
-      throw `行${t.line}: 定数作成の後に'${t.string}'がある。改行してくれ。\n`;
+      throw new Error(`行${t.line}: 定数作成の後に'${t.string}'がある。改行してくれ。\n`);
     }
     this.mPos += 1;
 
     //マップに登録
     if (!skipFlag) {
       if (constName in this.mConstMap) { //もうある
-        throw `E105: 行${t.line}: 定数「${constName}」はすでに同じ名前の定数がある。`;
+        throw new Error(`E105: 行${t.line}: 定数「${constName}」はすでに同じ名前の定数がある。`);
       }
       this.mConstMap[constName] = constValue;
     }
@@ -163,7 +163,7 @@ export default class Parser {
     //(
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_LEFT_BRACKET) {
-      throw `E110: 行${t.line}: 入力リスト開始の「(」があるはずだが、「${t.string}」がある。`;
+      throw new Error(`E110: 行${t.line}: 入力リスト開始の「(」があるはずだが、「${t.string}」がある。`);
     }
     this.mPos += 1;
 
@@ -184,7 +184,7 @@ export default class Parser {
         this.mPos += 1;
         t = tokens[this.mPos];
         if (t.type !== TokenType.TOKEN_NAME) { //名前でないのはエラー
-          throw `E111: 行${t.line}: 入力リスト中に「,」がある以上、まだ入力があるはずだが、「${t.string}」がある。`;
+          throw new Error(`E111: 行${t.line}: 入力リスト中に「,」がある以上、まだ入力があるはずだが、「${t.string}」がある。`);
         }
 
         arg = this.parseVariable();
@@ -195,7 +195,7 @@ export default class Parser {
         //引数名が定数なのは許さない
         t = tokens[this.mPos];
         if (arg.type === NodeType.NODE_NUMBER) { //定数は構文解析中に解決されてNUMBERになってしまう。
-          throw `E112: 行${t.line}: 定数と同じ名前は入力につけられない。`;
+          throw new Error(`E112: 行${t.line}: 定数と同じ名前は入力につけられない。`);
         }
         lastChild.brother = arg;
         lastChild = arg;
@@ -205,7 +205,7 @@ export default class Parser {
     // )
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) {
-      throw `E113: 行${t.line}: 入力リスト終了の「)」があるはずだが、「${t.string}」がある。`;
+      throw new Error(`E113: 行${t.line}: 入力リスト終了の「)」があるはずだが、「${t.string}」がある。`);
     }
     this.mPos += 1;
 
@@ -213,7 +213,7 @@ export default class Parser {
     t = tokens[this.mPos];
     if (t.type === TokenType.TOKEN_DEF_POST) {
       if (defFound) {
-        throw `E114: 行${t.line}: 「def」と「とは」が両方ある。片方にしてほしい。`;
+        throw new Error(`E114: 行${t.line}: 「def」と「とは」が両方ある。片方にしてほしい。`);
       }
       defFound = true;
       this.mPos += 1;
@@ -229,7 +229,7 @@ export default class Parser {
           this.mPos += 1;
           break;
         } else if (t.type === TokenType.TOKEN_CONST) { //定数は関数定義の中では許しませんよ
-          throw `E115: 行${t.line}: 部分プログラム内で定数は作れない。`;
+          throw new Error(`E115: 行${t.line}: 部分プログラム内で定数は作れない。`);
         } else {
           child = this.parseStatement();
           if (child === null) {
@@ -248,7 +248,7 @@ export default class Parser {
     } else if (t.type === TokenType.TOKEN_STATEMENT_END) { //いきなり空
       this.mPos += 1;
     } else { //エラー
-      throw `E116: 行${t.line}: 部分プログラムの最初の行の行末に「${t.string}」が続いている。改行しよう。`;
+      throw new Error(`E116: 行${t.line}: 部分プログラムの最初の行の行末に「${t.string}」が続いている。改行しよう。`);
     }
 
     return node;
@@ -264,9 +264,9 @@ export default class Parser {
       node = this.parseWhileOrIfStatement();
     } else if (statementType === StatementType.STATEMENT_DEF) { //これはエラー
       t = this.mTokens[this.mPos];
-      throw `E120: 行${t.line}: 部分プログラム内で部分プログラムは作れない。`;
+      throw new Error(`E120: 行${t.line}: 部分プログラム内で部分プログラムは作れない。`);
     } else if (statementType === StatementType.STATEMENT_CONST) { //これはありえない
-      throw 'BUG parseStatement CONST';
+      throw new Error('BUG parseStatement CONST');
     } else if (statementType === StatementType.STATEMENT_FUNCTION) { //関数呼び出し文
       node = this.parseFunction();
       if (node === null) {
@@ -276,9 +276,9 @@ export default class Parser {
       t = this.mTokens[this.mPos];
       if (t.type !== TokenType.TOKEN_STATEMENT_END) { //文終わってないぞ
         if (t.type === TokenType.TOKEN_BLOCK_BEGIN) {
-          throw `E121: 行${t.line}: 部分プログラムを作ろうとした？それは部分プログラムの外で「def」なり「とは」なりを使ってね。それとも、次の行の字下げが多すぎただけ？`;
+          throw new Error(`E121: 行${t.line}: 部分プログラムを作ろうとした？それは部分プログラムの外で「def」なり「とは」なりを使ってね。それとも、次の行の字下げが多すぎただけ？`);
         } else {
-          throw `E122: 行${t.line}: 部分プログラム参照の後ろに、「${t.string}」がある。改行したら？`;
+          throw new Error(`E122: 行${t.line}: 部分プログラム参照の後ろに、「${t.string}」がある。改行したら？`);
         }
       }
 
@@ -288,7 +288,7 @@ export default class Parser {
     } else if (statementType === StatementType.STATEMENT_UNKNOWN) { //不明。エラー文字列は作ってあるので上へ
       return null;
     } else {
-      throw `BUG parseStatement`;
+      throw new Error('BUG parseStatement');
     }
 
     return node;   
@@ -303,7 +303,7 @@ export default class Parser {
 
     // 文頭でわかるケースを判別
     if (t.type === TokenType.TOKEN_BLOCK_BEGIN) {
-      throw `E130: 行${t.line}: 字下げを間違っているはず。上の行より多くないか。`;
+      throw new Error(`E130: 行${t.line}: 字下げを間違っているはず。上の行より多くないか。`);
     } else if ((t.type === TokenType.TOKEN_WHILE_PRE) || (t.type === TokenType.TOKEN_IF_PRE)) {
       return StatementType.STATEMENT_WHILE_OR_IF;
     } else if (t.type === TokenType.TOKEN_DEF_PRE) {
@@ -341,7 +341,7 @@ export default class Parser {
     }
 
     // 解釈不能。ありがちなのは「なかぎり」「なら」の左に空白がないケース
-    throw `E131: 行${t.line}: 解釈できない。注釈は//じゃなくて#だよ？あと、「なかぎり」「なら」の前には空白ある？それと、メモリセットは=じゃなくて→だよ？`;
+    throw new Error(`E131: 行${t.line}: 解釈できない。注釈は//じゃなくて#だよ？あと、「なかぎり」「なら」の前には空白ある？それと、メモリセットは=じゃなくて→だよ？`);
     //TODO: どんなエラーか推測してやれ
     //TODO: 後ろにゴミがあるくらいなら無視して進む手もあるが、要検討
   }
@@ -352,7 +352,7 @@ export default class Parser {
     let tokens:Array<Token> = this.mTokens;
     let t:Token = tokens[this.mPos];
     if ((t.type !== TokenType.TOKEN_NAME) && (t.type !== TokenType.TOKEN_OUT)) {
-      throw `E140: 行${t.line}: 「→」があるのでメモリセット行だと思うが、それなら「memory」とか「out」とか、名前付きメモリの名前とか、そういうものから始まるはず。`
+      throw new Error(`E140: 行${t.line}: 「→」があるのでメモリセット行だと思うが、それなら「memory」とか「out」とか、名前付きメモリの名前とか、そういうものから始まるはず。`);
     }
     const node:Node = new Node(NodeType.NODE_SUBSTITUTION_STATEMENT, t);
 
@@ -370,7 +370,7 @@ export default class Parser {
         left = this.parseVariable();
         if (left.type === NodeType.NODE_NUMBER) {
           //定数じゃん！
-          throw `E141: 行${t.line}: ${t.string}は定数で、セットできない。`;
+          throw new Error(`E141: 行${t.line}: ${t.string}は定数で、セットできない。`);
         }
       }
     }
@@ -382,7 +382,7 @@ export default class Parser {
     // →
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_SUBSTITUTION) {
-      throw `E142: 行${t.line}: メモリセット行だと思ったのだが、あるべき場所に「→」がない。`;
+      throw new Error(`E142: 行${t.line}: メモリセット行だと思ったのだが、あるべき場所に「→」がない。`);
     }
     this.mPos += 1;
 
@@ -396,7 +396,7 @@ export default class Parser {
     // ;
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_STATEMENT_END) {
-      throw `E143: 行${t.line}: 次の行の字下げが多すぎるんじゃなかろうか。`;
+      throw new Error(`E143: 行${t.line}: 次の行の字下げが多すぎるんじゃなかろうか。`);
     }
     this.mPos += 1;
 
@@ -450,7 +450,7 @@ export default class Parser {
           this.mPos += 1;
           break;
         } else if (t.type === TokenType.TOKEN_CONST) {
-          throw `E150: 行${t.line}: 繰り返しや条件実行の中で定数は作れない。`;
+          throw new Error(`E150: 行${t.line}: 繰り返しや条件実行の中で定数は作れない。`);
         } else {
           child = this.parseStatement();
         }
@@ -464,7 +464,7 @@ export default class Parser {
     } else if (t.type === TokenType.TOKEN_STATEMENT_END) { //中身なしwhile/if
        this.mPos += 1;
     } else {
-       throw `E151: 行${t.line}: 条件行は条件の終わりで改行しよう。「${t.string}」が続いている。`;
+       throw new Error(`E151: 行${t.line}: 条件行は条件の終わりで改行しよう。「${t.string}」が続いている。`);
     }
 
     return node;
@@ -499,7 +499,7 @@ export default class Parser {
     if (this.mTokens[this.mPos].type !== TokenType.TOKEN_INDEX_END) {
       let t:Token = this.mTokens[this.mPos];
       this.beginError(t);
-      throw `E160: 行${t.line}: 名前つきメモリ[番号]の']'の代わりに'${t.string}'がある。\n`;
+      throw new Error(`E160: 行${t.line}: 名前つきメモリ[番号]の']'の代わりに'${t.string}'がある。\n`);
     }
     this.mPos += 1;
 
@@ -555,7 +555,7 @@ export default class Parser {
       // 連続して演算子なら親切にエラーを吐いてやる。
       t = this.mTokens[this.mPos];
       if ((t.type === TokenType.TOKEN_OPERATOR) && (t.operator !== '-')) { //-以外の演算子ならエラー
-        throw `E170: 行${t.line}: 演算子が連続している。==や++や--はない。=>や=<は>=や<=の間違いだろう。`;
+        throw new Error(`E170: 行${t.line}: 演算子が連続している。==や++や--はない。=>や=<は>=や<=の間違いだろう。`);
       }
 
       // 右の子を生成
@@ -590,7 +590,7 @@ export default class Parser {
           preComputed = a * b;
         } else if (node.operator === '/') {
           if (b === 0) {
-            throw `E171: 行${t.line}: 0で割り算している。`;
+            throw new Error(`E171: 行${t.line}: 0で割り算している。`);
           }
           preComputed = Math.floor(a / b); //整数化必須
         } else if (node.operator === '<') {
@@ -602,7 +602,7 @@ export default class Parser {
         } else if (node.operator === '≠') {
           preComputed = (a !== b) ? 1 : 0;
         } else {
-          throw 'BUG parseExpression #1'; //>と≥は上で置換されてなくなっている
+          throw new Error('BUG parseExpression #1'); //>と≥は上で置換されてなくなっている
         }
       }
 
@@ -668,7 +668,7 @@ export default class Parser {
       node = this.parseExpression();
       t = this.mTokens[this.mPos];
       if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) {
-        throw `E180: 行${t.line}: ()で囲まれた式がありそうなのだが、終わりの')'の代わりに「${t.string}」がある。`;
+        throw new Error(`E180: 行${t.line}: ()で囲まれた式がありそうなのだが、終わりの')'の代わりに「${t.string}」がある。`);
       }
       this.mPos += 1;
     } else if (termType === TermType.TERM_NUMBER) {
@@ -683,7 +683,7 @@ export default class Parser {
     } else if (termType === TermType.TERM_OUT) {
       node = this.parseOut();
     } else {
-      throw `E181: 行${t.line}: ここには、()で囲まれた式、memory[]、数、名前つきメモリ、部分プログラム参照、のどれかがあるはずなのだが、代わりに「${t.string}」がある。`;
+      throw new Error(`E181: 行${t.line}: ここには、()で囲まれた式、memory[]、数、名前つきメモリ、部分プログラム参照、のどれかがあるはずなのだが、代わりに「${t.string}」がある。`);
     }
 
     if ((node !== null) && minus) {
@@ -737,7 +737,7 @@ export default class Parser {
 
     // ')'
     if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) {
-      throw `E190: 行${t.line}: 部分プログラムの入力が')'で終わるはずだが、「${t.string}」がある。`;
+      throw new Error(`E190: 行${t.line}: 部分プログラムの入力が')'で終わるはずだが、「${t.string}」がある。`);
     }
     this.mPos += 1;
 
