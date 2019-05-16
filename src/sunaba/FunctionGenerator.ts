@@ -1,3 +1,7 @@
+/* eslint
+  no-unused-vars: 0,
+  no-console: 0
+ */
 import HLib from './HLib';
 import CodeGenerator from './CodeGenerator';
 import FunctionInfo from './FunctionInfo';
