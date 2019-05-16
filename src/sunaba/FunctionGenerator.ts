@@ -414,7 +414,7 @@ export default class FunctionGenerator {
 
     return true;
   }
-  
+
   public generateFunctionStatement(node:Node): boolean {
     // まず関数呼び出し
     if (!this.generateFunction(node, true)) {
@@ -426,7 +426,7 @@ export default class FunctionGenerator {
 
     return true;
   }
-  
+
   // E210
   public generateFunction(node:Node, isStatement:boolean): boolean {
     HLib.assert(node.type === NodeType.NODE_FUNCTION, `${__filename}:420`);
@@ -530,7 +530,7 @@ export default class FunctionGenerator {
 
     const params = {
       staticOffset:0,
-      fpRelative:false
+      fpRelative:false,
     };
     if (!this.pushDynamicOffset(params, child)) {
       return false;
@@ -580,7 +580,7 @@ export default class FunctionGenerator {
         HLib.assert(false, `${__filename}:556`);
         return false;
       }
-      
+
       if (node.child.brother === null) {
         HLib.assert(false, `${__filename}:557`);
         return false;
@@ -661,7 +661,7 @@ export default class FunctionGenerator {
         }
 
         let v:Variable|null = this.mCurrentBlock.findVariable(name);
-        // 知らない変数。みつからないか、あるんだがまだその行まで行ってないか。				
+        // 知らない変数。みつからないか、あるんだがまだその行まで行ってないか。
         if (!v) {
           this.beginError(node);
           throw `E230:名前付きメモリか定数'${name}'は存在しない。`;
@@ -680,7 +680,7 @@ export default class FunctionGenerator {
 
       const params:any = {
         staticOffset: 0,
-        fpRelative: false
+        fpRelative: false,
       };
       if (!this.pushDynamicOffset(params, node)) {
         return false;
@@ -740,7 +740,7 @@ export default class FunctionGenerator {
         // 配列ならExpressionを評価してプッシュ
         if (node.type === NodeType.NODE_ARRAY_ELEMENT) {
           this.addCommand('fld', v.offset(), `#ポインタ'${name}'からロード`);
-  
+
           if (node.child) { // 変数インデクス
             if (!this.generateExpression(node.child)) { // アドレスオフセットがプッシュされる
               return false;
