@@ -28,7 +28,7 @@ export default class Parser {
 
     // Programノードを確保
     // let node:Node = {type:'PROGRAM', child:null, brother:null};
-    let node:Node = new Node(NodeType.NODE_PROGRAM);
+    const node:Node = new Node(NodeType.NODE_PROGRAM);
 
     // 定数全て処理
     // このループを消して、後ろのループのparseConstのtrueを消せば、定数定義を前に限定できる
