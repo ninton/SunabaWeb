@@ -269,13 +269,13 @@ export default class FunctionGenerator {
   public generateStatement(node:Node): boolean {
     // ブロック生成命令は別扱い
     if ((node.type === NodeType.NODE_WHILE_STATEMENT) || (node.type === NodeType.NODE_IF_STATEMENT)) {
-      //新ブロック生成
+      // 新ブロック生成
       const newBlock:Block = new Block(this.mCurrentBlock.mBaseOffset + this.mCurrentBlock.mFrameSize);
-      newBlock.mParent = this.mCurrentBlock; //親差し込み
-      newBlock.collectVariables(node.child); //フレーム生成
+      newBlock.mParent = this.mCurrentBlock; // 親差し込み
+      newBlock.collectVariables(node.child); // フレーム生成
       this.mCurrentBlock = newBlock;
 
-      //ローカル変数を確保
+      // ローカル変数を確保
       if (this.mCurrentBlock.mFrameSize > 0) {
         this.addCommand('pop', -(this.mCurrentBlock.mFrameSize), '#ブロックローカル変数確保');
       }
@@ -290,27 +290,27 @@ export default class FunctionGenerator {
         }
       }
 
-      //ローカル変数ポップ
+      // ローカル変数ポップ
       if (this.mCurrentBlock.mFrameSize > 0) {
         this.addCommand('pop', this.mCurrentBlock.mFrameSize, '#ブロックローカル変数破棄');
       }
       if (this.mCurrentBlock.mParent === null) {
         throw `BUG: this.mCurrentBlock.mParent === null ${__filename}:#298`;
       }
-      this.mCurrentBlock = this.mCurrentBlock.mParent; //スタック戻し
+      this.mCurrentBlock = this.mCurrentBlock.mParent; // スタック戻し
 
     } else if (node.type === NodeType.NODE_SUBSTITUTION_STATEMENT) {
       if (!this.generateSubstitution(node)) {
         return false;
       }
     } else if (node.type === NodeType.NODE_FUNCTION) {
-      //関数だけ呼んで結果を代入しない文
+      // 関数だけ呼んで結果を代入しない文
       if (!this.generateFunctionStatement(node)) {
         return false;
       }
     } else if (node.type === NodeType.NODE_FUNCTION_DEFINITION) {
-      //関数定義はもう処理済みなので無視。
-      ; //スルー
+      // 関数定義はもう処理済みなので無視。
+      ; // スルー
     } else {
       HLib.assert(false, `${__filename}:305 node.type:${node.type}`);
     }
@@ -339,24 +339,24 @@ export default class FunctionGenerator {
       throw `BUG node.child === null ${node.type} ${__filename}:339`;
     }
 
-    //開始ラベル
+    // 開始ラベル
     const whileBegin:string = `${this.mName}_whileBegin${this.mLabelId}`;
     const whileEnd  :string = `${this.mName}_whileEnd${this.mLabelId}`;
     this.mLabelId += 1;
 
     this.addLabel(whileBegin);
 
-    //Expression処理
+    // Expression処理
     let child:Node|null = node.child;
     if (!this.generateExpression(child)) {
-      //最初の子はExpression
+      // 最初の子はExpression
       return false;
     }
 
-    //いくつかコード生成
+    // いくつかコード生成
     this.addCommand('bz', whileEnd);
 
-    //内部の文を処理
+    // 内部の文を処理
     child = child.brother;
     while (child) {
       if (!this.generateStatement(child)) {
@@ -365,10 +365,10 @@ export default class FunctionGenerator {
       child = child.brother;
     }
 
-    //ループの最初へ飛ぶジャンプを生成
+    // ループの最初へ飛ぶジャンプを生成
     this.addCommand('j', whileBegin, '#ループ先頭へ無条件ジャンプ');
 
-    //ループ終了ラベルを生成
+    // ループ終了ラベルを生成
     this.addLabel(whileEnd);
 
     return true;
@@ -514,7 +514,7 @@ export default class FunctionGenerator {
     // 変数の定義状態を参照
     let v:Variable|null = null;
 
-    if ((child.type === NodeType.NODE_OUT) || child.token) { //変数があるなら
+    if ((child.type === NodeType.NODE_OUT) || child.token) { // 変数があるなら
       let name:string = child.token!.string || '';
       if (child.type === NodeType.NODE_OUT) {
         name = '!ret';
@@ -576,7 +576,7 @@ export default class FunctionGenerator {
         this.addCommand('i', 0, '#()に対する単項マイナス用');
       }
 
-      //項は必ず二つある。
+      // 項は必ず二つある。
       if (node.child === null) {
         HLib.assert(false, `${__filename}:556`);
         return false;
@@ -595,11 +595,11 @@ export default class FunctionGenerator {
         return false;
       }
 
-      //演算子を適用
+      // 演算子を適用
       const op = this.getOpFromOperator(node.operator);
       this.addCommand(op);
 
-      //単項マイナスがある場合、ここで減算
+      // 単項マイナスがある場合、ここで減算
       if (node.negation) {
         this.addCommand('sub', '', '#()に対する単項マイナス用');
       }
@@ -639,7 +639,7 @@ export default class FunctionGenerator {
       this.addCommand('i', 0, '#単項マイナス用');
     }
 
-    //タイプで分岐
+    // タイプで分岐
     if (node.type === NodeType.NODE_EXPRESSION) {
       if (!this.generateExpression(node)) {
         return false;
@@ -652,17 +652,17 @@ export default class FunctionGenerator {
         return false;
       }
     } else {
-      //ARRAY_ELEMENT,VARIABLEのアドレスプッシュ処理
+      // ARRAY_ELEMENT,VARIABLEのアドレスプッシュ処理
 
-      //変数の定義状態を参照
-      if (node.token) { //変数があるなら
+      // 変数の定義状態を参照
+      if (node.token) { // 変数があるなら
         let name:string = node.token.string;
         if (node.type === NodeType.NODE_OUT) {
           name = '!ret';
         }
 
         let v:Variable|null = this.mCurrentBlock.findVariable(name);
-        //知らない変数。みつからないか、あるんだがまだその行まで行ってないか。				
+        // 知らない変数。みつからないか、あるんだがまだその行まで行ってないか。				
         if (!v) {
           this.beginError(node);
           throw `E230:名前付きメモリか定数'${name}'は存在しない。`;
@@ -702,7 +702,7 @@ export default class FunctionGenerator {
       this.addCommand(cmd, params.staticOffset, comment);
     }
 
-    //単項マイナスがある場合、ここで減算
+    // 単項マイナスがある場合、ここで減算
     if (node.negation) {
       this.addCommand('sub', 0, '#単項マイナス用');
     }
@@ -712,11 +712,11 @@ export default class FunctionGenerator {
 
   public pushDynamicOffset(params:any, node:Node): boolean {
     params.fpRelative   = false;
-    params.staticOffset = -0x7fffffff; //あからさまにおかしな値を入れておく。デバグのため。
+    params.staticOffset = -0x7fffffff; // あからさまにおかしな値を入れておく。デバグのため。
 
     HLib.assert((node.type === NodeType.NODE_OUT) || (node.type === NodeType.NODE_VARIABLE) || (node.type === NodeType.NODE_ARRAY_ELEMENT), `${__filename}:684`);
 
-    //トークンは数字ですか、名前ですか
+    // トークンは数字ですか、名前ですか
     if (node.token) {
       if (node.token.type === TokenType.TOKEN_OUT) {
         const name:string = '!ret';
@@ -726,11 +726,11 @@ export default class FunctionGenerator {
           return false;
         }
 
-        params.fpRelative = true; //変数直のみFP相対
+        params.fpRelative = true; // 変数直のみFP相対
         params.staticOffset = v.offset();
         this.mOutputExist = true;
       } else if (node.token.type === TokenType.TOKEN_NAME) {
-        //変数の定義状態を参照
+        // 変数の定義状態を参照
         const name:string = node.token.string;
         const v:Variable|null = this.mCurrentBlock.findVariable(name);
         if (v === null) {
@@ -738,34 +738,34 @@ export default class FunctionGenerator {
           return false;
         }
 
-        //配列ならExpressionを評価してプッシュ
+        // 配列ならExpressionを評価してプッシュ
         if (node.type === NodeType.NODE_ARRAY_ELEMENT) {
           this.addCommand('fld', v.offset(), `#ポインタ'${name}'からロード`);
   
-          if (node.child) { //変数インデクス
-            if (!this.generateExpression(node.child)) { //アドレスオフセットがプッシュされる
+          if (node.child) { // 変数インデクス
+            if (!this.generateExpression(node.child)) { // アドレスオフセットがプッシュされる
               return false;
             }
             this.addCommand('add');
             params.staticOffset = 0;
-          } else { //定数インデクス
+          } else { // 定数インデクス
             params.staticOffset = node.number;
           }
         } else {
-          params.fpRelative   = true; //変数直のみFP相対
+          params.fpRelative   = true; // 変数直のみFP相対
           params.staticOffset = v.offset();
         }
 
       }
     } else {
-      //定数アクセス。トークンがない。
-      HLib.assert(node.type === NodeType.NODE_ARRAY_ELEMENT, `${__filename}:721`); //インデクスがない定数アクセスはアドレスではありえない。
-      if (node.child) { //変数インデクス
-        if (!this.generateExpression(node.child)) { //アドレスをプッシュ
+      // 定数アクセス。トークンがない。
+      HLib.assert(node.type === NodeType.NODE_ARRAY_ELEMENT, `${__filename}:721`); // インデクスがない定数アクセスはアドレスではありえない。
+      if (node.child) { // 変数インデクス
+        if (!this.generateExpression(node.child)) { // アドレスをプッシュ
           return false;
         }
       } else {
-        this.addCommand('i', 0, '#絶対アドレスなので0\n'); //絶対アドレスアクセス
+        this.addCommand('i', 0, '#絶対アドレスなので0\n'); // 絶対アドレスアクセス
       }
       params.staticOffset = node.number;
     }
