@@ -87,7 +87,7 @@ export default class Parser {
 
     if (t.type !== TokenType.TOKEN_CONST) {
       this.beginError(t);
-      throw new Error(`E101: 定数行のはずだが解釈できない。上の行からつながってないか。`);
+      throw new Error('E101: 定数行のはずだが解釈できない。上の行からつながってないか。');
     }
     HLib.assert(t.type === TokenType.TOKEN_CONST, `${__filename}:91`);
     this.mPos += 1;
@@ -523,7 +523,7 @@ export default class Parser {
     this.mPos += 1;
 
     return node;
-  };
+  }
 
   // Out : out
   public parseOut(): Node {
@@ -645,7 +645,7 @@ export default class Parser {
     }
 
     return r;
-  };
+  }
 
   // Term : [-] function|variable|out|array|number|(expression)
   // E180
@@ -694,7 +694,7 @@ export default class Parser {
       }
     }
     return node;
-  };
+  }
 
   // Function : name ( [ expression [ , expression ]* ] )
   // E190
