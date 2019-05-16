@@ -105,12 +105,11 @@ export default class Parser {
     if (t.type !== TokenType.TOKEN_SUBSTITUTION) {
       this.beginError(t);
       throw new Error(`E103: 行${t.line}: 定数 [名前]、と来たら次は'→'のはずだが「${t.string}'」がある。`);
-      return false;
     }
     this.mPos += 1;
 
     // Expression
-    let expression = this.parseExpression();
+    const expression = this.parseExpression();
     if (expression === null) {
       return false;
     }
@@ -119,7 +118,7 @@ export default class Parser {
       this.beginError(t);
       throw new Error(`E104: 行${t.line}: 定数の右辺の計算に失敗した。メモリや名前つきメモリ、部分プログラム参照などが入っていないか？`);
     }
-    let constValue = expression.number;
+    const constValue = expression.number;
     // this.mPos += 1; // C#版は += 1していないのでコメント化した
 
     // 文末
