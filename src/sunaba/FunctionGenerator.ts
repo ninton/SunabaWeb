@@ -459,7 +459,7 @@ export default class FunctionGenerator {
         }
 
         // 引数の数をチェック
-        let arg:Node = node.child;
+        let arg:Node|null = node.child;
         let argCount:number = 0;
         while (arg) {
             argCount += 1;
