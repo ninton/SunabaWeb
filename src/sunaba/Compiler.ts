@@ -386,7 +386,7 @@ export default class Compiler {
                         tokens.push(new Token(tokenType, line, str));
                     } else {
                         let number = Sunaba.readNumber(code, begin, l);
-                        if (number !== null) {
+                        if (!isNaN(number) {
                             if (Math.abs(number) > Sunaba.MAX_ABS_NUMBER) {
                                 msg = `E002: 行{$line}: Sunabaでは扱えない大きな数${number}が現れました。\n`;
                                 msg += `プラスマイナス${Sunaba.MAX_ABS_NUMBER}の範囲しか使えません。`;

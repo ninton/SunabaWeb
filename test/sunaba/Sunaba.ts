@@ -67,5 +67,7 @@ suite('sunaba.Sunaba', () => {
         assert.equal(-1234, Sunaba.readNumber(" -1234 ", 1, 5));
         assert.equal(    0, Sunaba.readNumber(" 0 "    , 1, 1));
         assert.equal(    0, Sunaba.readNumber(" -0 "   , 1, 2));
+
+        assert.equal(true, isNaN(Sunaba.readNumber(" x "    , 1, 1)));
     });
 });

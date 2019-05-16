@@ -106,7 +106,7 @@ export default class Sunaba {
         if (decimalExist) { //数字が存在している
             r = (minus) ? -r : r;
         } else {
-            r = null; //数字がなかった。nullを返す。
+            r = NaN; //数字がなかった。nullを返す。
         }
 
         return r;
