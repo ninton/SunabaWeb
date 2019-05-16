@@ -33,7 +33,6 @@ export default class Parser {
     // 定数全て処理
     // このループを消して、後ろのループのparseConstのtrueを消せば、定数定義を前に限定できる
     const tokens:Array<Token> = this.mTokens;
-    let n:number = tokens.length;
     this.mPos = 0;
     while (tokens[this.mPos].type !== TokenType.TOKEN_END) {
       let t:Token = tokens[this.mPos];
