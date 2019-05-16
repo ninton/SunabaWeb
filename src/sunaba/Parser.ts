@@ -441,7 +441,7 @@ export default class Parser {
     if (t.type === TokenType.TOKEN_BLOCK_BEGIN) {
       this.mPos += 1;
       let lastChild:Node = exp;
-      while (true) {
+      for (;;) {
         let child:Node|null = null;
         t = tokens[this.mPos];
         if (t.type === TokenType.TOKEN_BLOCK_END) {
@@ -547,7 +547,7 @@ export default class Parser {
     for (let t:Token = this.mTokens[this.mPos]; t.type === TokenType.TOKEN_OPERATOR; t = this.mTokens[this.mPos]) {
       // ノードを生成
       // 演算子を設定
-      const node:Node = Node.createExpression(t, t.operator||'', null, null);
+      const node:Node = Node.createExpression(t, t.operator || '', null, null);
       this.mPos += 1;
 
       // 連続して演算子なら親切にエラーを吐いてやる。
@@ -564,7 +564,7 @@ export default class Parser {
 
       // GT,GEなら左右交換して不等号の向きを逆に
       if ((node.operator === '>') || (node.operator === '≥')) {
-        let tmp = left;
+        const tmp = left;
         left  = right;
         right = tmp;
         if (node.operator === '>') {
@@ -578,8 +578,8 @@ export default class Parser {
       // 最適化。定数の使い勝手向上のために必須 TODO:a + 2 + 3がa+5にならないよねこれ
       let preComputed = null;
       if ((left.type === NodeType.NODE_NUMBER) && (right.type === NodeType.NODE_NUMBER)) {
-        let a:number = left.number;
-        let b:number = right.number;
+        const a:number = left.number;
+        const b:number = right.number;
         if (node.operator === '+') {
           preComputed = a + b;
         } else if (node.operator === '-') {
