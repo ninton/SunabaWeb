@@ -431,10 +431,12 @@ export default class FunctionGenerator {
     // E210
     public generateFunction(node:Node, isStatement:boolean): boolean {
         HLib.assert(node.type === NodeType.NODE_FUNCTION, `${__filename}:420`);
+        if (node.token === null) {
+            throw `BUG node.child === null ${node.type} ${__filename}:435`;
+        }
 
         // まず、その関数が存在していて、定義済みかを調べる。
-        HLib.assert(node.token, `${__filename}:423`);
-        const funcName:string = node.token.string || '';
+        const funcName:string = node.token.string;
         if (!(funcName in this.mFunctionMap)) {
             this.beginError(node);
             throw `E210: 部分プログラム"${funcName}"なんて知らない。`;
