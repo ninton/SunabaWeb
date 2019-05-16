@@ -234,12 +234,10 @@ export default class FunctionGenerator {
     }
 
     // 中身を処理
-    let lastStatement:Node|null;
     while (child) {
       if (!this.generateStatement(child)) {
         return false;
       }
-      lastStatement = child;
       child = child.brother;
     }
 
@@ -611,8 +609,6 @@ export default class FunctionGenerator {
   }
 
   public getOpFromOperator(operator:string): string {
-    let op:string;
-
     const table:{[key:string]: string;} = {
       '+': 'add',
       '-': 'sub',
