@@ -1,3 +1,6 @@
+/* eslint
+    no-unused-vars: 0
+*/
 import HLib from './HLib';
 import Token from './Token';
 import TokenType from './TokenType';

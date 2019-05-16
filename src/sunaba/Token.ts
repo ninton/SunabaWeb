@@ -6,7 +6,7 @@ export default class Token {
   string:   string;
   number:   number|undefined;
   operator: string|undefined;
- 
+
   constructor(type:TokenType, line:number, string:string = '', number:number|undefined = undefined) {
     this.type   = type;
     this.line   = line;
