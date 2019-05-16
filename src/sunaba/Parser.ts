@@ -35,7 +35,7 @@ export default class Parser {
     const tokens:Array<Token> = this.mTokens;
     this.mPos = 0;
     while (tokens[this.mPos].type !== TokenType.TOKEN_END) {
-      let t:Token = tokens[this.mPos];
+      const t:Token = tokens[this.mPos];
       if (t.type === TokenType.TOKEN_CONST) {
         if (!this.parseConst(false)) { // ノードを返さない。
           return null;
@@ -49,7 +49,7 @@ export default class Parser {
     this.mPos = 0;
     let lastChild:Node|null = null;
     while (tokens[this.mPos].type !== TokenType.TOKEN_END) {
-      let statementType:StatementType = this.getStatementType();
+      const statementType:StatementType = this.getStatementType();
       let child:Node|null = null;
       if (statementType === null) {
         return null;
@@ -81,7 +81,7 @@ export default class Parser {
   // Const : const name -> expression;
   // ノードを生成しないので、boolを返す。
   public parseConst(skipFlag:boolean): boolean {
-    let tokens:Array<Token> = this.mTokens;
+    const tokens:Array<Token> = this.mTokens;
     let t:Token = tokens[this.mPos];
 
     if (t.type !== TokenType.TOKEN_CONST) {
@@ -97,7 +97,7 @@ export default class Parser {
       this.beginError(t);
       throw new Error(`E102: 行${t.line}: 定数'の次は定数名。'${t.string}'は定数名と解釈できない。`);
     }
-    let constName:string = t.string || '';
+    const constName:string = t.string || '';
     this.mPos += 1;
 
     // →
