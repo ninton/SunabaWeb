@@ -335,6 +335,9 @@ export default class FunctionGenerator {
     */
     public generateWhile(node:Node): boolean {
         HLib.assert(node.type === NodeType.NODE_WHILE_STATEMENT, `${__filename}:327`);
+        if (node.child === null) {
+            throw `BUG node.child === null ${node.type} ${__filename}:339`;
+        }
 
         //開始ラベル
         const whileBegin:string = `${this.mName}_whileBegin${this.mLabelId}`;
@@ -345,7 +348,6 @@ export default class FunctionGenerator {
 
         //Expression処理
         let child:Node|null = node.child;
-        HLib.assert(child !== null, `${__filename}:338`);
         if (!this.generateExpression(child)) {
             //最初の子はExpression
             return false;
