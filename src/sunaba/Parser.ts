@@ -699,7 +699,7 @@ export default class Parser {
   public parseFunction(): Node|null {
     let t:Token = this.mTokens[this.mPos];
     HLib.assert(t.type === TokenType.TOKEN_NAME, `${__filename}:688`);
-    let node:Node = new Node(NodeType.NODE_FUNCTION, t);
+    const node:Node = new Node(NodeType.NODE_FUNCTION, t);
     this.mPos += 1;
 
     // '(''
@@ -718,7 +718,7 @@ export default class Parser {
 
       // 2個目以降はループで取る
       let lastChild:Node = exp;
-      while (true) {
+      for (;;) {
         t = this.mTokens[this.mPos];
         if (t.type !== TokenType.TOKEN_COMMA) {
           break;
