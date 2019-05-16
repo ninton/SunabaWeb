@@ -22,8 +22,8 @@ export default class Parser {
   // Program : (Const | FuncDef | Statement )*
   public parseProgram(): Node|null {
     // 定数マップに「メモリ」と「memory」を登録
-    this.mConstMap['memory'] = 0;
-    const memoryWord:string = this.mLocale.memoryWord;
+    this.mConstMap.memory = 0;
+    const { memoryWord } = this.mLocale;
     this.mConstMap[memoryWord] = 0;
 
     // Programノードを確保
