@@ -1,7 +1,7 @@
 import HLib from './HLib';
 import FunctionInfo from './FunctionInfo';
 import FunctionGenerator from './FunctionGenerator';
-import { Node } from './Node';
+import Node from './Node';
 import { NodeType } from './NodeType';
 import AsmCommand from './AsmCommand';
 

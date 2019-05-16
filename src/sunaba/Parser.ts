@@ -3,7 +3,7 @@ import { stat } from 'fs';
 import Token from './Token';
 import TokenType from './TokenType';
 import { TermType, StatementType, NodeType } from './NodeType';
-import { Node } from './Node';
+import Node from './Node';
 
 export default class Parser {
     errorMessage: string;
