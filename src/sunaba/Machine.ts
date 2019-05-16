@@ -1,3 +1,5 @@
+import Command from './Command';
+
 // 設定定数。ただし、いじるとIOメモリの番号が変わるので、ソースコードが非互換になる。
 const FREE_AND_PROGRAM_SIZE = 40000;
 const STACK_SIZE            = 10000;
@@ -232,12 +234,12 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_i(cmd:any) {
+    public step_i(cmd:Command) {
         this.push(cmd.imm);
         this.programCounter += 1;
     }
 
-    public step_add(cmd:any) {
+    public step_add(cmd:Command) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 + op1;
@@ -245,7 +247,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_sub(cmd:any) {
+    public step_sub(cmd:Command) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 - op1;
@@ -253,7 +255,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_mul(cmd:any) {
+    public step_mul(cmd:Command) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 * op1;
@@ -262,7 +264,7 @@ export default class Machine {
     }
 
     // E910
-    public step_div(cmd:any) {
+    public step_div(cmd:Command) {
         const op1 = this.pop();
         const op0 = this.pop();
         if (op1 === 0) {
@@ -273,7 +275,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_lt(cmd:any) {
+    public step_lt(cmd:Command) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 < op1 ? 1 : 0;
@@ -281,7 +283,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_le(cmd:any) {
+    public step_le(cmd:Command) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 <= op1 ? 1 : 0;
@@ -289,7 +291,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_eq(cmd:any) {
+    public step_eq(cmd:Command) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 === op1 ? 1 : 0;
@@ -297,7 +299,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_ne(cmd:any) {
+    public step_ne(cmd:Command) {
         const op1 = this.pop();
         const op0 = this.pop();
         const v = op0 !== op1 ? 1 : 0;
@@ -305,7 +307,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_ld(cmd:any) {
+    public step_ld(cmd:Command) {
         const op0 = this.pop_or_framepointer(cmd.name);
         const addr = op0 + cmd.imm;
 
@@ -369,7 +371,7 @@ export default class Machine {
         return op;
     }
 
-    public step_st(cmd:any) {
+    public step_st(cmd:Command) {
         const op1 = this.pop();
         const val  = op1;
 
@@ -417,11 +419,11 @@ export default class Machine {
         throw `E939: メモリ範囲外をいじろうとした(番号:${addr},値:${value})`;
     }
 
-    public step_j(cmd:any) {
+    public step_j(cmd:Command) {
         this.programCounter = cmd.imm;
     }
 
-    public step_bz(cmd:any) {
+    public step_bz(cmd:Command) {
         const op0 = this.pop();
         if (op0 === 0) {
             this.programCounter = cmd.imm;
@@ -430,7 +432,7 @@ export default class Machine {
         }
     }
 
-    public step_call(cmd:any) {
+    public step_call(cmd:Command) {
         this.push(this.framePointer);
         this.push(this.programCounter);
         this.framePointer = this.stackPointer;
@@ -442,7 +444,7 @@ export default class Machine {
         }
     }
 
-    public step_ret(cmd:any) {
+    public step_ret(cmd:Command) {
         this.popN(cmd.imm);
         this.programCounter = this.pop();
         this.framePointer = this.pop();
@@ -455,7 +457,7 @@ export default class Machine {
         this.programCounter += 1;
     }
 
-    public step_pop(cmd:any) {
+    public step_pop(cmd:Command) {
         this.popN(cmd.imm);
         this.programCounter += 1;
     }

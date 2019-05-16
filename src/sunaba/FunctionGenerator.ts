@@ -4,6 +4,7 @@ import FunctionInfo from "./FunctionInfo";
 import { TokenType } from "./TokenType";
 import { NodeType } from "./NodeType";
 import { Node } from './Node';
+import Command from './Command';
 
 class Variable {
     private mDefined    : boolean;
@@ -128,7 +129,7 @@ class Block {
 
 export default class FunctionGenerator {
     codeGen:CodeGenerator;
-    cmds:Array<any>;
+    cmds:Array<Command>;
 
 	mRootBlock    :Block;
 	mCurrentBlock :Block;
@@ -159,7 +160,7 @@ export default class FunctionGenerator {
         this.cmds.push(cmd);
     }
 
-    public mergeCommands(cmds:Array<any>) {
+    public mergeCommands(cmds:Array<Command>) {
         cmds.forEach((item:any) => {
             this.cmds.push(item);
         });
