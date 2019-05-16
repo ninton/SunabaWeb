@@ -221,7 +221,7 @@ export default class Parser {
     t = tokens[this.mPos];
     if (t.type === TokenType.TOKEN_BLOCK_BEGIN) {
       this.mPos += 1;
-      for (t = tokens[this.mPos]; true; t = tokens[this.mPos]) {
+      for (t = tokens[this.mPos]; ; t = tokens[this.mPos]) {
         let child:Node|null = null;
         if (t.type === TokenType.TOKEN_BLOCK_END) { // 終わり
           this.mPos += 1;
@@ -254,7 +254,7 @@ export default class Parser {
 
   // Statement : ( while | if | return | funcDef | func | set )
   public parseStatement(): Node|null {
-    let statementType:StatementType = this.getStatementType();
+    const statementType:StatementType = this.getStatementType();
     let node:Node|null = null;
     let t:Token|null = null;
 
@@ -295,8 +295,8 @@ export default class Parser {
   // 文タイプを判定
   // DEF, FUNC, WHILE_OR_IF, CONST, SET, nullのどれかが返る。メンバは変更しない。
   public getStatementType(): StatementType {
-    let pos:number = this.mPos; // コピーを作ってこっちをいじる。オブジェクトの状態は変えない。
-    let tokens:Array<Token> = this.mTokens;
+    const pos:number = this.mPos; // コピーを作ってこっちをいじる。オブジェクトの状態は変えない。
+    const tokens:Array<Token> = this.mTokens;
     let t:Token = tokens[pos];
 
     // 文頭でわかるケースを判別
