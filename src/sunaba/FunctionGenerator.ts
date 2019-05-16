@@ -385,10 +385,12 @@ export default class FunctionGenerator {
     */
     public generateIf(node:Node): boolean {
         HLib.assert(node.type === NodeType.NODE_IF_STATEMENT, `${__filename}:375`);
+        if (node.child === null) {
+            throw `BUG node.child === null ${node.type} ${__filename}:389`;
+        }
 
         // Expression処理
         let child:Node = node.child;
-        HLib.assert(child, `${__filename}:379`);
         if (!this.generateExpression(child)) {
             // 最初の子はExpression
             return false;
