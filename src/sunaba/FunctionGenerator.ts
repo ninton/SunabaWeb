@@ -19,11 +19,12 @@ class Variable {
 
   public set(address:number) {
     this.mOffset = address;
-
   }
+
   public define() {
     this.mDefined = true;
   }
+
   public initialize() {
     this.mInitialized = true;
   }
@@ -296,7 +297,6 @@ export default class FunctionGenerator {
         throw new Error(`BUG: this.mCurrentBlock.mParent === null ${__filename}:#298`);
       }
       this.mCurrentBlock = this.mCurrentBlock.mParent; // スタック戻し
-
     } else if (node.type === NodeType.NODE_SUBSTITUTION_STATEMENT) {
       if (!this.generateSubstitution(node)) {
         return false;
@@ -753,7 +753,6 @@ export default class FunctionGenerator {
           params.fpRelative   = true; // 変数直のみFP相対
           params.staticOffset = v.offset();
         }
-
       }
     } else {
       // 定数アクセス。トークンがない。
