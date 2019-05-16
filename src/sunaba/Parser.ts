@@ -22,7 +22,7 @@ export default class Parser {
   //Program : (Const | FuncDef | Statement )*
   public parseProgram(): Node|null {
     // 定数マップに「メモリ」と「memory」を登録
-    this.mConstMap["memory"] = 0;
+    this.mConstMap['memory'] = 0;
     const memoryWord:string = this.mLocale.memoryWord;
     this.mConstMap[memoryWord] = 0;
 
@@ -96,7 +96,7 @@ export default class Parser {
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_NAME) {
       this.beginError(t);
-      throw `E102: 行${t.line}: 定数"の次は定数名。"${t.string}"は定数名と解釈できない。`;
+      throw `E102: 行${t.line}: 定数'の次は定数名。'${t.string}'は定数名と解釈できない。`;
     }
     let constName:string = t.string || '';
     this.mPos += 1;
@@ -105,7 +105,7 @@ export default class Parser {
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_SUBSTITUTION) {
       this.beginError(t);
-      throw `E103: 行${t.line}: 定数 [名前]、と来たら次は"→"のはずだが「${t.string}'」がある。`;
+      throw `E103: 行${t.line}: 定数 [名前]、と来たら次は'→'のはずだが「${t.string}'」がある。`;
       return false;
     }
     this.mPos += 1;
@@ -127,7 +127,7 @@ export default class Parser {
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_STATEMENT_END) {
       this.beginError(t);
-      throw `行${t.line}: 定数作成の後に"${t.string}"がある。改行してくれ。\n`;
+      throw `行${t.line}: 定数作成の後に'${t.string}'がある。改行してくれ。\n`;
     }
     this.mPos += 1;
 
@@ -499,7 +499,7 @@ export default class Parser {
     if (this.mTokens[this.mPos].type !== TokenType.TOKEN_INDEX_END) {
       let t:Token = this.mTokens[this.mPos];
       this.beginError(t);
-      throw `E160: 行${t.line}: 名前つきメモリ[番号]の"]"の代わりに"${t.string}"がある。\n`;
+      throw `E160: 行${t.line}: 名前つきメモリ[番号]の']'の代わりに'${t.string}'がある。\n`;
     }
     this.mPos += 1;
 
@@ -668,7 +668,7 @@ export default class Parser {
       node = this.parseExpression();
       t = this.mTokens[this.mPos];
       if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) {
-        throw `E180: 行${t.line}: ()で囲まれた式がありそうなのだが、終わりの")"の代わりに「${t.string}」がある。`;
+        throw `E180: 行${t.line}: ()で囲まれた式がありそうなのだが、終わりの')'の代わりに「${t.string}」がある。`;
       }
       this.mPos += 1;
     } else if (termType === TermType.TERM_NUMBER) {
@@ -704,7 +704,7 @@ export default class Parser {
     let node:Node = new Node(NodeType.NODE_FUNCTION, t);
     this.mPos += 1;
   
-    // "(""
+    // '(''
     t = this.mTokens[this.mPos];
     HLib.assert(t.type === TokenType.TOKEN_LEFT_BRACKET, `${__filename}:694`);
     this.mPos += 1;
@@ -735,9 +735,9 @@ export default class Parser {
       }
     }
 
-    // ")"
+    // ')'
     if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) {
-      throw `E190: 行${t.line}: 部分プログラムの入力が")"で終わるはずだが、「${t.string}」がある。`;
+      throw `E190: 行${t.line}: 部分プログラムの入力が')'で終わるはずだが、「${t.string}」がある。`;
     }
     this.mPos += 1;
 
