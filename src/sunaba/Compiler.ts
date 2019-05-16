@@ -386,7 +386,7 @@ export default class Compiler {
                         tokens.push(new Token(tokenType, line, str));
                     } else {
                         let number = Sunaba.readNumber(code, begin, l);
-                        if (!isNaN(number) {
+                        if (!isNaN(number)) {
                             if (Math.abs(number) > Sunaba.MAX_ABS_NUMBER) {
                                 msg = `E002: 行{$line}: Sunabaでは扱えない大きな数${number}が現れました。\n`;
                                 msg += `プラスマイナス${Sunaba.MAX_ABS_NUMBER}の範囲しか使えません。`;
@@ -455,6 +455,10 @@ export default class Compiler {
 
                 //()や[]の中におらず、前のトークンが演算子や代入記号でなければ、
                 if ((parenLevel === 0) && (braceLevel === 0) && (!prevIsOp)) {
+                    if (t.number === undefined) {
+                        // インデント量が入っているはず
+                        throw 'BUG インデント量が入っていない';
+                    }
                     let newCount:number = t.number;
                     let oldCount:number = spaceCountStack[spaceCountStackPos - 1];
                     if (newCount > oldCount) { //増えた
@@ -494,13 +498,15 @@ export default class Compiler {
         }
 
         if (!emptyLine) { //最後の行を終わらせる
-            r.push(new Token(TokenType.TOKEN_STATEMENT_END, prevT.line, '行末'));
+            const line = prevT ? prevT.line : 0;
+            r.push(new Token(TokenType.TOKEN_STATEMENT_END, line, '行末'));
         }
 
         //ブロック終了を補う
         while (spaceCountStackPos > 1) {
             spaceCountStackPos -= 1;
-            r.push(new Token(TokenType.TOKEN_BLOCK_END, prevT.line, 'ブロック末'));
+            const line = prevT ? prevT.line : 0;
+            r.push(new Token(TokenType.TOKEN_BLOCK_END, line, 'ブロック末'));
         }
 
         //ダミー最終トークン
