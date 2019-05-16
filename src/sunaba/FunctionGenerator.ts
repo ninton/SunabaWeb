@@ -53,9 +53,8 @@ class Block {
     this.mFrameSize  = 0;
     this.stream = (s:string) => {
       console.log(s);
-    }
+    };
     this.mVariables = {};
-
   }
 
   public beginError(node:any) {
@@ -204,7 +203,7 @@ export default class FunctionGenerator {
 
       if (!this.mCurrentBlock.addVariable(variableName, true)) {
         this.beginError(node);
-        throw `E201: 部分プログラム'${this.mName}'の入力'${variableName}はもうすでに現れた。二個同じ名前があるのはダメ。`
+        throw `E201: 部分プログラム'${this.mName}'の入力'${variableName}はもうすでに現れた。二個同じ名前があるのはダメ。`;
       }
       child = child.brother;
     }
@@ -310,7 +309,7 @@ export default class FunctionGenerator {
       }
     } else if (node.type === NodeType.NODE_FUNCTION_DEFINITION) {
       // 関数定義はもう処理済みなので無視。
-      ; // スルー
+      // スルー
     } else {
       HLib.assert(false, `${__filename}:305 node.type:${node.type}`);
     }
@@ -505,7 +504,7 @@ export default class FunctionGenerator {
 
     // 左辺値のアドレスを求める。最初の子が左辺値
     if (node.child === null) {
-      HLib.assert(false, `${__filename}:496`)
+      HLib.assert(false, `${__filename}:496`);
       return false;
     }
 
@@ -620,8 +619,8 @@ export default class FunctionGenerator {
       '<': 'lt',
       '≤': 'le',
       '=': 'eq',
-      '≠': 'ne'
-    }
+      '≠': 'ne',
+    };
 
     if (!(operator in table)) {
       // これはParserのバグ。とりわけ、LE、GEは前の段階でGT,LTに変換されていることに注意
