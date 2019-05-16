@@ -19,7 +19,7 @@ export default class Parser {
     this.mPos     = 0;
   }
 
-  //Program : (Const | FuncDef | Statement )*
+  // Program : (Const | FuncDef | Statement )*
   public parseProgram(): Node|null {
     // 定数マップに「メモリ」と「memory」を登録
     this.mConstMap['memory'] = 0;
@@ -27,7 +27,7 @@ export default class Parser {
     this.mConstMap[memoryWord] = 0;
 
     // Programノードを確保
-    //let node:Node = {type:'PROGRAM', child:null, brother:null};
+    // let node:Node = {type:'PROGRAM', child:null, brother:null};
     let node:Node = new Node(NodeType.NODE_PROGRAM);
 
     // 定数全て処理
@@ -38,7 +38,7 @@ export default class Parser {
     while (tokens[this.mPos].type !== TokenType.TOKEN_END) {
       let t:Token = tokens[this.mPos];
       if (t.type === TokenType.TOKEN_CONST) {
-        if (!this.parseConst(false)) { //ノードを返さない。
+        if (!this.parseConst(false)) { // ノードを返さない。
           return null;
         }
       } else {
@@ -46,7 +46,7 @@ export default class Parser {
       }
     }
 
-    //残りを処理
+    // 残りを処理
     this.mPos = 0;
     let lastChild:Node|null = null;
     while (tokens[this.mPos].type !== TokenType.TOKEN_END) {
@@ -54,7 +54,7 @@ export default class Parser {
       let child:Node|null = null;
       if (statementType === null) {
         return null;
-      } else if (statementType === StatementType.STATEMENT_CONST) { //定数は処理済みなのでスキップ
+      } else if (statementType === StatementType.STATEMENT_CONST) { // 定数は処理済みなのでスキップ
         if (!this.parseConst(true)) {
           return null;
         }
@@ -92,7 +92,7 @@ export default class Parser {
     HLib.assert(t.type === TokenType.TOKEN_CONST, `${__filename}:91`);
     this.mPos += 1;
 
-    //名前
+    // 名前
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_NAME) {
       this.beginError(t);
@@ -101,7 +101,7 @@ export default class Parser {
     let constName:string = t.string || '';
     this.mPos += 1;
 
-    //→
+    // →
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_SUBSTITUTION) {
       this.beginError(t);
@@ -123,7 +123,7 @@ export default class Parser {
     let constValue = expression.number;
     // this.mPos += 1; // C#版は += 1していないのでコメント化した
 
-    //文末
+    // 文末
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_STATEMENT_END) {
       this.beginError(t);
@@ -131,9 +131,9 @@ export default class Parser {
     }
     this.mPos += 1;
 
-    //マップに登録
+    // マップに登録
     if (!skipFlag) {
-      if (constName in this.mConstMap) { //もうある
+      if (constName in this.mConstMap) { // もうある
         throw new Error(`E105: 行${t.line}: 定数「${constName}」はすでに同じ名前の定数がある。`);
       }
       this.mConstMap[constName] = constValue;
@@ -142,8 +142,8 @@ export default class Parser {
     return true;
   }
 
-  //FunctionDefinition : name ( name? [ , name ]* ) とは [{ statement* }]
-  //FunctionDefinition : def name ( name? [ , name ]* ) [{ statement* }]
+  // FunctionDefinition : name ( name? [ , name ]* ) とは [{ statement* }]
+  // FunctionDefinition : def name ( name? [ , name ]* ) [{ statement* }]
   public parseFunctionDefinition(): Node|null {
     // defスキップ
     const tokens:Array<Token> = this.mTokens;
@@ -160,7 +160,7 @@ export default class Parser {
     const node:Node = new Node(NodeType.NODE_FUNCTION_DEFINITION, t);
     this.mPos += 1;
 
-    //(
+    // (
     t = tokens[this.mPos];
     if (t.type !== TokenType.TOKEN_LEFT_BRACKET) {
       throw new Error(`E110: 行${t.line}: 入力リスト開始の「(」があるはずだが、「${t.string}」がある。`);
@@ -183,7 +183,7 @@ export default class Parser {
       while (tokens[this.mPos].type === TokenType.TOKEN_COMMA) {
         this.mPos += 1;
         t = tokens[this.mPos];
-        if (t.type !== TokenType.TOKEN_NAME) { //名前でないのはエラー
+        if (t.type !== TokenType.TOKEN_NAME) { // 名前でないのはエラー
           throw new Error(`E111: 行${t.line}: 入力リスト中に「,」がある以上、まだ入力があるはずだが、「${t.string}」がある。`);
         }
 
@@ -192,9 +192,9 @@ export default class Parser {
           return null;
         }
 
-        //引数名が定数なのは許さない
+        // 引数名が定数なのは許さない
         t = tokens[this.mPos];
-        if (arg.type === NodeType.NODE_NUMBER) { //定数は構文解析中に解決されてNUMBERになってしまう。
+        if (arg.type === NodeType.NODE_NUMBER) { // 定数は構文解析中に解決されてNUMBERになってしまう。
           throw new Error(`E112: 行${t.line}: 定数と同じ名前は入力につけられない。`);
         }
         lastChild.brother = arg;
@@ -225,10 +225,10 @@ export default class Parser {
       this.mPos += 1;
       for (t = tokens[this.mPos]; true; t = tokens[this.mPos]) {
         let child:Node|null = null;
-        if (t.type === TokenType.TOKEN_BLOCK_END) { //終わり
+        if (t.type === TokenType.TOKEN_BLOCK_END) { // 終わり
           this.mPos += 1;
           break;
-        } else if (t.type === TokenType.TOKEN_CONST) { //定数は関数定義の中では許しませんよ
+        } else if (t.type === TokenType.TOKEN_CONST) { // 定数は関数定義の中では許しませんよ
           throw new Error(`E115: 行${t.line}: 部分プログラム内で定数は作れない。`);
         } else {
           child = this.parseStatement();
@@ -245,16 +245,16 @@ export default class Parser {
 
         lastChild = child;
       }
-    } else if (t.type === TokenType.TOKEN_STATEMENT_END) { //いきなり空
+    } else if (t.type === TokenType.TOKEN_STATEMENT_END) { // いきなり空
       this.mPos += 1;
-    } else { //エラー
+    } else { // エラー
       throw new Error(`E116: 行${t.line}: 部分プログラムの最初の行の行末に「${t.string}」が続いている。改行しよう。`);
     }
 
     return node;
   }
 
-  //Statement : ( while | if | return | funcDef | func | set )
+  // Statement : ( while | if | return | funcDef | func | set )
   public parseStatement(): Node|null {
     let statementType:StatementType = this.getStatementType();
     let node:Node|null = null;
@@ -262,19 +262,19 @@ export default class Parser {
 
     if (statementType === StatementType.STATEMENT_WHILE_OR_IF) {
       node = this.parseWhileOrIfStatement();
-    } else if (statementType === StatementType.STATEMENT_DEF) { //これはエラー
+    } else if (statementType === StatementType.STATEMENT_DEF) { // これはエラー
       t = this.mTokens[this.mPos];
       throw new Error(`E120: 行${t.line}: 部分プログラム内で部分プログラムは作れない。`);
-    } else if (statementType === StatementType.STATEMENT_CONST) { //これはありえない
+    } else if (statementType === StatementType.STATEMENT_CONST) { // これはありえない
       throw new Error('BUG parseStatement CONST');
-    } else if (statementType === StatementType.STATEMENT_FUNCTION) { //関数呼び出し文
+    } else if (statementType === StatementType.STATEMENT_FUNCTION) { // 関数呼び出し文
       node = this.parseFunction();
       if (node === null) {
         return null;
       }
 
       t = this.mTokens[this.mPos];
-      if (t.type !== TokenType.TOKEN_STATEMENT_END) { //文終わってないぞ
+      if (t.type !== TokenType.TOKEN_STATEMENT_END) { // 文終わってないぞ
         if (t.type === TokenType.TOKEN_BLOCK_BEGIN) {
           throw new Error(`E121: 行${t.line}: 部分プログラムを作ろうとした？それは部分プログラムの外で「def」なり「とは」なりを使ってね。それとも、次の行の字下げが多すぎただけ？`);
         } else {
@@ -283,9 +283,9 @@ export default class Parser {
       }
 
       this.mPos += 1;
-    } else if (statementType === StatementType.STATEMENT_SUBSTITUTION) { //代入
+    } else if (statementType === StatementType.STATEMENT_SUBSTITUTION) { // 代入
       node = this.parseSubstitutionStatement();
-    } else if (statementType === StatementType.STATEMENT_UNKNOWN) { //不明。エラー文字列は作ってあるので上へ
+    } else if (statementType === StatementType.STATEMENT_UNKNOWN) { // 不明。エラー文字列は作ってあるので上へ
       return null;
     } else {
       throw new Error('BUG parseStatement');
@@ -294,10 +294,10 @@ export default class Parser {
     return node;   
   }
 
-  //文タイプを判定
-  //DEF, FUNC, WHILE_OR_IF, CONST, SET, nullのどれかが返る。メンバは変更しない。
+  // 文タイプを判定
+  // DEF, FUNC, WHILE_OR_IF, CONST, SET, nullのどれかが返る。メンバは変更しない。
   public getStatementType(): StatementType {
-    let pos:number = this.mPos; //コピーを作ってこっちをいじる。オブジェクトの状態は変えない。
+    let pos:number = this.mPos; // コピーを作ってこっちをいじる。オブジェクトの状態は変えない。
     let tokens:Array<Token> = this.mTokens;
     let t:Token = tokens[pos];
 
@@ -341,14 +341,14 @@ export default class Parser {
     }
 
     // 解釈不能。ありがちなのは「なかぎり」「なら」の左に空白がないケース
-    throw new Error(`E131: 行${t.line}: 解釈できない。注釈は//じゃなくて#だよ？あと、「なかぎり」「なら」の前には空白ある？それと、メモリセットは=じゃなくて→だよ？`);
-    //TODO: どんなエラーか推測してやれ
-    //TODO: 後ろにゴミがあるくらいなら無視して進む手もあるが、要検討
+    throw new Error(`E131: 行${t.line}: 解釈できない。注釈は// じゃなくて#だよ？あと、「なかぎり」「なら」の前には空白ある？それと、メモリセットは=じゃなくて→だよ？`);
+    // TODO: どんなエラーか推測してやれ
+    // TODO: 後ろにゴミがあるくらいなら無視して進む手もあるが、要検討
   }
 
-  //Set: [out | memory | name | array] → expression ;
+  // Set: [out | memory | name | array] → expression ;
   public parseSubstitutionStatement(): Node|null{
-    //
+    // 
     let tokens:Array<Token> = this.mTokens;
     let t:Token = tokens[this.mPos];
     if ((t.type !== TokenType.TOKEN_NAME) && (t.type !== TokenType.TOKEN_OUT)) {
@@ -369,7 +369,7 @@ export default class Parser {
       } else { // 変数
         left = this.parseVariable();
         if (left.type === NodeType.NODE_NUMBER) {
-          //定数じゃん！
+          // 定数じゃん！
           throw new Error(`E141: 行${t.line}: ${t.string}は定数で、セットできない。`);
         }
       }
@@ -403,10 +403,10 @@ export default class Parser {
     return node;
   }
 
-  //while|if expression [ { } ]
-  //while|if expression;
-  //expression while_post|if_post [ { } ]
-  //expression while_post|if_post ;
+  // while|if expression [ { } ]
+  // while|if expression;
+  // expression while_post|if_post [ { } ]
+  // expression while_post|if_post ;
   public parseWhileOrIfStatement(): Node|null {
     const tokens:Array<Token> = this.mTokens;
     let t:Token = tokens[this.mPos];
@@ -461,7 +461,7 @@ export default class Parser {
         lastChild.brother = child;
         lastChild = child;
       }
-    } else if (t.type === TokenType.TOKEN_STATEMENT_END) { //中身なしwhile/if
+    } else if (t.type === TokenType.TOKEN_STATEMENT_END) { // 中身なしwhile/if
        this.mPos += 1;
     } else {
        throw new Error(`E151: 行${t.line}: 条件行は条件の終わりで改行しよう。「${t.string}」が続いている。`);
@@ -495,7 +495,7 @@ export default class Parser {
       node.child = null; // 子のExpressionを破棄
     }
 
-    //]
+    // ]
     if (this.mTokens[this.mPos].type !== TokenType.TOKEN_INDEX_END) {
       let t:Token = this.mTokens[this.mPos];
       this.beginError(t);
@@ -512,7 +512,7 @@ export default class Parser {
     HLib.assert(t.type === TokenType.TOKEN_NAME, `${__filename}:501`);
     let node:Node;
 
-    //定数？変数？
+    // 定数？変数？
     const c = this.mConstMap[t.string];
     if (typeof c !== 'undefined') {
       node = new Node(NodeType.NODE_NUMBER);
@@ -525,7 +525,7 @@ export default class Parser {
     return node;
   };
   
-  //Out : out
+  // Out : out
   public parseOut(): Node {
     const t:Token = this.mTokens[this.mPos];
     HLib.assert(t.type === TokenType.TOKEN_OUT, `${__filename}:521`);
@@ -554,7 +554,7 @@ export default class Parser {
 
       // 連続して演算子なら親切にエラーを吐いてやる。
       t = this.mTokens[this.mPos];
-      if ((t.type === TokenType.TOKEN_OPERATOR) && (t.operator !== '-')) { //-以外の演算子ならエラー
+      if ((t.type === TokenType.TOKEN_OPERATOR) && (t.operator !== '-')) { // -以外の演算子ならエラー
         throw new Error(`E170: 行${t.line}: 演算子が連続している。==や++や--はない。=>や=<は>=や<=の間違いだろう。`);
       }
 
@@ -592,7 +592,7 @@ export default class Parser {
           if (b === 0) {
             throw new Error(`E171: 行${t.line}: 0で割り算している。`);
           }
-          preComputed = Math.floor(a / b); //整数化必須
+          preComputed = Math.floor(a / b); // 整数化必須
         } else if (node.operator === '<') {
           preComputed = (a < b) ? 1 : 0;
         } else if (node.operator === '≤') {
@@ -602,11 +602,11 @@ export default class Parser {
         } else if (node.operator === '≠') {
           preComputed = (a !== b) ? 1 : 0;
         } else {
-          throw new Error('BUG parseExpression #1'); //>と≥は上で置換されてなくなっている
+          throw new Error('BUG parseExpression #1'); // >と≥は上で置換されてなくなっている
         }
       }
 
-      if (preComputed !== null) { //事前計算でノードをマージ
+      if (preComputed !== null) { // 事前計算でノードをマージ
         node.type   = NodeType.NODE_NUMBER;
         node.number = preComputed;
         left    = null;
@@ -647,7 +647,7 @@ export default class Parser {
     return r;
   };
   
-  //Term : [-] function|variable|out|array|number|(expression)
+  // Term : [-] function|variable|out|array|number|(expression)
   // E180
   public parseTerm() {
     let t:Token = this.mTokens[this.mPos];
@@ -687,9 +687,9 @@ export default class Parser {
     }
 
     if ((node !== null) && minus) {
-      if (node.type === NodeType.NODE_NUMBER) { //この場で反転
+      if (node.type === NodeType.NODE_NUMBER) { // この場で反転
         node.number = -(node.number);
-      } else { //反転は後に伝える
+      } else { // 反転は後に伝える
         node.negation = true;
       }
     }
@@ -711,14 +711,14 @@ export default class Parser {
   
     // 引数ありか、なしか
     t = this.mTokens[this.mPos];
-    if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) { //括弧閉じないので引数あり
+    if (t.type !== TokenType.TOKEN_RIGHT_BRACKET) { // 括弧閉じないので引数あり
       let exp:Node|null = this.parseExpression();
       if (exp === null) {
         return null;
       }
       node.child = exp;
   
-      //2個目以降はループで取る
+      // 2個目以降はループで取る
       let lastChild:Node = exp;
       while (true) {
         t = this.mTokens[this.mPos];
