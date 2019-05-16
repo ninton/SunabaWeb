@@ -151,7 +151,7 @@ export default class FunctionGenerator {
         this.mOutputExist  = false;
     }
 
-    public addCommand(name:string, imm:number = 0, comment:string = "") {
+    public addCommand(name:string, imm:number|string = 0, comment:string = "") {
         const cmd:AsmCommand = new AsmCommand('', name, imm, comment);
         this.cmds.push(cmd);
     }
@@ -217,7 +217,7 @@ export default class FunctionGenerator {
         this.mRootBlock.collectVariables(child);
 
         // 関数開始コメント
-        this.addCommand('', '', `#部分プログラム"${this.mName}"の開始\n`);
+        this.addCommand('', 0, `#部分プログラム"${this.mName}"の開始\n`);
         // 関数開始ラベル
         // 160413: add等のアセンブラ命令と同名の関数があった時にラベルを命令と間違えて誤作動する問題の緊急回避
         this.addLabel(`func_${this.mName}`);
