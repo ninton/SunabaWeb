@@ -197,13 +197,13 @@ export default class FunctionGenerator {
       }
 
       if (child.token === null) {
-        throw `child.token === null, ${__filename}:195`;
+        throw new Error(`child.token === null, ${__filename}:195`);
       }
       const variableName = child.token.string;
 
       if (!this.mCurrentBlock.addVariable(variableName, true)) {
         this.beginError(node);
-        throw `E201: 部分プログラム'${this.mName}'の入力'${variableName}はもうすでに現れた。二個同じ名前があるのはダメ。`;
+        throw new Error(`E201: 部分プログラム'${this.mName}'の入力'${variableName}はもうすでに現れた。二個同じ名前があるのはダメ。`);
       }
       child = child.brother;
     }
@@ -248,16 +248,16 @@ export default class FunctionGenerator {
     // 出力の整合性チェック。
     // ifの中などで出力してるのに、ブロック外に出力がないケースを検出
     if (this.mInfo.hasOutputValue() !== this.mOutputExist) {
-      HLib.assert(this.mOutputExist), `${__filename}:245`; // outputExistがfalseで、hasOutputValue()がtrueはありえない
+      HLib.assert(this.mOutputExist, `${__filename}:245`); // outputExistがfalseで、hasOutputValue()がtrueはありえない
       if (headNode.token) {
         // 普通の関数ノード
         this.beginError(headNode);
-        throw `E202: 部分プログラム'${this.mName}'は出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`;
+        throw new Error(`E202: 部分プログラム'${this.mName}'は出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`);
       } else {
         // プログラムノード
         HLib.assert(headNode.child !== null, `${__filename}:252`);
         this.beginError(headNode.child);
-        throw 'E203: このプログラムは出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？';
+        throw new Error('E203: このプログラムは出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？');
       }
     }
 
@@ -293,7 +293,7 @@ export default class FunctionGenerator {
         this.addCommand('pop', this.mCurrentBlock.mFrameSize, '#ブロックローカル変数破棄');
       }
       if (this.mCurrentBlock.mParent === null) {
-        throw `BUG: this.mCurrentBlock.mParent === null ${__filename}:#298`;
+        throw new Error(`BUG: this.mCurrentBlock.mParent === null ${__filename}:#298`);
       }
       this.mCurrentBlock = this.mCurrentBlock.mParent; // スタック戻し
 
@@ -334,7 +334,7 @@ export default class FunctionGenerator {
   public generateWhile(node:Node): boolean {
     HLib.assert(node.type === NodeType.NODE_WHILE_STATEMENT, `${__filename}:327`);
     if (node.child === null) {
-      throw `BUG node.child === null ${node.type} ${__filename}:339`;
+      throw new Error(`BUG node.child === null ${node.type} ${__filename}:339`);
     }
 
     // 開始ラベル
@@ -384,7 +384,7 @@ export default class FunctionGenerator {
   public generateIf(node:Node): boolean {
     HLib.assert(node.type === NodeType.NODE_IF_STATEMENT, `${__filename}:375`);
     if (node.child === null) {
-      throw `BUG node.child === null ${node.type} ${__filename}:389`;
+      throw new Error(`BUG node.child === null ${node.type} ${__filename}:389`);
     }
 
     // Expression処理
@@ -430,14 +430,14 @@ export default class FunctionGenerator {
   public generateFunction(node:Node, isStatement:boolean): boolean {
     HLib.assert(node.type === NodeType.NODE_FUNCTION, `${__filename}:420`);
     if (node.token === null) {
-      throw `BUG node.child === null ${node.type} ${__filename}:435`;
+      throw new Error(`BUG node.child === null ${node.type} ${__filename}:435`);
     }
 
     // まず、その関数が存在していて、定義済みかを調べる。
     const funcName:string = node.token.string;
     if (!(funcName in this.mFunctionMap)) {
       this.beginError(node);
-      throw `E210: 部分プログラム'${funcName}'なんて知らない。`;
+      throw new Error(`E210: 部分プログラム'${funcName}'なんて知らない。`);
     }
 
     const func:FunctionInfo = this.mFunctionMap[funcName];
@@ -453,7 +453,7 @@ export default class FunctionGenerator {
     } else if (!isStatement) {
       // 戻り値がないなら式の中にあっちゃだめ
       this.beginError(node);
-      throw `E211: 部分プログラム\'${funcName}'は、'出力'か'out'という名前付きメモリがないので、出力は使えない。ifやwhileの中にあってもダメ。`;
+      throw new Error(`E211: 部分プログラム\'${funcName}'は、'出力'か'out'という名前付きメモリがないので、出力は使えない。ifやwhileの中にあってもダメ。`);
     }
 
     // 引数の数をチェック
@@ -467,7 +467,7 @@ export default class FunctionGenerator {
     popCount += argCount; // 引数分追加
     if (argCount !== func.argCount()) {
       this.beginError(node);
-      throw `E212: 部分プログラム'${funcName}'は、入力を${func.argCount()}個受け取るのに、ここには$$argCount}個ある。間違い。`;
+      throw new Error(`E212: 部分プログラム'${funcName}'は、入力を${func.argCount()}個受け取るのに、ここには$$argCount}個ある。間違い。`);
     }
 
     // 引数を評価してプッシュ
@@ -521,7 +521,7 @@ export default class FunctionGenerator {
       if (!v) {
         // 配列アクセス時でタイプミスすると変数が存在しないケースがある
         this.beginError(child);
-        throw `E220:名前付きメモリか定数'${name}'は存在しないか、まだ作られていない。`;
+        throw new Error(`E220:名前付きメモリか定数'${name}'は存在しないか、まだ作られていない。`);
       } else if (!(v.isDefined())) { // 未定義ならここで定義
         v.define();
       }
@@ -663,17 +663,17 @@ export default class FunctionGenerator {
         // 知らない変数。みつからないか、あるんだがまだその行まで行ってないか。
         if (!v) {
           this.beginError(node);
-          throw `E230:名前付きメモリか定数'${name}'は存在しない。`;
+          throw new Error(`E230:名前付きメモリか定数'${name}'は存在しない。`);
         }
 
         if (!(v.isDefined())) {
           this.beginError(node);
-          throw `E231:名前付きメモリか定数'${name}'はまだ作られていない。`;
+          throw new Error(`E231:名前付きメモリか定数'${name}'はまだ作られていない。`);
         }
 
         if (!(v.isInitialized())) {
           this.beginError(node);
-          throw `E232: 名前付きメモリか定数'${name}'は数をセットされる前に使われている。「a->a」みたいなのはダメ。`;
+          throw new Error(`E232: 名前付きメモリか定数'${name}'は数をセットされる前に使われている。「a->a」みたいなのはダメ。`);
         }
       }
 
