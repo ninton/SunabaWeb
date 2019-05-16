@@ -1,22 +1,23 @@
 import { TokenType } from './TokenType';
 import Token from './Token';
+import Locale from './Locale';
 
 export default class Sunaba {
     static MAX_ABS_NUMBER = 2147483647; //2^31 - 1
 
     //Sunaba.Locale
-    static locales:any = {
-        japanese:{
-            whileWord0: 'なかぎり',
-            whileWord1: 'な限り',
-            whileAtHead: false,
-            ifWord: 'なら',
-            ifAtHead: false,
-            defWord: 'とは',
-            defAtHead: false,
-            constWord: '定数',
-            outWord: '出力',
-            memoryWord: 'メモリ',
+    static locales:{[key:string]:Locale;} = {
+        japanese: {
+            whileWord0:   'なかぎり',
+            whileWord1:   'な限り',
+            whileAtHead:  false,
+            ifWord:       'なら',
+            ifAtHead:     false,
+            defWord:      'とは',
+            defAtHead:    false,
+            constWord:    '定数',
+            outWord:      '出力',
+            memoryWord:   'メモリ',
             argDelimiter: '、'
         }
     };
@@ -35,7 +36,7 @@ export default class Sunaba {
         (code.charCodeAt(0) >= 0x100); //マルチバイト文字は全てオーケー。半角相当品がある全角は置換済み。
     };
  
-    public static readKeyword = function(s:string, loc:any): TokenType {
+    public static readKeyword = function(s:string, loc:Locale): TokenType {
         let r:TokenType;
 
         if (s === 'while') {

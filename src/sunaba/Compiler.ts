@@ -4,6 +4,7 @@ import Parser from './Parser';
 import CodeGenerator from './CodeGenerator';
 import Assembler from './Assembler';
 import { TokenType } from './TokenType';
+import Locale from './Locale';
 
 export default class Compiler {
     code                :string;
@@ -285,7 +286,7 @@ export default class Compiler {
         return s;
     }
 
-    public tokenize(code:string, loc:any): any {
+    public tokenize(code:string, loc:Locale): any {
         //トークン分解
         /*
             TODO: modeをenum定義する
