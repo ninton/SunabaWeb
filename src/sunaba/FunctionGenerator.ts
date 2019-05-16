@@ -515,7 +515,7 @@ export default class FunctionGenerator {
         let v:Variable|null = null;
 
         if ((child.type === NodeType.NODE_OUT) || child.token) { //変数があるなら
-            let name:string = child.token.string || '';
+            let name:string = child.token!.string || '';
             if (child.type === NodeType.NODE_OUT) {
                 name = "!ret";
             }
@@ -553,7 +553,9 @@ export default class FunctionGenerator {
         } else {
             cmd = 'st';
         }
-        this.addCommand(cmd, params.staticOffset, `#"${node.token.string}"へストア`);
+
+        const name:string = node.token!.string || '';
+        this.addCommand(cmd, params.staticOffset, `#"${name}"へストア`);
 
         // 左辺値は初期化されたのでフラグをセット。すでにセットされていても気にしない。
         if (v) {
