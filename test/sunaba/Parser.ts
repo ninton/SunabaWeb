@@ -1,7 +1,7 @@
 import assert = require("assert");
 import fs = require("fs");
 import Sunaba from "../../src/sunaba/Sunaba";
-import { TokenType } from "../../src/sunaba/TokenType";
+import TokenType from "../../src/sunaba/TokenType";
 import Token from "../../src/sunaba/Token";
 import Parser from "../../src/sunaba/Parser";
 

@@ -1,7 +1,7 @@
 import HLib from "./HLib";
 import CodeGenerator from "./CodeGenerator";
 import FunctionInfo from "./FunctionInfo";
-import { TokenType } from "./TokenType";
+import TokenType from "./TokenType";
 import { NodeType } from "./NodeType";
 import { Node } from './Node';
 import AsmCommand from './AsmCommand';

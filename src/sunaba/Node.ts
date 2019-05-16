@@ -1,7 +1,7 @@
 import HLib from './HLib';
 import { stat } from 'fs';
 import Token from './Token';
-import { TokenType } from './TokenType';
+import TokenType from './TokenType';
 import { TermType, StatementType, NodeType } from './NodeType';
 
 export class Node {

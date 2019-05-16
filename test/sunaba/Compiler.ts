@@ -2,7 +2,7 @@ import assert = require("assert");
 import fs     = require("fs");
 import Compiler from "../../src/sunaba/Compiler";
 import Sunaba   from "../../src/sunaba/Sunaba";
-import { TokenType } from "../../src/sunaba/TokenType";
+import TokenType from "../../src/sunaba/TokenType";
 import Token from "../../src/sunaba/Token";
 
 suite('sunaba.Compiler', () => {

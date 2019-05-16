@@ -1,4 +1,4 @@
-import { TokenType } from './TokenType';
+import TokenType from './TokenType';
 import Token from './Token';
 import Locale from './Locale';
 

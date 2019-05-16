@@ -3,7 +3,7 @@ import Token from './Token';
 import Parser from './Parser';
 import CodeGenerator from './CodeGenerator';
 import Assembler from './Assembler';
-import { TokenType } from './TokenType';
+import TokenType from './TokenType';
 import Locale from './Locale';
 import VmCommand from './VmCommand';
 
