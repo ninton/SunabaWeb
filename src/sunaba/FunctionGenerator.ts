@@ -62,7 +62,7 @@ class Block {
     HLib.assert(token, `${__filename}:59`);
 
     let s = '';
-    if (token.line != 0) {
+    if (token.line !== 0) {
       s = `(${token.line})`;
     } else {
       s = ' ';
@@ -257,9 +257,8 @@ export default class FunctionGenerator {
         // プログラムノード
         HLib.assert(headNode.child !== null, `${__filename}:252`);
         this.beginError(headNode.child);
-        throw `E203: このプログラムは出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？`;
+        throw 'E203: このプログラムは出力したりしなかったりする。条件実行や繰り返しの中だけで出力していないか？';
       }
-      return false;
     }
 
     return true;
