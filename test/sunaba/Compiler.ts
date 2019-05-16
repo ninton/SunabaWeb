@@ -3,6 +3,7 @@ import fs     = require("fs");
 import Compiler from "../../src/sunaba/Compiler";
 import Sunaba   from "../../src/sunaba/Sunaba";
 import { TokenType } from "../../src/sunaba/TokenType";
+import Token from "../../src/sunaba/Token";
 
 suite('sunaba.Compiler', () => {
     let compiler:Compiler;
@@ -186,7 +187,7 @@ suite('sunaba.Compiler', () => {
             errorMessage: ""
         };
 
-        const actual = compiler.structurize(tokens);
+        const actual = compiler.structurize(<Array<Token>>tokens);
         assert.deepEqual(expected, actual);
     });
 

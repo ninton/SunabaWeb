@@ -2,6 +2,7 @@ import assert = require("assert");
 import fs = require("fs");
 import Sunaba from "../../src/sunaba/Sunaba";
 import { TokenType } from "../../src/sunaba/TokenType";
+import Token from "../../src/sunaba/Token";
 import Parser from "../../src/sunaba/Parser";
 
 suite('sunaba.Parser', () => {
@@ -22,7 +23,7 @@ suite('sunaba.Parser', () => {
             {type: TokenType.TOKEN_STATEMENT_END, line: 1, string: "行末"                  },
             {type: TokenType.TOKEN_END          , line: 1                                  }
         ];
-        const parser = new Parser(tokens, Sunaba.locales.japanese);
+        const parser = new Parser(<Array<Token>>tokens, Sunaba.locales.japanese);
         const root = parser.parseProgram();
         //console.log(JSON.stringify(root, null, 4));
 

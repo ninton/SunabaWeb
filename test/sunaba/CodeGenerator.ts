@@ -7,9 +7,6 @@ suite('sunaba.CodeGenerator', () => {
     let codeGenerator:CodeGenerator;
 
     setup(() => {
-        codeGenerator = new CodeGenerator((s:string) => {
-            console.log(s);
-        });
     });
 
     teardown(() => {
