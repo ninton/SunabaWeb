@@ -197,7 +197,9 @@ export default class FunctionGenerator {
                 break;
             }
 
-            HLib.assert(child.token !== null, `${__filename}:195`);
+            if (child.token === null) {
+                throw `child.token === null, ${__filename}:195`;
+            }
             const variableName = child.token.string;
 
             if (!this.mCurrentBlock.addVariable(variableName, true)) {
