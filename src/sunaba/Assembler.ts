@@ -22,11 +22,11 @@ export default class Assembler {
 
         for (let i = 0; i < cmds.length; i += 1) {
             const cmd:AsmCommand = cmds[i];
-            if (cmd.name === 'label') {
-                if (cmd.imm in labelAddressMap) {
-                    throw `E300: label duplicated: ${cmd.imm} `;
+            if (cmd.label) {
+                if (cmd.label in labelAddressMap) {
+                    throw `E300: label duplicated: ${cmd.label} `;
                 }
-                labelAddressMap[cmd.imm] = i;
+                labelAddressMap[cmd.label] = i;
             }
         }
 
@@ -37,15 +37,23 @@ export default class Assembler {
         const outCmds:Array<VmCommand> = [];
 
         for (let i = 0; i < cmds.length; i += 1) {
-            const cmd:VmCommand = Object.assign(cmds[i]);
+            const cmd:AsmCommand = cmds[i];
+            let imm:number = 0;
 
-            if ((cmd.name !== 'label') && (typeof cmd.imm === 'string') && (cmd.imm !== '')) {
-                if (cmd.imm in labelAddressMap) {
-                    cmd.imm = labelAddressMap[cmd.imm];
+            if (typeof cmd.imm === 'string') {
+                if (cmd.imm === '') {
+                    imm = 0;
+                } else if (cmd.imm in labelAddressMap) {
+                    imm = labelAddressMap[cmd.imm];
+                } else {
+                    throw `E302: imm not resolved': ${cmd.name} ${cmd.imm} ${cmd.comment}`;
                 }
+            } else {
+                imm = cmd.imm;
             }
 
-            outCmds.push(cmd);
+            const vmcmd:VmCommand = new VmCommand(cmd.label, cmd.name, imm, cmd.comment);
+            outCmds.push(vmcmd);
         }
 
         return outCmds;

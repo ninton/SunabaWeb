@@ -1,75 +1,90 @@
 [
     {
+      "label": "",
       "name": "pop",
       "imm": -1,
       "comment": "#$mainの戻り値領域"
     },
     {
+      "label": "",
       "name": "call",
       "imm": 10,
       "comment": ""
     },
     {
+      "label": "",
       "name": "j",
       "imm": 13,
       "comment": "#プログラム終了点へジャンプ"
     },
     {
+      "label": "",
       "name": "",
-      "imm": "",
+      "imm": 0,
       "comment": "#部分プログラム\"点\"の開始\n"
     },
     {
-      "name": "label",
-      "imm": "func_点",
+      "label": "func_点",
+      "name": "",
+      "imm": 0,
       "comment": ""
     },
     {
+      "label": "",
       "name": "i",
       "imm": 0,
       "comment": "#絶対アドレスなので0\n"
     },
     {
+      "label": "",
       "name": "i",
       "imm": 999999,
       "comment": "#即値プッシュ"
     },
     {
+      "label": "",
       "name": "st",
       "imm": 60000,
       "comment": "#\"メモリ\"へストア"
     },
     {
+      "label": "",
       "name": "ret",
       "imm": 0,
       "comment": "#部分プログラム\"点の終了"
     },
     {
+      "label": "",
       "name": "",
-      "imm": "",
+      "imm": 0,
       "comment": "#部分プログラム\"!main\"の開始\n"
     },
     {
-      "name": "label",
-      "imm": "func_!main",
+      "label": "func_!main",
+      "name": "",
+      "imm": 0,
       "comment": ""
     },
     {
+      "label": "",
       "name": "call",
       "imm": 4,
       "comment": ""
     },
     {
+      "label": "",
       "name": "ret",
       "imm": 0,
       "comment": "#部分プログラム\"!mainの終了"
     },
     {
-      "name": "label",
-      "imm": "!end",
+      "label": "!end",
+      "name": "",
+      "imm": 0,
       "comment": ""
     },
     {
+      "label": "",
       "name": "pop",
       "imm": 1,
       "comment": "#!mainの戻り値を破棄。最終命令。なくてもいいが。"

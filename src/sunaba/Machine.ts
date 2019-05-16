@@ -219,7 +219,7 @@ export default class Machine {
                 this.step_pop(cmd);
                 break;
             
-            case 'label':
+            default:
                 this.noop();
                 break;
         }

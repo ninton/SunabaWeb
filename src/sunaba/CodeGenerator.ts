@@ -14,8 +14,13 @@ export default class CodeGenerator {
         this.cmds = [];
     }
 
-    public addCommand(name:string, imm:number|string = 0, comment:string = "") {
-        const cmd:AsmCommand = new AsmCommand(name, imm, comment);
+    public addCommand(name:string, imm:number = 0, comment:string = "") {
+        const cmd:AsmCommand = new AsmCommand('', name, imm, comment);
+        this.cmds.push(cmd);
+    }
+
+    public addLabel(label:string, comment:string = "") {
+        const cmd:AsmCommand = new AsmCommand(label, '', 0, comment);
         this.cmds.push(cmd);
     }
 
@@ -68,7 +73,7 @@ export default class CodeGenerator {
         }
 
         // 最後にプログラム終了ラベル
-        this.addCommand("label", "!end");
+        this.addLabel("!end");
         this.addCommand("pop", 1, "#!mainの戻り値を破棄。最終命令。なくてもいいが。");
         return true;   
     }

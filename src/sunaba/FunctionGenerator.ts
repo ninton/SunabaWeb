@@ -140,8 +140,8 @@ export default class FunctionGenerator {
 	mOutputExist  :boolean;
 
     constructor(codeGen:CodeGenerator) {
-        this.codeGen = codeGen;
-        this.cmds = [];
+        this.codeGen       = codeGen;
+        this.cmds          = [];
         this.mRootBlock    = new Block(0);  // dummy
         this.mCurrentBlock = new Block(0);  // dummy
         this.mLabelId      = 0;
@@ -151,12 +151,13 @@ export default class FunctionGenerator {
         this.mOutputExist  = false;
     }
 
-    public addCommand(name:string, imm:any = 0, comment:string = "") {
-        const cmd = {
-            name:    name,
-            imm:     imm,
-            comment: comment
-        };
+    public addCommand(name:string, imm:number = 0, comment:string = "") {
+        const cmd:AsmCommand = new AsmCommand('', name, imm, comment);
+        this.cmds.push(cmd);
+    }
+
+    public addLabel(label:string, comment:string = "") {
+        const cmd:AsmCommand = new AsmCommand(label, '', 0, comment);
         this.cmds.push(cmd);
     }
 
@@ -217,7 +218,7 @@ export default class FunctionGenerator {
         this.addCommand('', '', `#部分プログラム"${this.mName}"の開始\n`);
         // 関数開始ラベル
         // 160413: add等のアセンブラ命令と同名の関数があった時にラベルを命令と間違えて誤作動する問題の緊急回避
-        this.addCommand('label', `func_${this.mName}`);
+        this.addLabel(`func_${this.mName}`);
 
         // ローカル変数を確保
         // 戻り値、FP、CP、引数はここで問題にするローカル変数ではない。呼出側でプッシュしているからだ。
@@ -238,7 +239,7 @@ export default class FunctionGenerator {
         }
 
         // 関数終了点ラベル。上のループの中でreturnがあればここに飛んでくる。
-        // 	this.addCommand("label", `${this.mName}_end:`);
+        // 	this.addLabel(`${this.mName}_end:`);
 
         // ret生成(ローカル変数)
         this.addCommand("ret", netFrameSize, `#部分プログラム"${this.mName}の終了`);
@@ -335,7 +336,7 @@ export default class FunctionGenerator {
         const whileEnd  :string = `${this.mName}_whileEnd${this.mLabelId}`;
         this.mLabelId += 1;
 
-        this.addCommand('label', whileBegin);
+        this.addLabel(whileBegin);
 
         //Expression処理
         let child:Node|null = node.child;
@@ -361,7 +362,7 @@ export default class FunctionGenerator {
         this.addCommand('j', whileBegin, '#ループ先頭へ無条件ジャンプ');
 
         //ループ終了ラベルを生成
-        this.addCommand('label', whileEnd);
+        this.addLabel(whileEnd);
 
         return true;
     }
@@ -401,7 +402,7 @@ export default class FunctionGenerator {
         }
 
         // ラベル生成
-        this.addCommand('label', label_ifEnd);
+        this.addLabel(label_ifEnd);
 
         return true;
     }
