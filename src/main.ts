@@ -31,7 +31,7 @@ const outputMessage = (s:string) => {
   (<HTMLInputElement>document.getElementById('message'))!.value += s;
 };
 
-const onOutputListener:Function = (name:string, value:number) => {
+const onOutputListener = (name:string, value:number) => {
   if  (name === 'sync') {
     waitSync = true;
     return;
@@ -47,7 +47,7 @@ const onOutputListener:Function = (name:string, value:number) => {
   }
 };
 
-const vramListener:Function = (addr:number, value:number) => {
+const vramListener = (addr:number, value:number) => {
   const x = addr % SCREEN_WIDTH;
   const y = Math.floor(addr / SCREEN_WIDTH);
 
