@@ -46,7 +46,7 @@ const onOutputListener:Function = (name:string, value:number) => {
 };
 
 const outputMessage = (s:string) => {
-    document.getElementById("message")!.value += s;
+    (<HTMLInputElement>document.getElementById("message"))!.value += s;
 };
 
 const vramListener:Function = (addr:number, value:number) => {
@@ -81,7 +81,7 @@ machine.setMessageHandler((mesg:string) => {
 });
 
 document.getElementById("runButton")!.onclick = function () {
-    const code = document.getElementById("code").value;
+    const code = (<HTMLInputElement>document.getElementById("code"))!.value;
     console.log(code);
 
     const compiler = new Compiler();
@@ -102,7 +102,7 @@ document.getElementById("stopButton")!.onclick = function () {
 };
 
 document.getElementById("clearButton")!.onclick = function () {
-    document.getElementById("message").value = "";
+    (<HTMLInputElement>document.getElementById("message"))!.value = "";
 };
 
 let uiStatus:{[key:string]: number;} = {
