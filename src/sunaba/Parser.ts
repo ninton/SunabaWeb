@@ -354,17 +354,14 @@ export default class Parser {
     if (t.type === TokenType.TOKEN_OUT) {
       left = new Node(NodeType.NODE_OUT, t);
       this.mPos += 1;
-    } else {
-      // 第一要素はNAME
-      if (tokens[this.mPos + 1].type === TokenType.TOKEN_INDEX_BEGIN) {
+    } else if (tokens[this.mPos + 1].type === TokenType.TOKEN_INDEX_BEGIN) {
         // 配列だ
         left = this.parseArrayElement();
-      } else { // 変数
-        left = this.parseVariable();
-        if (left.type === NodeType.NODE_NUMBER) {
-          // 定数じゃん！
-          throw new Error(`E141: 行${t.line}: ${t.string}は定数で、セットできない。`);
-        }
+    } else { // 変数
+      left = this.parseVariable();
+      if (left.type === NodeType.NODE_NUMBER) {
+        // 定数じゃん！
+        throw new Error(`E141: 行${t.line}: ${t.string}は定数で、セットできない。`);
       }
     }
     if (left === null) {
