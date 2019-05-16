@@ -347,7 +347,7 @@ export default class Parser {
   // Set: [out | memory | name | array] → expression ;
   public parseSubstitutionStatement(): Node|null{
     //
-    let tokens:Array<Token> = this.mTokens;
+    const tokens:Array<Token> = this.mTokens;
     let t:Token = tokens[this.mPos];
     if ((t.type !== TokenType.TOKEN_NAME) && (t.type !== TokenType.TOKEN_OUT)) {
       throw new Error(`E140: 行${t.line}: 「→」があるのでメモリセット行だと思うが、それなら「memory」とか「out」とか、名前付きメモリの名前とか、そういうものから始まるはず。`);
@@ -385,7 +385,7 @@ export default class Parser {
     this.mPos += 1;
 
     // 右辺は式
-    let right:Node|null = this.parseExpression();
+    const right:Node|null = this.parseExpression();
     if (right === null) {
       return null;
     }
@@ -419,7 +419,7 @@ export default class Parser {
       this.mPos += 1;
     }
     // 条件式
-    let exp:Node|null = this.parseExpression();
+    const exp:Node|null = this.parseExpression();
     if (exp === null) {
       return null;
     }
