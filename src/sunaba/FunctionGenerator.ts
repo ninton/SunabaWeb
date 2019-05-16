@@ -118,12 +118,14 @@ class Block {
     if (this.mVariables[name] !== undefined) {
       // 自分にあった。
       return this.mVariables[name];
-    } else if (this.mParent) {
+    }
+
+    if (this.mParent) {
       // 親がいる
       return this.mParent.findVariable(name);
-    } else {
-      return null;
     }
+
+    return null;
   }
 }
 
