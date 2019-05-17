@@ -1,9 +1,10 @@
 /* eslint
     no-unused-vars: 0
 */
-import VmCommand                              from './VmCommand';
-import { MouseDevice, NullMouseDevice }       from './MouseDevice';
-import { KeyboardDevice, NullKeyboardDevice } from './KeyboardDevice';
+import VmCommand                                from './VmCommand';
+import { MouseDevice, NullMouseDevice }         from './MouseDevice';
+import { KeyboardDevice, NullKeyboardDevice }   from './KeyboardDevice';
+import { CharacterDevice, NullCharacterDevice } from './CharacterDevice';
 
 // 設定定数。ただし、いじるとIOメモリの番号が変わるので、ソースコードが非互換になる。
 const FREE_AND_PROGRAM_SIZE = 40000;
@@ -40,11 +41,11 @@ export default class Machine {
   framePointer:     number;
   vramListener:     (addr:number, value:number) => void;
   onOutputListener: (name:string, value:number) => void;
-  messageHandler:   (mesg:string) => void;
   callCount:        number;
   isRunning:        boolean;
   mouseDevice:      MouseDevice;
   keyboardDevice:   KeyboardDevice;
+  characterDevice:  CharacterDevice;
 
   constructor() {
     this.VRAM_BASE  = VRAM_BASE;
@@ -57,13 +58,13 @@ export default class Machine {
     this.framePointer     = 0;
     this.vramListener     = () => {};
     this.onOutputListener = () => {};
-    this.messageHandler   = () => {};
 
     this.clearMemory();
     this.callCount = 0;
     this.isRunning = false;
-    this.mouseDevice    = new NullMouseDevice();
-    this.keyboardDevice = new NullKeyboardDevice();
+    this.mouseDevice     = new NullMouseDevice();
+    this.keyboardDevice  = new NullKeyboardDevice();
+    this.characterDevice = new NullCharacterDevice();
   }
 
   public push(v:number) {
@@ -106,13 +107,13 @@ export default class Machine {
     this.programCounter = 0;
     this.stackPointer = STACK_BASE;
     this.framePointer = 0;
-    this.messageHandler('プログラムを起動');
+    this.characterDevice.outMessage('プログラムを起動');
     this.isRunning = true;
   }
 
   public stop() {
     if (this.isRunning) {
-      this.messageHandler('プログラムを中止しました');
+      this.characterDevice.outMessage('プログラムを中止しました');
     }
     this.isRunning = false;
   }
@@ -125,8 +126,8 @@ export default class Machine {
     try {
       this.stepMain();
     } catch (e) {
-      this.messageHandler(e.toString());
-      this.messageHandler('エラーのため停止');
+      this.characterDevice.outMessage(e.toString());
+      this.characterDevice.outMessage('エラーのため停止');
       this.isRunning = false;
     }
   }
@@ -214,7 +215,7 @@ export default class Machine {
 
     if (this.program.length <= this.programCounter) {
       this.isRunning = false;
-      this.messageHandler('プログラムが最後まで実行された。');
+      this.characterDevice.outMessage('プログラムが最後まで実行された。');
     }
   }
 
@@ -462,9 +463,16 @@ export default class Machine {
     this.memory[address] = value;
     if (VRAM_BASE <= address) {
       this.vramListener(address - VRAM_BASE, value);
-    } else if (address in OUTPUT_MAP) {
-      const name = OUTPUT_MAP[address];
-      this.onOutputListener(name, value);
+    } else {
+      switch (address) {
+        case 55002:
+          this.characterDevice.outDebug(value);
+          break;
+        default:
+          const name = OUTPUT_MAP[address];
+          this.onOutputListener(name, value);
+          break;
+      }
     }
   }
 
@@ -519,10 +527,6 @@ export default class Machine {
     this.framePointer = value;
   }
 
-  public setMessageHandler(messageHandler:(mesg:string) => void) {
-    this.messageHandler = messageHandler;
-  }
-
   public setOnOutputListener(fn: (name:string, value:number) => void) {
     this.onOutputListener = fn;
   }
@@ -533,5 +537,9 @@ export default class Machine {
 
   public setKeyboardDevice(keyboardDevice:KeyboardDevice) {
     this.keyboardDevice = keyboardDevice;
+  }
+
+  public setCharacterDevice(characterDevice:CharacterDevice) {
+    this.characterDevice = characterDevice;
   }
 }

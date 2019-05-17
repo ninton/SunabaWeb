@@ -1,5 +1,7 @@
 /* eslint-env mocha */
+/* eslint no-unused-vars: 0 */
 import Machine from '../../src/sunaba/Machine';
+import { CharacterDevice, NullCharacterDevice } from '../../src/sunaba/CharacterDevice';
 
 import assert = require('assert');
 
@@ -35,10 +37,13 @@ suite('sunaba.MachineMessage', () => {
     ];
 
     const mesgArr:Array<string> = [];
-    machine.setMessageHandler((mesg:string) => {
+
+    const characterDevice = new NullCharacterDevice();
+    characterDevice.outMessage = ((mesg:string) => {
       mesgArr.push(mesg);
     });
 
+    machine.setCharacterDevice(characterDevice);
     machine.loadProgram(program);
     assert.deepEqual(['プログラムを起動'], mesgArr);
 
@@ -65,9 +70,12 @@ suite('sunaba.MachineMessage', () => {
     ];
 
     const mesgArr:Array<string> = [];
-    machine.setMessageHandler((mesg:string) => {
+    const characterDevice = new NullCharacterDevice();
+    characterDevice.outMessage = ((mesg:string) => {
       mesgArr.push(mesg);
     });
+
+    machine.setCharacterDevice(characterDevice);
 
     machine.loadProgram(program);
     machine.step();

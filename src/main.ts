@@ -1,8 +1,9 @@
 import { sprintf } from 'sprintf-js';
-import Machine            from './sunaba/Machine';
-import Compiler           from './sunaba/Compiler';
-import MouseDeviceImpl    from './MouseDeviceImpl';
-import KeyboardDeviceImpl from './KeyboardDeviceImpl';
+import Machine             from './sunaba/Machine';
+import Compiler            from './sunaba/Compiler';
+import MouseDeviceImpl     from './MouseDeviceImpl';
+import KeyboardDeviceImpl  from './KeyboardDeviceImpl';
+import CharacterDeviceImpl from './CharacterDeviceImpl';
 
 const SCREEN_WIDTH:number  = 100;
 const SCREEN_HEIGHT:number = 100;
@@ -29,10 +30,6 @@ const vramClear:Function = () => {
 
 let isAutoSync:boolean = true;
 
-const outputMessage = (s:string) => {
-  (<HTMLInputElement>document.getElementById('message'))!.value += s;
-};
-
 const onOutputListener = (name:string, value:number) => {
   if  (name === 'sync') {
     waitSync = true;
@@ -41,11 +38,6 @@ const onOutputListener = (name:string, value:number) => {
 
   if (name === 'autosync_disable') {
     isAutoSync = !value;
-    return;
-  }
-
-  if (name === 'debug') {
-    outputMessage(String.fromCharCode(value));
   }
 };
 
@@ -80,15 +72,15 @@ const vramListener = (addr:number, value:number) => {
 };
 
 const machine:Machine = new Machine();
-machine.setMessageHandler((mesg:string) => {
-  outputMessage(`${mesg}\n`);
-});
 
 const mouseDevice = new MouseDeviceImpl(canvas2);
 machine.setMouseDevice(mouseDevice);
 
 const keyboardDevice = new KeyboardDeviceImpl(window);
 machine.setKeyboardDevice(keyboardDevice);
+
+const characterDevice = new CharacterDeviceImpl(<HTMLTextAreaElement>document.getElementById('message'));
+machine.setCharacterDevice(characterDevice);
 
 
 document.getElementById('runButton')!.onclick = () => {
@@ -97,7 +89,7 @@ document.getElementById('runButton')!.onclick = () => {
   const compiler = new Compiler();
   const results = compiler.compile(code);
   if (results.errorMessage.length > 0) {
-    outputMessage(`${results.errorMessage}\n`);
+    characterDevice.outMessage(`${results.errorMessage}\n`);
     return;
   }
 
