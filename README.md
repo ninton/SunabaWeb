@@ -1,4 +1,4 @@
-Sunaba
+SunabaWeb
 ======
 
 SunabaWebだけをTypeScriptで開発しました。
@@ -15,12 +15,11 @@ https://www.amazon.co.jp/dp/479803925X
 ### git clone直後
 
 ```
-cd SunabaWeb
 npm install
 ```
 
 ### ビルド
-webpackを使って、dist/main.jsをビルドします
+webpackを使って、dist/main.jsにビルドします
 
 ```
 npm run-script build

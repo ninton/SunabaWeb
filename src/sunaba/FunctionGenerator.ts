@@ -3,7 +3,6 @@
   no-console: 0
  */
 import HLib from './HLib';
-import CodeGenerator from './CodeGenerator';
 import FunctionInfo from './FunctionInfo';
 import TokenType from './TokenType';
 import { NodeType } from './NodeType';
@@ -147,7 +146,6 @@ class OffsetParams {
 }
 
 export default class FunctionGenerator {
-  codeGen:CodeGenerator;
   cmds:Array<AsmCommand>;
 
   mRootBlock  :Block;
@@ -158,15 +156,14 @@ export default class FunctionGenerator {
   mFunctionMap  :any;
   mOutputExist  :boolean;
 
-  constructor(codeGen:CodeGenerator) {
-    this.codeGen     = codeGen;
+  constructor(functionMap:{[name:string]: FunctionInfo}) {
     this.cmds      = [];
     this.mRootBlock  = new Block(0);  // dummy
     this.mCurrentBlock = new Block(0);  // dummy
     this.mLabelId    = 0;
     this.mName     = '';
     this.mInfo     = new FunctionInfo();  // dummy
-    this.mFunctionMap  = codeGen.mFunctionMap;
+    this.mFunctionMap  = functionMap;
     this.mOutputExist  = false;
   }
 
