@@ -255,14 +255,14 @@ suite('sunaba.Compiler', () => {
         const code = "memory[65047 + 1 + 2] → 990000 + 9900 + \n";
         const actual = compiler.compile(code);
 
-        assert.equal(0, actual.errorMessage.indexOf("E181"));
+        assert.ok(actual.errorMessage.indexOf("E181") >= 0);
     });
 
     test('compile error #2', () => {
         const code = "memory[65047 + 1 + 2] → 990000 / 0\n";
         const actual = compiler.compile(code);
 
-        assert.equal(0, actual.errorMessage.indexOf("E171"));
+        assert.ok(actual.errorMessage.indexOf("E171") >= 0);
     });
 
     test('compile expression #2', () => {
