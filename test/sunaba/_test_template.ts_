@@ -1,0 +1,20 @@
+/* eslint-env mocha */
+import CodeGenerator from '../../src/sunaba/CodeGenerator';
+
+import assert = require('assert');
+import fs   = require('fs');
+
+suite('sunaba.CodeGenerator', () => {
+  let codeGenerator:CodeGenerator;
+
+  setup(() => {
+    codeGenerator = new CodeGenerator();
+  });
+
+  teardown(() => {
+  });
+
+  test('sample', () => {
+    assert.ok(true);
+  });
+});
