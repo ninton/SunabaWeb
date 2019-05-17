@@ -1,7 +1,7 @@
 import assert = require("assert");
 import Machine from "../../src/sunaba/Machine";
 
-suite('sunaba.Machine', () => {
+suite('sunaba.MachineMessage', () => {
     let machine:Machine;
 
     setup(() => {
@@ -72,7 +72,7 @@ suite('sunaba.Machine', () => {
         machine.step();
         machine.step();
 
-        assert.equal(0, mesgArr[1].indexOf('E910'));
+        assert.ok(mesgArr[1].indexOf('E910') >= 0);
     });
 
 

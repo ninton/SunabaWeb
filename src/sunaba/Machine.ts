@@ -134,7 +134,7 @@ export default class Machine {
     try {
       this.stepMain();
     } catch (e) {
-      this.messageHandler(e);
+      this.messageHandler(e.toString());
       this.messageHandler('エラーのため停止');
       this.isRunning = false;
     }

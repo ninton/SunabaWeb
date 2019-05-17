@@ -127,7 +127,7 @@ export default class Compiler {
       } else if (c === u('！')) { // 0x21
         o = u('!');
       } else if (c === u('”')) { // 0x22
-        o = u('\'');
+        o = u('\"');
       } else if (c === u('＃')) { // 0x23
         o = u('#');
       } else if (c === u('＄')) { // 0x24

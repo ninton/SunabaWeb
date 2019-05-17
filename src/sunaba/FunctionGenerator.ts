@@ -237,7 +237,7 @@ export default class FunctionGenerator {
     this.mRootBlock.collectVariables(child);
 
     // 関数開始コメント
-    this.addCommand('', 0, `#部分プログラム'${this.mName}'の開始\n`);
+    this.addCommand('', 0, `#部分プログラム"${this.mName}"の開始\n`);
     // 関数開始ラベル
     // 160413: add等のアセンブラ命令と同名の関数があった時にラベルを命令と間違えて誤作動する問題の緊急回避
     this.addLabel(`func_${this.mName}`);
@@ -262,7 +262,7 @@ export default class FunctionGenerator {
     // 	this.addLabel(`${this.mName}_end:`);
 
     // ret生成(ローカル変数)
-    this.addCommand('ret', netFrameSize, `#部分プログラム'${this.mName}の終了`);
+    this.addCommand('ret', netFrameSize, `#部分プログラム"${this.mName}の終了`);
 
     // 出力の整合性チェック。
     // ifの中などで出力してるのに、ブロック外に出力がないケースを検出
@@ -568,7 +568,7 @@ export default class FunctionGenerator {
     }
 
     const name:string = node.token!.string || '';
-    this.addCommand(cmd, params.staticOffset, `#'${name}'へストア`);
+    this.addCommand(cmd, params.staticOffset, `#"${name}"へストア`);
 
     // 左辺値は初期化されたのでフラグをセット。すでにセットされていても気にしない。
     if (v) {
