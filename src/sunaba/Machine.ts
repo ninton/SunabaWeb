@@ -25,12 +25,6 @@ const IO_WRITABLE_BEGIN = IO_BASE + IO_WRITABLE_OFFSET;
 const VRAM_BASE         = IO_END;
 const VRAM_SIZE         = SCREEN_HEIGHT * SCREEN_WIDTH;
 
-const OUTPUT_MAP:{[key:number]: string;} = {
-  55000: 'sync',
-  55001: 'autosync_disable',
-  55002: 'debug',
-};
-
 export default class Machine {
   VRAM_BASE:        number;
   STACK_BASE:       number;
@@ -40,14 +34,14 @@ export default class Machine {
   programCounter:   number;
   stackPointer:     number;
   framePointer:     number;
-  vramListener:     (addr:number, value:number) => void;
-  onOutputListener: (name:string, value:number) => void;
   callCount:        number;
   isRunning:        boolean;
   mouseDevice:      MouseDevice;
   keyboardDevice:   KeyboardDevice;
   characterDevice:  CharacterDevice;
   graphicDevice:    GraphicDevice;
+  waitSync:         boolean = false;
+  isAutoSync:       boolean = true;
 
   constructor() {
     this.VRAM_BASE  = VRAM_BASE;
@@ -58,8 +52,6 @@ export default class Machine {
     this.programCounter   = 0;
     this.stackPointer     = STACK_BASE;
     this.framePointer     = 0;
-    this.vramListener     = () => {};
-    this.onOutputListener = () => {};
 
     this.clearMemory();
     this.callCount = 0;
@@ -469,9 +461,10 @@ export default class Machine {
     } else {
       switch (address) {
         case 55000:
-          this.graphicDevice.vsync();
+          this.waitSync = true;
           break;
         case 55001:
+          this.isAutoSync = !value;
           break;
         case 55002:
           this.characterDevice.outDebug(value);
@@ -513,10 +506,6 @@ export default class Machine {
     return this.memory[address];
   }
 
-  public setVramListener(fn: (addr:number, value:number) => void) {
-    this.vramListener = fn;
-  }
-
   public getProgramCounter(): number {
     return this.programCounter;
   }
@@ -533,10 +522,6 @@ export default class Machine {
     this.framePointer = value;
   }
 
-  public setOnOutputListener(fn: (name:string, value:number) => void) {
-    this.onOutputListener = fn;
-  }
-
   public setMouseDevice(mouseDevice:MouseDevice) {
     this.mouseDevice = mouseDevice;
   }
@@ -551,5 +536,27 @@ export default class Machine {
 
   public setGraphicDevice(graphicDevice:GraphicDevice) {
     this.graphicDevice = graphicDevice;
+  }
+
+  public runSingleFrame(maxTimeMilliSeconds:number, maxStepCount:number): void {
+    const t0_ms:number = (new Date()).getTime();
+
+    for (let i = 0; i < maxStepCount; i += 1) {
+      this.step();
+      if (this.waitSync) {
+        break;
+      }
+
+      const t1_ms:number = (new Date()).getTime();
+      const dt_ms:number = t1_ms - t0_ms;
+      if (maxTimeMilliSeconds <= dt_ms) {
+        break;
+      }
+    }
+
+    if (this.isAutoSync || this.waitSync) {
+      this.graphicDevice.vsync();
+      this.waitSync = false;
+    }
   }
 }
