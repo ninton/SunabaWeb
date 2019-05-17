@@ -1,5 +1,7 @@
 /* eslint-env mocha */
+/* eslint no-unused-vars: 0 */
 import Machine from '../../src/sunaba/Machine';
+import { GraphicDevice, NullGraphicDevice } from '../../src/sunaba/GraphicDevice';
 
 import assert = require('assert');
 
@@ -31,10 +33,14 @@ suite('sunaba.Machine Vram', () => {
 
     let cb_addr:number  = -1;
     let cb_value:number = -1;
-    machine.setVramListener((addr:number, value:number) => {
+
+    const graphicDevice:GraphicDevice = new NullGraphicDevice();
+    graphicDevice.write = ((addr:number, value:number) => {
       cb_addr  = addr;
       cb_value = value;
     });
+
+    machine.setGraphicDevice(graphicDevice);
     machine.loadProgram(program);
     machine.step();
     machine.step();
@@ -63,10 +69,14 @@ suite('sunaba.Machine Vram', () => {
 
     let cb_addr:number  = -1;
     let cb_value:number = -1;
-    machine.setVramListener((addr:number, value:number) => {
+
+    const graphicDevice:GraphicDevice = new NullGraphicDevice();
+    graphicDevice.write = ((addr:number, value:number) => {
       cb_addr  = addr;
       cb_value = value;
     });
+
+    machine.setGraphicDevice(graphicDevice);
     machine.loadProgram(program);
     machine.step();
     machine.step();

@@ -5,6 +5,7 @@ import VmCommand                                from './VmCommand';
 import { MouseDevice, NullMouseDevice }         from './MouseDevice';
 import { KeyboardDevice, NullKeyboardDevice }   from './KeyboardDevice';
 import { CharacterDevice, NullCharacterDevice } from './CharacterDevice';
+import { GraphicDevice, NullGraphicDevice }     from './GraphicDevice';
 
 // 設定定数。ただし、いじるとIOメモリの番号が変わるので、ソースコードが非互換になる。
 const FREE_AND_PROGRAM_SIZE = 40000;
@@ -46,6 +47,7 @@ export default class Machine {
   mouseDevice:      MouseDevice;
   keyboardDevice:   KeyboardDevice;
   characterDevice:  CharacterDevice;
+  graphicDevice:    GraphicDevice;
 
   constructor() {
     this.VRAM_BASE  = VRAM_BASE;
@@ -65,6 +67,7 @@ export default class Machine {
     this.mouseDevice     = new NullMouseDevice();
     this.keyboardDevice  = new NullKeyboardDevice();
     this.characterDevice = new NullCharacterDevice();
+    this.graphicDevice   = new NullGraphicDevice();
   }
 
   public push(v:number) {
@@ -462,15 +465,18 @@ export default class Machine {
   public setMemory(address:number, value:number) {
     this.memory[address] = value;
     if (VRAM_BASE <= address) {
-      this.vramListener(address - VRAM_BASE, value);
+      this.graphicDevice.write(address - VRAM_BASE, value);
     } else {
       switch (address) {
+        case 55000:
+          this.graphicDevice.vsync();
+          break;
+        case 55001:
+          break;
         case 55002:
           this.characterDevice.outDebug(value);
           break;
         default:
-          const name = OUTPUT_MAP[address];
-          this.onOutputListener(name, value);
           break;
       }
     }
@@ -541,5 +547,9 @@ export default class Machine {
 
   public setCharacterDevice(characterDevice:CharacterDevice) {
     this.characterDevice = characterDevice;
+  }
+
+  public setGraphicDevice(graphicDevice:GraphicDevice) {
+    this.graphicDevice = graphicDevice;
   }
 }
