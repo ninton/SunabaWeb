@@ -1,6 +1,7 @@
 import { sprintf } from 'sprintf-js';
 import Machine from './sunaba/Machine';
 import Compiler from './sunaba/Compiler';
+import MouseDeviceImpl from './MouseDeviceImpl';
 
 const SCREEN_WIDTH:number  = 100;
 const SCREEN_HEIGHT:number = 100;
@@ -82,6 +83,9 @@ machine.setMessageHandler((mesg:string) => {
   outputMessage(`${mesg}\n`);
 });
 
+const mouseDevice = new MouseDeviceImpl(canvas2);
+machine.setMouseDevice(mouseDevice);
+
 document.getElementById('runButton')!.onclick = () => {
   const code = (<HTMLInputElement>document.getElementById('code'))!.value;
 
@@ -121,7 +125,7 @@ const uiStatus:{[key:string]: number;} = {
 
 machine.setOnInputListener((name:string) => uiStatus[name]);
 
-
+/*
 canvas2.addEventListener('mousemove', (event:MouseEvent) => {
   uiStatus.mouse_x = Math.floor(event.offsetX / 4);
   uiStatus.mouse_y = Math.floor(event.offsetY / 4);
@@ -148,6 +152,7 @@ canvas2.addEventListener('mouseup', (event:MouseEvent) => {
     uiStatus.mouse_right = 0;
   }
 });
+*/
 
 const KEYCODE_NAME_MAP:{[key:number]: string} = {
   // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode#Value_of_keyCode

@@ -2,6 +2,7 @@
     no-unused-vars: 0
 */
 import VmCommand from './VmCommand';
+import { MouseDevice, NullMouseDevice } from './MouseDevice';
 
 // 設定定数。ただし、いじるとIOメモリの番号が変わるので、ソースコードが非互換になる。
 const FREE_AND_PROGRAM_SIZE = 40000;
@@ -55,6 +56,7 @@ export default class Machine {
   callCount:        number;
   isRunning:        boolean;
   onInputListener:  (name:string) => number;
+  mouseDevice:      MouseDevice;
 
   constructor() {
     this.VRAM_BASE  = VRAM_BASE;
@@ -73,6 +75,7 @@ export default class Machine {
     this.callCount = 0;
     this.isRunning = false;
     this.onInputListener = () => 0;
+    this.mouseDevice = new NullMouseDevice();
   }
 
   public push(v:number) {
@@ -478,6 +481,19 @@ export default class Machine {
   }
 
   public loadMemory(address:number): number {
+    switch (address) {
+      case 50000:
+        return this.mouseDevice.getPosX();
+      case 50001:
+        return this.mouseDevice.getPosY();
+      case 50002:
+        return this.mouseDevice.isLeftButtonDowned() ? 1 : 0;
+      case 50003:
+        return this.mouseDevice.isRightButtonDowned() ? 1 : 0;
+      default:
+        break;
+    }
+
     if (address in INPUT_MAP) {
       const name:string = INPUT_MAP[address];
       const value:number = this.onInputListener(name);
@@ -516,5 +532,9 @@ export default class Machine {
 
   public setOnOutputListener(fn: (name:string, value:number) => void) {
     this.onOutputListener = fn;
+  }
+
+  public setMouseDevice(mouseDevice:MouseDevice) {
+    this.mouseDevice = mouseDevice;
   }
 }
