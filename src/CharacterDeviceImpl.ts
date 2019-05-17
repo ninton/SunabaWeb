@@ -9,7 +9,7 @@ export default class CharacterDeviceImpl implements CharacterDevice {
   }
 
   outDebug(n: number): void {
-    this.print(`debug: ${n}\n`);
+    this.print(String.fromCharCode(n));
   }
 
   constructor(textarea:HTMLTextAreaElement) {
