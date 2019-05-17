@@ -50,13 +50,13 @@ dist/main.js も gitに入れてあります。
 
 ### 初期サンプル
 
-* PCのChromeやFireFoxで、./SunabaWeb/index.htmlを開いてください。
+* PCのChromeやFireFoxで、./index.htmlを開いてください。
 * [実行]ボタンをクリックしてください。
 * 画面中央に小さい白い■が表示されるはずです。
 
 ### 13章/12_完成.txt（テトリス風ゲーム）
 
-* ./samples/サンプル/13章/12_完成.txtをテキストエディターで開いてください。
+* https://raw.githubusercontent.com/hirasho/Sunaba/master/samples/%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB/13%E7%AB%A0/12_%E5%AE%8C%E6%88%90.txt
 * 内容をコピーして、画面中央のテキストエリアにペーストしてください。
 * [実行]ボタンをクリックしてください。
 * ブロックの固まりが落ちてきます。
@@ -66,7 +66,7 @@ dist/main.js も gitに入れてあります。
 
 ### リバーシサンプル
 
-* ./samples/サンプル/リバーシサンプル.txtをテキストエディターで開いてください。
+* https://raw.githubusercontent.com/hirasho/Sunaba/master/samples/%E3%83%AA%E3%83%90%E3%83%BC%E3%82%B7%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB/%E3%83%AA%E3%83%90%E3%83%BC%E3%82%B7%E3%81%8A%E6%89%8B%E6%9C%AC.txt
 * 内容をコピーして、画面中央のテキストエリアにペーストしてください。
 * [実行]ボタンをクリックしてください。
 * しらばくすると、緑のマス目が表示されます。
@@ -74,7 +74,7 @@ dist/main.js も gitに入れてあります。
 
 ### 三目並べ
 
-* ./samples/サンプル/リバーシお手本.txtをテキストエディターで開いてください。
+* https://raw.githubusercontent.com/hirasho/Sunaba/master/samples/%E3%83%AA%E3%83%90%E3%83%BC%E3%82%B7%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB/%E4%B8%89%E7%9B%AE%E4%B8%A6%E3%81%B9%E3%81%8A%E6%89%8B%E6%9C%AC.txt
 * 内容をコピーして、画面中央のテキストエリアにペーストしてください。
 * [実行]ボタンをクリックしてください。
 * しらばくすると、緑のマス目が表示されます。
