@@ -4,9 +4,10 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
-    "watch": "webpack -w"
+    "test": "npx mocha -u tdd --timeout 999999 --colors test test/sunaba",
+    "build": "npx webpack",
+    "watch": "npx webpack -w",
+    "lint": "npx esw \"src/**/**.ts\" \"test/**/**.ts\""
   },
   "author": "",
   "license": "ISC",
