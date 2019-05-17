@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "npx mocha -u tdd --timeout 999999 --colors test test/sunaba",
+    "test": "tsc -p tsconfig.json && npx mocha -u tdd --timeout 999999 --colors test test/sunaba",
     "build": "npx webpack",
     "watch": "npx webpack -w",
     "lint": "npx esw \"src/**/**.ts\" \"test/**/**.ts\""
