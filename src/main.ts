@@ -1,7 +1,8 @@
 import { sprintf } from 'sprintf-js';
-import Machine from './sunaba/Machine';
-import Compiler from './sunaba/Compiler';
-import MouseDeviceImpl from './MouseDeviceImpl';
+import Machine            from './sunaba/Machine';
+import Compiler           from './sunaba/Compiler';
+import MouseDeviceImpl    from './MouseDeviceImpl';
+import KeyboardDeviceImpl from './KeyboardDeviceImpl';
 
 const SCREEN_WIDTH:number  = 100;
 const SCREEN_HEIGHT:number = 100;
@@ -86,6 +87,10 @@ machine.setMessageHandler((mesg:string) => {
 const mouseDevice = new MouseDeviceImpl(canvas2);
 machine.setMouseDevice(mouseDevice);
 
+const keyboardDevice = new KeyboardDeviceImpl(window);
+machine.setKeyboardDevice(keyboardDevice);
+
+
 document.getElementById('runButton')!.onclick = () => {
   const code = (<HTMLInputElement>document.getElementById('code'))!.value;
 
@@ -109,75 +114,6 @@ document.getElementById('stopButton')!.onclick = () => {
 document.getElementById('clearButton')!.onclick = () => {
   (<HTMLInputElement>document.getElementById('message'))!.value = '';
 };
-
-const uiStatus:{[key:string]: number;} = {
-  mouse_x:    10,
-  mouse_y:    20,
-  mouse_left:  0,
-  mouse_right: 0,
-  key_up:      0,
-  key_down:    0,
-  key_left:    0,
-  key_right:   0,
-  key_space:   0,
-  key_enter:   0,
-};
-
-machine.setOnInputListener((name:string) => uiStatus[name]);
-
-/*
-canvas2.addEventListener('mousemove', (event:MouseEvent) => {
-  uiStatus.mouse_x = Math.floor(event.offsetX / 4);
-  uiStatus.mouse_y = Math.floor(event.offsetY / 4);
-});
-
-canvas2.addEventListener('mousedown', (event:MouseEvent) => {
-  uiStatus.mouse_x = Math.floor(event.offsetX / 4);
-  uiStatus.mouse_y = Math.floor(event.offsetY / 4);
-
-  if (event.button === 0) {
-    uiStatus.mouse_left = 1;
-  } else if (event.button === 2) {
-    uiStatus.mouse_right = 1;
-  }
-});
-
-canvas2.addEventListener('mouseup', (event:MouseEvent) => {
-  uiStatus.mouse_x = Math.floor(event.offsetX / 4);
-  uiStatus.mouse_y = Math.floor(event.offsetY / 4);
-
-  if (event.button === 0) {
-    uiStatus.mouse_left = 0;
-  } else if (event.button === 2) {
-    uiStatus.mouse_right = 0;
-  }
-});
-*/
-
-const KEYCODE_NAME_MAP:{[key:number]: string} = {
-  // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode#Value_of_keyCode
-  38: 'key_up',
-  40: 'key_down',
-  37: 'key_left',
-  39: 'key_right',
-  32: 'key_space',
-  13: 'key_enter',
-};
-
-window.addEventListener('keydown', (event:KeyboardEvent) => {
-  if (event.keyCode in KEYCODE_NAME_MAP) {
-    const name = KEYCODE_NAME_MAP[event.keyCode];
-    uiStatus[name] = 1;
-  }
-});
-
-window.addEventListener('keyup', (event:KeyboardEvent) => {
-  if (event.keyCode in KEYCODE_NAME_MAP) {
-    const name = KEYCODE_NAME_MAP[event.keyCode];
-    uiStatus[name] = 0;
-  }
-});
-
 
 // TODO: UIスライダーで調整できるようにしたい
 const INTERVAL_MILLSECONDS = 33;  // 16:速すぎ、33:まだ速い

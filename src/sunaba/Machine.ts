@@ -1,8 +1,9 @@
 /* eslint
     no-unused-vars: 0
 */
-import VmCommand from './VmCommand';
-import { MouseDevice, NullMouseDevice } from './MouseDevice';
+import VmCommand                              from './VmCommand';
+import { MouseDevice, NullMouseDevice }       from './MouseDevice';
+import { KeyboardDevice, NullKeyboardDevice } from './KeyboardDevice';
 
 // 設定定数。ただし、いじるとIOメモリの番号が変わるので、ソースコードが非互換になる。
 const FREE_AND_PROGRAM_SIZE = 40000;
@@ -28,19 +29,6 @@ const OUTPUT_MAP:{[key:number]: string;} = {
   55002: 'debug',
 };
 
-const INPUT_MAP:{[key:number]: string;} = {
-  50000: 'mouse_x',
-  50001: 'mouse_y',
-  50002: 'mouse_left',
-  50003: 'mouse_right',
-  50004: 'key_up',
-  50005: 'key_down',
-  50006: 'key_left',
-  50007: 'key_right',
-  50008: 'key_space',
-  50009: 'key_enter',
-};
-
 export default class Machine {
   VRAM_BASE:        number;
   STACK_BASE:       number;
@@ -55,8 +43,8 @@ export default class Machine {
   messageHandler:   (mesg:string) => void;
   callCount:        number;
   isRunning:        boolean;
-  onInputListener:  (name:string) => number;
   mouseDevice:      MouseDevice;
+  keyboardDevice:   KeyboardDevice;
 
   constructor() {
     this.VRAM_BASE  = VRAM_BASE;
@@ -74,8 +62,8 @@ export default class Machine {
     this.clearMemory();
     this.callCount = 0;
     this.isRunning = false;
-    this.onInputListener = () => 0;
-    this.mouseDevice = new NullMouseDevice();
+    this.mouseDevice    = new NullMouseDevice();
+    this.keyboardDevice = new NullKeyboardDevice();
   }
 
   public push(v:number) {
@@ -490,15 +478,24 @@ export default class Machine {
         return this.mouseDevice.isLeftButtonDowned() ? 1 : 0;
       case 50003:
         return this.mouseDevice.isRightButtonDowned() ? 1 : 0;
+
+      case 50004:
+        return this.keyboardDevice.isArrowUpKeyDowned() ? 1 : 0;
+      case 50005:
+        return this.keyboardDevice.isArrowDownDowned() ? 1 : 0;
+      case 50006:
+        return this.keyboardDevice.isArrowLeftDowned() ? 1 : 0;
+      case 50007:
+        return this.keyboardDevice.isArrowRightKeyDowned() ? 1 : 0;
+      case 50008:
+        return this.keyboardDevice.isSpaceKeyDowned() ? 1 : 0;
+      case 50009:
+        return this.keyboardDevice.isEnterKeyDowned() ? 1 : 0;
+
       default:
         break;
     }
 
-    if (address in INPUT_MAP) {
-      const name:string = INPUT_MAP[address];
-      const value:number = this.onInputListener(name);
-      return value;
-    }
     return this.memory[address];
   }
 
@@ -526,15 +523,15 @@ export default class Machine {
     this.messageHandler = messageHandler;
   }
 
-  public setOnInputListener(fn:(name:string) => number) {
-    this.onInputListener = fn;
-  }
-
   public setOnOutputListener(fn: (name:string, value:number) => void) {
     this.onOutputListener = fn;
   }
 
   public setMouseDevice(mouseDevice:MouseDevice) {
     this.mouseDevice = mouseDevice;
+  }
+
+  public setKeyboardDevice(keyboardDevice:KeyboardDevice) {
+    this.keyboardDevice = keyboardDevice;
   }
 }
