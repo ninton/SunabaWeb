@@ -36,10 +36,12 @@ export default class KeyboardDeviceImpl implements KeyboardDevice {
   constructor(window:Window) {
     window.addEventListener('keydown', (event:KeyboardEvent) => {
       this.setKeyDowned(event.keyCode, true);
+      this.dontScroll(event);
     });
 
     window.addEventListener('keyup', (event:KeyboardEvent) => {
       this.setKeyDowned(event.keyCode, false);
+      this.dontScroll(event);
     });
   }
 
@@ -65,10 +67,32 @@ export default class KeyboardDeviceImpl implements KeyboardDevice {
       case 40:
         this.arrowDownKeyDowned = downed;
         break;
+
       default:
         break;
     }
 
     // console.log(`${this.enterKeyDowned} ${this.spaceKeyDowned} ${this.arrowLeftKeyDowned} ${this.arrowUpKeyDowned} ${this.arrowRightKeyDowned} ${this.arrowDownKeyDowned}`);
+  }
+
+  dontScroll(event:KeyboardEvent): void {
+    // 上下左右キーで、スクロールしないようにする #3
+    if ((<HTMLElement>event.target!).tagName !== 'BODY') {
+      return;
+    }
+
+    switch (event.keyCode) {
+      case 13:
+      case 32:
+      case 37:
+      case 38:
+      case 39:
+      case 40:
+        event.preventDefault();
+        break;
+
+      default:
+        break;
+    }
   }
 }
