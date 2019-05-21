@@ -1,3 +1,5 @@
+/* eslint no-unused-vars: 0 */
+import { readFile } from 'fs';
 import Machine             from './sunaba/Machine';
 import Compiler            from './sunaba/Compiler';
 import MouseDeviceImpl     from './MouseDeviceImpl';
@@ -53,3 +55,60 @@ window.addEventListener('load', () => {
     machine.runSingleFrame(INTERVAL_MILLSECONDS - 2, MAX_STEP_COUNT_PER_FRAME);
   }, INTERVAL_MILLSECONDS);
 });
+
+(() => {
+  const elDrop:HTMLElement|null         = document.getElementById('code');
+  const elCode:HTMLTextAreaElement|null = <HTMLTextAreaElement>document.getElementById('code');
+
+  function showDropping() {
+    elDrop!.classList.add('dropover');
+  }
+
+  function hideDropping() {
+    elDrop!.classList.remove('dropover');
+  }
+
+  function findTextPlain(files:FileList): File|null {
+    for (let i = 0; i < files.length; i += 1) {
+      const file:File = files[i];
+      if (file.type === 'text/plain') {
+        return file;
+      }
+    }
+
+    return null;
+  }
+
+  function showText(file:File) {
+    const reader = new FileReader();
+
+    // TODO: event:Eventにして、test実行すると、
+    // testerror TS2339: Property 'result' does not exist on type 'EventTarget'.となってしまう
+    reader.onload = (event:any) => {
+			elCode!.value = event.target!.result;
+    };
+
+    reader.readAsText(file);
+  }
+
+  elDrop!.addEventListener('dragover', (event:DragEvent) => {
+    event.preventDefault();
+    /* eslint no-param-reassign: 0 */
+    event.dataTransfer!.dropEffect = 'copy';
+    showDropping();
+  });
+
+  elDrop!.addEventListener('dragleave', () => {
+    hideDropping();
+  });
+
+  elDrop!.addEventListener('drop', (event:DragEvent) => {
+    event.preventDefault();
+    hideDropping();
+
+    const file:File|null = findTextPlain(event.dataTransfer!.files);
+    if (file !== null) {
+      showText(file);
+    }
+  });
+})();
