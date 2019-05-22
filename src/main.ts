@@ -62,15 +62,15 @@ window.addEventListener('load', () => {
     const elDrop:HTMLElement|null         = document.getElementById('code');
     const elCode:HTMLTextAreaElement|null = <HTMLTextAreaElement>document.getElementById('code');
 
-    function showDropping() {
+    const showDropping = () => {
       elDrop!.classList.add('dropover');
-    }
+    };
 
-    function hideDropping() {
+    const hideDropping = () => {
       elDrop!.classList.remove('dropover');
-    }
+    };
 
-    function findTextPlain(files:FileList): File|null {
+    const findTextPlain = (files:FileList): File|null => {
       for (let i = 0; i < files.length; i += 1) {
         const file:File = files[i];
         if (file.type === 'text/plain') {
@@ -79,9 +79,9 @@ window.addEventListener('load', () => {
       }
 
       return null;
-    }
+    };
 
-    function readTextAndRun(file:File) {
+    const readTextAndRun = (file:File) => {
       const reader = new FileReader();
 
       // TODO: event:Eventにして、test実行すると、
@@ -92,7 +92,7 @@ window.addEventListener('load', () => {
       };
 
       reader.readAsText(file);
-    }
+    };
 
     elDrop!.addEventListener('dragover', (event:DragEvent) => {
       event.preventDefault();
