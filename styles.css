@@ -10,17 +10,3 @@
 	background-color: #cff;
 	color: #9cc;
 }
-
-#files:empty::before {
-	color: #ccc;
-	content: "(Files data will be shown here.)";
-}
-#files img {
-	border: solid 1px #ccc;
-	cursor: pointer;
-	height: auto;
-	margin: 0 10px;
-	max-height: 128px;
-	max-width: 128px;
-	width: auto;
-}
