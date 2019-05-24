@@ -538,10 +538,11 @@ export default class Machine {
     this.graphicDevice = graphicDevice;
   }
 
-  public runSingleFrame(maxTimeMilliSeconds:number, maxStepCount:number): void {
+  public runSingleFrame(maxTimeMilliSeconds:number, maxStepCount:number): number {
     const t0_ms:number = (new Date()).getTime();
 
-    for (let i = 0; i < maxStepCount; i += 1) {
+    let i = 0;
+    for (i = 0; i < maxStepCount; i += 1) {
       this.step();
       if (this.waitSync) {
         break;
@@ -558,5 +559,7 @@ export default class Machine {
       this.graphicDevice.vsync();
       this.waitSync = false;
     }
+
+    return i;
   }
 }
