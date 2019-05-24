@@ -53,10 +53,24 @@ window.addEventListener('load', () => {
   // TODO: UIスライダーで調整できるようにしたい
   const INTERVAL_MILLSECONDS = 33;  // 16:速すぎ、33:まだ速い
   const MAX_STEP_COUNT_PER_FRAME = 1000;
+  let frame_counter = 0;
 
   window.setInterval(() => {
     machine.runSingleFrame(INTERVAL_MILLSECONDS - 2, MAX_STEP_COUNT_PER_FRAME);
+    frame_counter += 1;
   }, INTERVAL_MILLSECONDS);
+
+  const showFps = (fps:number) => {
+    const el:HTMLInputElement|null = <HTMLInputElement>document.getElementById('fps');
+    if (el !== null) {
+      el.value = fps.toString();
+    }
+  };
+
+  window.setInterval(() => {
+    showFps(frame_counter);
+    frame_counter = 0;
+  }, 1000);
 
   (() => {
     const elDrop:HTMLElement|null         = document.getElementById('code');
