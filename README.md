@@ -1,12 +1,15 @@
 SunabaWeb
 ======
 
-SunabaWebだけをTypeScriptで開発しました。
+SunabaWebをTypeScriptで開発しました。
 
-* オリジナル
+* github page  
+https://ninton.github.io/SunabaWeb/
+
+* 平山氏オリジナル版  
 https://github.com/hirasho/Sunaba
 
-* プログラムはこうして作られるプログラマの頭の中をのぞいてみよう-平山尚
+* プログラムはこうして作られるプログラマの頭の中をのぞいてみよう-平山尚  
 https://www.amazon.co.jp/dp/479803925X
 
 
