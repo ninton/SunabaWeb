@@ -1,5 +1,6 @@
 output/
 node_modules/
-src/**/**.js
-test/**/**.js
+src/*.js
+src/**/*.js
+test/**/*.js
 *.js.map
